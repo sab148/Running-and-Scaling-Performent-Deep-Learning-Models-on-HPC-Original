@@ -15,26 +15,17 @@
     .reveal .sourceCode {  /* see #7635 */
       overflow: visible;
     }
-    /* Default styles provided by pandoc.
-    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
-       override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
+    ul.task-list{list-style: none;}
     ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
       width: 0.8em;
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
-    /* CSS for syntax highlighting */
-    html { -webkit-text-size-adjust: 100%; }
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -98,6 +89,7 @@
     code span.va { color: #19177c; } /* Variable */
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="./dist/theme/sky.css" id="theme">
   <style>
@@ -308,45 +300,45 @@ data-src="images/Logo_FZ_Juelich_rgb_Schutzzone_transparent.svg" /></p>
 <h3 id="schedule-for-day-1">Schedule for day 1</h3>
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th>Time</th>
 <th>Title</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>13:00 - 13:15</td>
 <td>Welcome</td>
 </tr>
-<tr>
+<tr class="even">
 <td>13:15 - 14:00</td>
 <td>Introduction</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>14:00 - 14:15</td>
 <td>Coffee break</td>
 </tr>
-<tr>
+<tr class="even">
 <td>14:16 - 14:30</td>
 <td>Judoor, Keys</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>14:30 - 15:00</td>
 <td>SSH, Jupyter, VS Code</td>
 </tr>
-<tr>
+<tr class="even">
 <td>15:00 - 15:15</td>
 <td>Coffee Break</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>15:15 - 16:00</td>
 <td>Running services on the login and compute nodes</td>
 </tr>
-<tr>
+<tr class="even">
 <td>16:00 - 16:15</td>
 <td>Coffee Break</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>16:30 - 17:00</td>
 <td>Sync (everyone should be at the same point)</td>
 </tr>
@@ -682,7 +674,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="
 <div class="sourceCode" id="cb5"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Host</span> jureca</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>        <span class="ex">HostName</span> jureca.fz-juelich.de</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="ex">User</span> <span class="pp">[</span><span class="ss">MY_USERNAME</span><span class="pp">]</span>   <span class="co"># Here goes your username, not the word MY_USERNAME.</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="ex">User</span> [MY_USERNAME]   <span class="co"># Here goes your username, not the word MY_USERNAME.</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        <span class="ex">AddressFamily</span> inet</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        <span class="ex">IdentityFile</span> ~/.ssh/id_ed25519-JSC</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        <span class="ex">MACs</span> hmac-sha2-512-etm@openssh.com</span></code></pre></div>
@@ -1189,7 +1181,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href=
 <span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="va">sentencepiece</span><span class="op">=</span>=0.2.0</span>
 <span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="va">datasets</span><span class="op">=</span>=3.6.0</span>
 <span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="va">fsspec</span><span class="op">=</span>=2025.2.0.<span class="pp">*</span></span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="va">torch</span><span class="op">=</span>=2.5.1</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="va">torch</span><span class="op">=</span>=2.8</span>
 <span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="ex">torchrun_jsc</span><span class="op">&gt;</span>=0.0.15</span></code></pre></div></li>
 <li class="fragment"><p>Run on the terminal:
 <code>sc_venv_template/setup.sh</code></p></li>
