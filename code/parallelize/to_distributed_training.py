@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 
 from dataset import LanguageModelingDataset, build_vocab
 from transformerLM import TransformerLM, ModelArgs
+from profiler import ProfilerSection, ExecutionTimer
 ## TODO 1: Import distributed_utils to use the utility methods available in it.
 
 
