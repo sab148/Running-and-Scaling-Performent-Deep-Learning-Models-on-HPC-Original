@@ -64,7 +64,7 @@ def main(args):
 
     # Initialize a communication group and return the right identifiers.
     local_rank, rank, device, world_size = setup()
-
+    
     # Build vocab from training data
     vocab, stoi, itos = build_vocab('train')
 
