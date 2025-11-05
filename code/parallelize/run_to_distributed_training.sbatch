@@ -54,8 +54,20 @@ if [ "$PROFILE" = true ]; then
     echo "Running with NSYS profiling..."
 
     mkdir -p nsys_logs
-    chmod +x nsys-python 
-    srun --cpu_bind=none bash -c "./nsys-python to_distributed_training.py"
+    srun --cpu_bind=none bash -c "nsys profile \
+            --duration=5 \
+            --delay=250 \
+            --gpu-metrics-device=all \
+            --nic-metrics=true \
+            --stop-on-exit=false \
+            --trace=nvtx,cuda,osrt \
+            --python-sampling=true \
+            --python-sampling-frequency=1 \
+            --output=nsys_logs/nsys_logs_rank_${RANK} \
+            --cuda-memory-usage=true \
+            --force-overwrite=true \
+            --python-functions-trace=config/profiling.json \
+            python to_distributed_training.py --profile"
 
 else
     echo "Running without profiling..."
