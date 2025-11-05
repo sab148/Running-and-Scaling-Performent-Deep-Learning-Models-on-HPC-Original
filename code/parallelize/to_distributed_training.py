@@ -145,7 +145,7 @@ def main(args):
 if __name__ == '__main__':
     # Training settings
     parser = argparse.ArgumentParser(description='Single GPU Training')
-    parser.add_argument('--batch-size', type=int, default=128,
+    parser.add_argument('--batch-size', type=int, default=512,
                         help='input batch size ')
     parser.add_argument('--epochs', type=int, default=10,
                         help='number of epochs to train (default: 3)')
