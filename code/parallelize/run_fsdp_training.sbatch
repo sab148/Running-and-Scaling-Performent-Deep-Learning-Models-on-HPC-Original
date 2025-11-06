@@ -2,7 +2,7 @@
 #SBATCH --nodes=2
 #SBATCH --gres=gpu:4  
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=128
 #SBATCH --account=atmlaml
 #SBATCH --partition=dc-gpu
 #SBATCH --time=03:00:00
