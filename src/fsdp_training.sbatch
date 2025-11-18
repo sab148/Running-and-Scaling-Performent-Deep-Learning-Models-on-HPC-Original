@@ -1,17 +1,18 @@
 #!/bin/bash
-#SBATCH --nodes=1
+#SBATCH --nodes=2
 #SBATCH --gres=gpu:4  
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=128
 #SBATCH --account=atmlaml
-#SBATCH --partition=dc-gpu
-#SBATCH --time=00:30:00
-#SBATCH --output=%j.out
-#SBATCH --error=%j.err
+#SBATCH --partition=dc-gpu-devel
+#SBATCH --time=00:10:00
+#SBATCH --output=./slurm_report/%j.out
+#SBATCH --error=./slurm_report/%j.err
+
+
 
 # Export the necessary environment variables for huggingface offline mode
 export HF_DATASETS_OFFLINE=1
-
 # Get number of cpu per task
 export SRUN_CPUS_PER_TASK="$SLURM_CPUS_PER_TASK"
 export CUDA_VISIBLE_DEVICES=0,1,2,3
@@ -55,7 +56,7 @@ if [ "$PROFILE" = true ]; then
         --nproc_per_node=gpu \
         --rdzv_id $RANDOM \
         --rdzv_endpoint=$MASTER_ADDR:$MASTER_PORT \
-        --no-python ./run_profile.sh ddp_training.py --profile
+        --no-python ./run_profile.sh fsdp_training.py --profile
 
 else
     echo "Running without profiling..."
@@ -65,5 +66,5 @@ else
         --nproc_per_node=gpu \
         --rdzv_id $RANDOM \
         --rdzv_endpoint=$MASTER_ADDR:$MASTER_PORT \
-        ddp_training.py
+        fsdp_training.py
 fi

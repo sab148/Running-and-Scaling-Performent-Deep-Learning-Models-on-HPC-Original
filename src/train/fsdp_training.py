@@ -6,11 +6,10 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from dataset import LanguageModelingDataset, build_vocab
-from transformerLM import TransformerLM, ModelArgs
-# This file contains utility_functions for distributed training.
-from distributed_utils import *
-from training_loop_profile import train_model_profile
+from dataset.dataset import LanguageModelingDataset, build_vocab
+from model.transformerLM import TransformerLM, ModelArgs
+from profiler.training_loop_profile import train_model_profile
+from utils.distributed_utils import *
 
 def train_model(model, train_loader, vocab, optimizer, loss_func, device):
     """

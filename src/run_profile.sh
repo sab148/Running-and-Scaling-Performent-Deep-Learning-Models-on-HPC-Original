@@ -15,6 +15,6 @@ nsys profile \
     --python-sampling-frequency=1 \
     --cuda-memory-usage=true \
     --force-overwrite=true \
-    --python-functions-trace=config/profiling.json \
+    --python-functions-trace=profiler/config/profiling.json \
     --output=nsys_logs/nsys_logs_rank_${RANK} \
     python -u "$SCRIPT_NAME" "$@"

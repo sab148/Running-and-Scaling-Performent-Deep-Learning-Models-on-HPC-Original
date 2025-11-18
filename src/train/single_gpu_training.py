@@ -1,4 +1,11 @@
 import os
+import sys
+
+# Add parent directory to path
+#current_dir = os.path.dirname(os.path.abspath(__file__))
+#parent_dir = os.path.dirname(os.path.dirname(current_dir))
+#sys.path.insert(0, parent_dir)
+
 import argparse
 
 import torch
@@ -6,10 +13,10 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from dataset import LanguageModelingDataset, build_vocab
-from transformerLM import TransformerLM, ModelArgs
-from profiler import ProfilerSection, ExecutionTimer
-from training_loop_profile import train_model_profile
+from dataset.dataset import LanguageModelingDataset, build_vocab
+from model.transformerLM import TransformerLM, ModelArgs
+from utils.profiler_utils import ProfilerSection, ExecutionTimer
+from profiler.training_loop_profile import train_model_profile
 ## TODO 1: Import distributed_utils to use the utility methods available in it.
 
 
