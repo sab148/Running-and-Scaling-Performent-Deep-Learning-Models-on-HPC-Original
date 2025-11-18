@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from typing import Optional, Tuple
 
 from torch.distributed.tensor import DTensor
-from distributed_utils import *
+from utils.distributed_utils import *
 
 @dataclass
 class ModelArgs:

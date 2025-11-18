@@ -4,10 +4,10 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=32
 #SBATCH --account=atmlaml
-#SBATCH --partition=dc-gpu
-#SBATCH --time=03:00:00
-#SBATCH --output=%j.out
-#SBATCH --error=%j.err
+#SBATCH --partition=dc-gpu-devel
+#SBATCH --time=00:10:00
+#SBATCH --output=./slurm_report/%j.out
+#SBATCH --error=./slurm_report/%j.err
 
 
 
@@ -38,6 +38,9 @@ source /p/scratch/atmlaml/HPC-Supporters-Course/sc_venv_template_HPC_supporter_c
 # --rdzv_conf=is_host=$(if ((SLURM_NODEID)); then echo 0; else echo 1; fi) that configures whether the node is the rendezvous host based on its SLURM ID
 # train.py that runs the training script using the specified distributed setup
 
+#export PYTHONPATH="/p/home/jusers/kasravi1/shared/course/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC:${PYTHONPATH}"
+#export PYTHONPATH="$(cd ../.. && pwd):${PYTHONPATH}"
+
 PROFILE=false
 
 # Parse args
@@ -54,9 +57,9 @@ if [ "$PROFILE" = true ]; then
     echo "Running with NSYS profiling..."
 
     mkdir -p nsys_logs
-    srun ./run_profile.sh to_distributed_training.py --profile
+    srun ./run_profile.sh train/single_gpu_training.py --profile
 
 else
     echo "Running without profiling..."
-    srun --cpu_bind=none python to_distributed_training.py
+    srun --cpu_bind=none python train/single_gpu_training.py
 fi

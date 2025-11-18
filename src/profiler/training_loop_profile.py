@@ -1,7 +1,7 @@
 import os
 import torch
 import torch.nn as nn
-from profiler import ProfilerSection, ExecutionTimer
+from utils.profiler_utils import ProfilerSection, ExecutionTimer
 
 def train_model_profile(model, train_loader, vocab, optimizer, loss_func, device):
     """

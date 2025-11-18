@@ -37,3 +37,7 @@ code/sc_venv_template
 code/parallelize/data/*
 participants-list.txt
 registrations.csv
+*.out
+*.err
+*.nsys-rep
+*.pt
