@@ -7,11 +7,13 @@ import sys
 #sys.path.insert(0, parent_dir)
 
 import argparse
+import wandb
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 
 from dataset.dataset import LanguageModelingDataset, build_vocab
 from model.transformerLM import TransformerLM, ModelArgs
@@ -122,6 +124,18 @@ def main(args):
     
     best_val_loss = float("inf")
 
+    # Set up TensorBoard logging
+    ## TODO 12: Allow only the process with rank 0 to log to TensorBoard.
+    writer = SummaryWriter("tensorboard_logs")
+
+    # # Initialize Weights & Biases
+    # wandb.init(project="wandb_distributed_training",
+    #             name=f"single_gpu_training_run",
+    #             reinit=True)
+    # wandb.config.update({"learning_rate": args.lr,
+    #                     "epochs": args.epochs,
+    #                     "batch_size": args.batch_size})
+
     # Train the model
     for epoch in range(args.epochs):
         ## TODO 9: Sets the current epoch for the dataset sampler to ensure proper data shuffling in each epoch
@@ -142,11 +156,18 @@ def main(args):
         print(f'[{epoch+1}/{args.epochs}] Train loss: {train_loss:.5f}, Validation loss: {val_loss:.5f}') 
         print(f'[{epoch+1}/{args.epochs}] Epoch_Time (Training): {train_epoch_time:.5f}') 
 
+        ## TODO 12: Allow only the process with rank 0 to log to TensorBoard.
+        # Log metrics to TensorBoard and Weights & Biases
+        writer.add_scalar('Loss/train', train_loss, epoch)
+        writer.add_scalar('Loss/val', val_loss, epoch)
+
+        wandb.log({"Loss/Train": train_loss, "Loss/Validation": val_loss, "Epoch": epoch})
+
         if val_loss < best_val_loss:
             best_val_loss = val_loss
 
-            ## TODO 18: Replace save0 method by either save_full_model or save_sharded_model to save the full model state or the sharded model state respectively.
-            ## TODO 12: Replace torch.save method with the utility function save0 to save the model.
+            ## TODO 19: Replace save0 method by either save_full_model or save_sharded_model to save the full model state or the sharded model state respectively.
+            ## TODO 13: Replace torch.save method with the utility function save0 to save the model.
             torch.save(model, 'model_best.pt')
 
     
@@ -154,11 +175,14 @@ def main(args):
     ## TODO 11: Replace print by print0 to print messages once.
     print('Final test loss:', test_loss.item()) 
 
-    ## TODO 18: Replace save0 method by either save_full_model or save_sharded_model to save the full model state or the sharded model state respectively.
-    ## TODO 12: Replace torch.save method with the utility function save0 to save the model.
+    ## TODO 19: Replace save0 method by either save_full_model or save_sharded_model to save the full model state or the sharded model state respectively.
+    ## TODO 13: Replace torch.save method with the utility function save0 to save the model.
     torch.save(model, 'model-final.pt')
 
-    ## TODO 13: Call the utility function destroy_process_group() to clean up the distributed environment.
+    # Close the TensorBoard writer
+    writer.close()
+
+    ## TODO 14: Call the utility function destroy_process_group() to clean up the distributed environment.
 
 
 

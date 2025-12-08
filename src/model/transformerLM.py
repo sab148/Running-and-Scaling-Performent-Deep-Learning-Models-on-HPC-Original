@@ -1,20 +1,19 @@
 import math
 import copy
+import warnings
+from dataclasses import dataclass
+from typing import Optional, Tuple
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import ModuleList
 from torch import Tensor
-
-import warnings
-from typing import Optional
-
 import torch.jit  # this is needed to avoid a circular import
-from dataclasses import dataclass
-from typing import Optional, Tuple
-
 from torch.distributed.tensor import DTensor
+
+import lightning as L
+
 from utils.distributed_utils import *
 
 @dataclass
@@ -256,3 +255,38 @@ class TransformerLM(nn.Module):
         x = self.fc(x)
         return x
 
+
+class LitTransformerLM(L.LightningModule):
+    def __init__(self, model_args, lr=1e-4):
+        super().__init__()
+        self.model = TransformerLM(model_args)
+        self.lr = lr
+        self.criterion = nn.CrossEntropyLoss()
+
+    def forward(self, x):
+        return self.model(x)
+
+    def training_step(self, batch, batch_idx):
+        inputs, targets = batch
+        outputs = self(inputs)
+        loss = self.criterion(outputs.view(-1, outputs.size(-1)), targets.t().contiguous().view(-1))
+        self.log('train_loss', loss, sync_dist=True)
+        return loss
+
+    def validation_step(self, batch, batch_idx):
+        inputs, targets = batch
+        outputs = self(inputs)
+        loss = self.criterion(outputs.view(-1, outputs.size(-1)), targets.t().contiguous().view(-1))
+        self.log('val_loss', loss, sync_dist=True)
+        return loss
+
+    def test_step(self, batch, batch_idx):
+        inputs, targets = batch
+        outputs = self(inputs)
+        loss = self.criterion(outputs.view(-1, outputs.size(-1)), targets.t().contiguous().view(-1))
+        self.log('test_loss', loss, sync_dist=True)
+        return loss
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+        return optimizer

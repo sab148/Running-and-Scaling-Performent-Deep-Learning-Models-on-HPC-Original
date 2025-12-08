@@ -1,10 +1,14 @@
 import os
 import argparse
 import time
+import wandb
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
+
 
 from dataset.dataset import LanguageModelingDataset, build_vocab
 from model.transformerLM import TransformerLM, ModelArgs
@@ -119,6 +123,20 @@ def main(args):
     
     best_val_loss = float("inf")
 
+    
+    if is_root_process():
+        # Set up TensorBoard logging
+    #     writer = SummaryWriter("tensorboard_logs")
+
+        # Initialize Weights & Biases
+        wandb.init(project="wandb_distributed_training",
+                name=f"ddp_training_run_rank_{rank}",
+                reinit=True)
+
+        wandb.config.update({"learning_rate": args.lr,
+                            "epochs": args.epochs,
+                            "batch_size": args.batch_size})
+
     # Train the model
     for epoch in range(args.epochs):
         # Pass the current epoch to the sampler to ensure proper data shuffling in each epoch
@@ -136,6 +154,13 @@ def main(args):
         print0(f'[{epoch+1}/{args.epochs}] Train loss: {train_loss:.5f}, Validation loss: {val_loss:.5f}') 
         print0(f'[{epoch+1}/{args.epochs}] Epoch_Time (Training): {train_epoch_time:.5f}') 
 
+        if is_root_process():
+            # Log metrics to TensorBoard and Weights & Biases
+        #     writer.add_scalar('Loss/Train', train_loss, epoch)
+        #     writer.add_scalar('Loss/Validation', val_loss, epoch)
+            wandb.log({"Loss/Train": train_loss, "Loss/Validation": val_loss, "Epoch": epoch})
+
+          
         if val_loss < best_val_loss:
             best_val_loss = val_loss
 
@@ -151,6 +176,9 @@ def main(args):
     ## TODO 18: Replace save0 method by either save_full_model or save_sharded_model to save the full model state or the sharded model state respectively.
     # We allow only rank=0 to save the model
     save0(model, 'model_final.pt')
+
+    # Close the TensorBoard writer
+    writer.close()
 
     # Destroy the process group to clean up resources
     destroy_process_group()
