@@ -41,4 +41,25 @@ source /p/scratch/atmlaml/HPC-Supporters-Course/sc_venv_template_HPC_supporter_c
 #export PYTHONPATH="/p/home/jusers/kasravi1/shared/course/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC:${PYTHONPATH}"
 export PYTHONPATH="${PYTHONPATH}:$(pwd)"
 
-srun --cpu_bind=none python train/single_gpu_training.py
+PROFILE=false
+
+# Parse args
+for arg in "$@"; do
+    case $arg in
+        --profile)
+            PROFILE=true
+            shift
+            ;;
+    esac
+done
+
+if [ "$PROFILE" = true ]; then
+    echo "Running with NSYS profiling..."
+
+    mkdir -p nsys_logs
+    srun ./run_profile.sh train/single_gpu_training.py --profile
+
+else
+    echo "Running without profiling..."
+    srun --cpu_bind=none python train/single_gpu_training.py
+fi
