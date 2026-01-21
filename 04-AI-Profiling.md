@@ -1,7 +1,8 @@
 ---
-author: Javad Kasravi
-title: AI Profiling
-date: February 10, 2026
+author: Alexandre Strube // Sabrina Benassou // Javad Kasravi
+title: Bringing Deep Learning Workloads to JSC supercomputers
+subtitle: AI Profiling
+date: September 16, 2025
 ---
 <style>
 .reveal h3 {
