@@ -157,7 +157,7 @@ Let's have a look at the files **```train/single_gpu_training.py```** and **```s
 
 - We are still using **1 GPU**
 
-- ![](images/llview_gpu_2.png)
+![](images/llview_gpu_2.png)
 
 ---
 
@@ -461,7 +461,7 @@ def setup():
 
 - **TODO 9**💻📝:
 
-    - At line 130, **set** the current epoch for the dataset sampler to ensure proper data shuffling in each epoch
+    - At line 129, **set** the current epoch for the dataset sampler to ensure proper data shuffling in each epoch
 
         ```python
         # Pass the current epoch to the sampler to ensure proper data shuffling in each epoch
@@ -489,14 +489,14 @@ def setup():
 
     - **Replace** all the ```print``` methods by **```print0```** method defined in **```distributed_utils.py```** to allow only rank 0 to print in the output file.
     
-    - At **line 136** 
+    - At **line 135** 
 
         ```python
         # We use the utility function print0 to print messages only from rank 0.
         print0(f'[{epoch+1}/{args.epochs}] Train loss: {train_loss:.5f}, validation loss: {val_loss:.5f}')
         ```
 
-    - At **line 151**
+    - At **line 150**
     
         ```python
         # We use the utility function print0 to print messages only from rank 0.
@@ -528,7 +528,7 @@ def print0(*args, **kwargs):
 
 - **TODO 12**💻📝:
 
-    - At **lines 146 and 155**, replace torch.save method with the utility function save0 to allow only the process with rank 0 to save the model.
+    - At **lines 145 and 154**, replace torch.save method with the utility function save0 to allow only the process with rank 0 to save the model.
  
         ```python 
         # We allow only rank=0 to save the model
@@ -568,7 +568,7 @@ def save0(*args, **kwargs):
 
 - **TODO 13**💻📝:
 
-    - At **line 161**, destroy every process group and backend by calling destroy_process_group() 
+    - At **line 160**, destroy every process group and backend by calling destroy_process_group() 
 
         ```python 
         # Destroy the process group to clean up resources
