@@ -304,8 +304,8 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="
 node.</li>
 <li class="fragment">Therefore, you should:
 <ul>
-<li class="fragment"><p><strong>Comment out</strong> lines 78
-<strong>to</strong> 153.</p></li>
+<li class="fragment"><p><strong>Comment out</strong> lines 77
+<strong>to</strong> 152.</p></li>
 <li class="fragment"><p>Activate your environment:</p>
 <div class="sourceCode" id="cb3"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> ./sc_venv_template_HPC_supporter_course/activate.sh</span></code></pre></div></li>
@@ -313,7 +313,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="
 <div class="sourceCode" id="cb4"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> train/single_gpu_training.py</span></code></pre></div></li>
 <li class="fragment"><p><strong>Uncomment back</strong> lines
-78-153.</p></li>
+77-152.</p></li>
 <li class="fragment"><p>Finally, run your job again 🚀:</p>
 <div class="sourceCode" id="cb5"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> single_gpu_training.sbatch</span></code></pre></div></li>
@@ -552,7 +552,7 @@ GPUs.</li>
 <li class="fragment"><strong>TODOs</strong>💻📝:
 <ol type="1">
 <li class="fragment"><p>Import
-<strong><code>distributed_utils</code></strong> file at line 12:</p>
+<strong><code>distributed_utils</code></strong> file at line 11:</p>
 <div class="sourceCode" id="cb8"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This file contains utility_functions for distributed training.</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> utils.distributed_utils <span class="im">import</span> <span class="op">*</span></span></code></pre></div></li>
@@ -952,6 +952,17 @@ data-src="images/llview_gpu_8.png" /></p></li>
 </section>
 <section id="amazing" class="slide level2">
 <h2>Amazing ✨</h2>
+</section>
+<section id="ddp-with-pytorch-lightning-pl" class="slide level2">
+<h2>DDP with PYTORCH LIGHTNING (PL)</h2>
+<p>To use DDP with PL, we need to make some changes to the model code
+and the sbatch file, and create a new main file. You can find all these
+changes in:</p>
+<ul>
+<li class="fragment"><code>model/transformerLM.py</code></li>
+<li class="fragment"><code>train/Lit_training.py</code></li>
+<li class="fragment"><code>Lit_training.sbatch</code></li>
+</ul>
 </section>
 <section id="before-we-go-further" class="slide level2">
 <h2>Before we go further…</h2>
@@ -1480,8 +1491,7 @@ data-src="images/model-parallel-pipeline-9-multibatch.svg" /></p>
 <li class="fragment">Actually, you split the input minibatch into
 multiple microbatches.</li>
 <li class="fragment">There’s still idle time - an unavoidable “bubble”
-🫧</li>
-<li class="fragment"><img data-src="images/pipe.png" /></li>
+🫧 <img data-src="images/pipe.png" /></li>
 </ul>
 </section>
 <section id="model-parallel---multi-node" class="slide level2">

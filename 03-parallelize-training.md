@@ -66,7 +66,7 @@ Let's have a look at the files **```train/single_gpu_training.py```** and **```s
 
 - Remember, there is no internet on the compute node.
 - Therefore, you should:
-    - **Comment out** lines 78 **to** 153.
+    - **Comment out** lines 77 **to** 152.
     - Activate your environment:
 
         ```bash
@@ -79,7 +79,7 @@ Let's have a look at the files **```train/single_gpu_training.py```** and **```s
         python train/single_gpu_training.py
         ```
 
-    - **Uncomment back** lines 78-153.
+    - **Uncomment back** lines 77-152.
     - Finally, run your job again 🚀:
 
         ```bash
@@ -336,7 +336,7 @@ If you're scaling DDP to use multiple nodes, the underlying principle remains th
 - We need to setup a communication among the GPUs. 
 - For that we would need the file **```distributed_utils.py```**.
 - **TODOs**💻📝:
-    1. Import **```distributed_utils```** file at line 12:
+    1. Import **```distributed_utils```** file at line 11:
         
         ```python 
         # This file contains utility_functions for distributed training.
@@ -741,6 +741,16 @@ We are not done yet with **```single_gpu_training.sbatch```** file:
 ---
 
 ## Amazing ✨
+
+---
+
+## DDP with PYTORCH LIGHTNING (PL)
+
+To use DDP with PL, we need to make some changes to the model code and the sbatch file, and create a new main file. You can find all these changes in:
+
+- `model/transformerLM.py`
+- `train/Lit_training.py`
+- `Lit_training.sbatch`
 
 ---
 
@@ -1303,7 +1313,7 @@ def save_sharded_model(model, optimizer=None, CHECKPOINT_DIR='checkpoints'):
 
 - Actually, you split the input minibatch into multiple microbatches.
 - There's still idle time - an unavoidable "bubble" 🫧
-- ![](images/pipe.png)
+![](images/pipe.png)
 
 ---
 
