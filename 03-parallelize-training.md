@@ -1162,6 +1162,56 @@ def save_sharded_model(model, optimizer=None, CHECKPOINT_DIR='checkpoints'):
 - However, FSDP relies on frequent communication between GPUs, so it requires a high-bandwidth interconnect (e.g., InfiniBand).
 - On bandwidth-limited clusters, FSDP may become a bottleneck, and pipeline parallelism might be preferable.
 
+## DDP/FSDP with Hugging Face (HF)
+
+The HF `Trainer` offers a high level of abstraction with minimal boilerplate.
+The following example fine-tunes a text classification model using HF:
+
+- `train/hf_training.py`
+- `hf_training.sbatch`
+
+## HF Ecosystem
+
+HF is an end-to-end ML ecosystem, not only a model library.
+
+- **Hub**: discover, version, and share models and datasets.
+- **[Datasets](https://huggingface.co/docs/datasets/index)**: scalable data loading, preprocessing, and caching.
+- **Training stack**: [`Trainer`](https://huggingface.co/docs/transformers/main_classes/trainer), [`Accelerate`](https://huggingface.co/docs/accelerate/index), and integrations for distributed training.
+- **Reproducibility**: [model cards](https://huggingface.co/docs/hub/model-cards), dataset versions, and shareable configs.
+- Download the models and datasets we need.
+
+```bash
+hf download imdb --repo-type dataset
+hf download gpt2
+```
+
+- Model and dataset loading:
+```python
+# AutoModel* classes support different downstream tasks
+model = AutoModelForSequenceClassification.from_pretrained(<name>)
+dataset = load_dataset(<name>)
+```
+
+## DDP/FSDP Training
+
+Everything is configured through `TrainingArguments`.
+
+```python
+trainer = Trainer(
+    model=model,
+    args=TrainingArguments(
+        num_train_epochs=3,
+        learning_rate=2e-5,
+        ...
+    ),
+    train_dataset=dataset,
+    ...
+)
+trainer.train()
+```
+
+Check out more examples in our [HF recipe](https://sdlaml.pages.jsc.fz-juelich.de/ai/recipes/llm_hf/).
+
 ---
 
 ## That's it for FSDP, now let's move to another parallelization technique.
