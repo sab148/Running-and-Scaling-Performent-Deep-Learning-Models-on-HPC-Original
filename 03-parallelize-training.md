@@ -9,7 +9,7 @@ date: February 11th, 2026
 - If you have not done it already, clone the following repo:
 
     ```bash
-    git clone https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC.git
+    git clone --depth 1 https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC.git
     ```
 
 ---
