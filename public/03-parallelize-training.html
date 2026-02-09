@@ -232,10 +232,7 @@
 <li class="fragment"><p>If you have not done it already, clone the
 following repo:</p>
 <div class="sourceCode" id="cb1"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone <span class="at">--depth</span> 1 https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC.git</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> train</span></code></pre></div></li>
-<li class="fragment"><p>You can have a look at the file
-<code>single_gpu_training.py</code></p></li>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone <span class="at">--depth</span> 1 https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC.git</span></code></pre></div></li>
 </ul>
 </section>
 <section id="what-this-code-does" class="slide level2">
@@ -1365,6 +1362,65 @@ InfiniBand).</li>
 <li class="fragment">On bandwidth-limited clusters, FSDP may become a
 bottleneck, and pipeline parallelism might be preferable.</li>
 </ul>
+</section>
+<section id="ddpfsdp-with-hugging-face-hf" class="slide level2">
+<h2>DDP/FSDP with Hugging Face (HF)</h2>
+<p>The HF <code>Trainer</code> offers a high level of abstraction with
+minimal boilerplate. The following example fine-tunes a text
+classification model using HF:</p>
+<ul>
+<li class="fragment"><code>train/hf_training.py</code></li>
+<li class="fragment"><code>hf_training.sbatch</code></li>
+</ul>
+</section>
+<section id="hf-ecosystem" class="slide level2">
+<h2>HF Ecosystem</h2>
+<p>HF is an end-to-end ML ecosystem, not only a model library.</p>
+<ul>
+<li class="fragment"><strong>Hub</strong>: discover, version, and share
+models and datasets.</li>
+<li class="fragment"><strong><a
+href="https://huggingface.co/docs/datasets/index">Datasets</a></strong>:
+scalable data loading, preprocessing, and caching.</li>
+<li class="fragment"><strong>Training stack</strong>: <a
+href="https://huggingface.co/docs/transformers/main_classes/trainer"><code>Trainer</code></a>,
+<a
+href="https://huggingface.co/docs/accelerate/index"><code>Accelerate</code></a>,
+and integrations for distributed training.</li>
+<li class="fragment"><strong>Reproducibility</strong>: <a
+href="https://huggingface.co/docs/hub/model-cards">model cards</a>,
+dataset versions, and shareable configs.</li>
+<li class="fragment">Download the models and datasets we need.</li>
+</ul>
+<div class="sourceCode" id="cb41"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hf</span> download imdb <span class="at">--repo-type</span> dataset</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="ex">hf</span> download gpt2</span></code></pre></div>
+<ul>
+<li class="fragment">Model and dataset loading:</li>
+</ul>
+<div class="sourceCode" id="cb42"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># AutoModel* classes support different downstream tasks</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForSequenceClassification.from_pretrained(<span class="op">&lt;</span>name<span class="op">&gt;</span>)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> load_dataset(<span class="op">&lt;</span>name<span class="op">&gt;</span>)</span></code></pre></div>
+</section>
+<section id="ddpfsdp-training" class="slide level2">
+<h2>DDP/FSDP Training</h2>
+<p>Everything is configured through <code>TrainingArguments</code>.</p>
+<div class="sourceCode" id="cb43"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>trainer <span class="op">=</span> Trainer(</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>model,</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    args<span class="op">=</span>TrainingArguments(</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>        num_train_epochs<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>        learning_rate<span class="op">=</span><span class="fl">2e-5</span>,</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>        ...</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>    train_dataset<span class="op">=</span>dataset,</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>    ...</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>trainer.train()</span></code></pre></div>
+<p>Check out more examples in our <a
+href="https://sdlaml.pages.jsc.fz-juelich.de/ai/recipes/llm_hf/">HF
+recipe</a>.</p>
 </section>
 <section
 id="thats-it-for-fsdp-now-lets-move-to-another-parallelization-technique."
