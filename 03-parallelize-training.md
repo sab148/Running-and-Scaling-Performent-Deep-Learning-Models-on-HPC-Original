@@ -10,7 +10,10 @@ date: February 11th, 2026
 
     ```bash
     git clone --depth 1 https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC.git
+    cd train
     ```
+
+- You can have a look at the file ```single_gpu_training.py```
 
 ---
 
