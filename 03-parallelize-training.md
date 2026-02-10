@@ -94,6 +94,44 @@ Let's have a look at the files **```train/single_gpu_training.py```** and **```s
 
 --- 
 
+## Tensorboard and Weights & Biases (WANDB)
+
+- You can review the losses logged during training
+
+1. Activate the Environment
+    
+    If you haven’t already, activate your environment: 
+
+    ```bash
+    source ./sc_venv_template_HPC_supporter_course/activate.sh
+    ````
+
+--- 
+
+## Tensorboard and wandb
+
+2. Check the Metrics
+
+    You can visualize the metrics using one of the following options:
+
+- TensorBoard
+
+    ```bash
+    tensorboard --logdir "./tensorboard_logs/"
+    ```
+
+    Open the link provided by VS Code.
+
+- Weights & Biases (wandb)
+
+    ```bash
+    export WANDB_ENTITY=your_username
+    wandb sync wandb/offline-run-*
+    ```
+    Open the link displayed in the terminal.
+
+---
+
 ## llview
 
 - You can monitor your training using [llview](https://go.fzj.de/llview-jureca). 
