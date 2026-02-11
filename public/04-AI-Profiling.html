@@ -242,10 +242,14 @@
 }
 </style>
 </section>
+<section id="whos-stealing-my-speed" class="slide level2">
+<h2>Who’s Stealing My Speed?</h2>
+<p><img data-src="images/profiling/profiling_questions.png"
+style="width: 90%; max-width: 1200px; margin-left: 0; margin-right: auto;" /></p>
+</section>
 <section id="agenda" class="slide level2">
 <h2>Agenda</h2>
 <ul>
-<li class="fragment">Performance Terminology</li>
 <li class="fragment">Node Communications</li>
 <li class="fragment">NVIDIA AI Profiling tools</li>
 <li class="fragment">Single GPU training</li>
@@ -255,18 +259,6 @@
 <li class="fragment">Multi node training</li>
 </ul></li>
 <li class="fragment">DDP scaling</li>
-</ul>
-</section>
-<section class="slide level2">
-
-<h3 id="performance-terminology">Performance Terminology</h3>
-<ul>
-<li class="fragment"><p>Latency: the time it takes for one GPU or node
-to start exchanging information with another GPU or node.</p></li>
-<li class="fragment"><p>Bandwidth: The maximum amount of data that can
-be transferred per unit of time between GPUs, CPUs, or nodes.</p></li>
-<li class="fragment"><p>Host: CPU + system memory.</p></li>
-<li class="fragment"><p>Device: GPU + GPU memory.</p></li>
 </ul>
 </section>
 <section id="single-node-communications" class="slide level2">
@@ -326,15 +318,15 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="
 <tbody>
 <tr class="odd">
 <td>Naive communication</td>
-<td>~16 GB/s <span style="font-size:2em">🐢</span></td>
+<td>~16 GB/s per GPU <span style="font-size:2em">🐢</span></td>
 </tr>
 <tr class="even">
 <td>PCIe Bus P2P communication</td>
-<td>~32 GB/s <span style="font-size:2em">🚗</span></td>
+<td>~32 GB/s per GPU <span style="font-size:2em">🚗</span></td>
 </tr>
 <tr class="odd">
 <td>GPUDirect P2P communication</td>
-<td>600 GB/s total per GPU <span style="font-size:2em">🏎️</span></td>
+<td>300 GB/s total per GPU <span style="font-size:2em">🏎️</span></td>
 </tr>
 </tbody>
 </table>
@@ -371,11 +363,11 @@ style="color: blue;">With</span> RDMA Communication</h3>
 <tbody>
 <tr class="odd">
 <td>GPUDirect Without RDMA</td>
-<td>~16 GB/s <span style="font-size:2em">🐢</span></td>
+<td>&lt;50 GB/s <span style="font-size:2em">🐢</span></td>
 </tr>
 <tr class="even">
 <td>GPUDirect With RDMA</td>
-<td>~ 50 GB/s (2 HDR InfiniBand) <span
+<td>~ 50 GB/s per node (2 HDR InfiniBand) <span
 style="font-size:2em">🏎️</span></td>
 </tr>
 </tbody>
@@ -405,15 +397,16 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="
 <h3 id="run-profiling">Run Profiling</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
 <div class="sourceCode" id="cb5"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>    <span class="ex">srun</span> torchrun_jsc <span class="dt">\</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">--nnodes</span><span class="op">=</span><span class="va">$SLURM_NNODES</span> <span class="dt">\</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">--rdzv_backend</span> c10d <span class="dt">\</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">--nproc_per_node</span><span class="op">=</span>gpu <span class="dt">\</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">--rdzv_id</span> <span class="va">$RANDOM</span> <span class="dt">\</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">--rdzv_endpoint</span><span class="op">=</span><span class="va">$MASTER_ADDR</span>:<span class="va">$MASTER_PORT</span> <span class="dt">\</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">--no-python</span> ./run_profile.sh train/ddp_training.py <span class="at">--profile</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>    <span class="ex">srun</span> env <span class="at">-u</span> CUDA_VISIBLE_DEVICES bash <span class="at">-c</span> <span class="st">&#39;torchrun \</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="st">       --nproc-per-node=gpu \</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="st">       --nnodes=&quot;$SLURM_JOB_NUM_NODES&quot; \</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="st">       --rdzv-id=&quot;$SLURM_JOB_ID&quot; \</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="st">       --rdzv-endpoint=&quot;$MASTER_ADDR&quot;:&quot;$MASTER_PORT&quot; \</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="st">       --rdzv-backend=c10d \</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="st">       --rdzv-conf=is_host=&quot;$(if ((SLURM_NODEID)); then echo 0; else echo 1; fi)&quot; \</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="st">       --local-addr=&quot;$(if ((SLURM_NODEID)); then echo $MASTER_ADDR; else hostname; fi)&quot; \</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="st">       --no-python ./run_profile.sh train/ddp_training.py --profile&#39;</span></span></code></pre></div>
 </div>
-<p>Inside of <code>run_profile.sh</code></p>
 <div style="font-weight: bold; background-color: #ffcccc;">
 <div class="sourceCode" id="cb6"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nsys</span> profile <span class="dt">\</span></span>
@@ -476,14 +469,14 @@ style="width: 200%; max-width: 1200px; margin-left: -100px; margin-right: auto;"
 </section>
 <section class="slide level2">
 
-<h3 id="single-gpu-single-process">Single GPU Single Process</h3>
+<h3 id="single-gpu-without-dataloader-worker">Single GPU without
+dataloader Worker</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
 <div class="sourceCode" id="cb9"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>train_loader <span class="op">=</span> DataLoader(train_dataset, </span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                        batch_size<span class="op">=</span>args.batch_size, </span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                        shuffle<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                        num_workers<span class="op">=</span><span class="dv">0</span>,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                        pin_memory<span class="op">=</span><span class="va">False</span>)</span></code></pre></div>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                        num_workers<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                        pin_memory<span class="op">=</span><span class="va">False</span>)</span></code></pre></div>
 </div>
 <div style="font-weight: bold; background-color: #ffcccc;">
 <div class="sourceCode" id="cb10"><pre
@@ -493,12 +486,13 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href=
 </section>
 <section class="slide level2">
 
-<h3 id="single-gpu-single-process-1">Single GPU Single Process</h3>
-Move the trace file to your local machine by running:
+<h3 id="single-gpu-without-dataloader-worker-1">Single GPU without
+dataloader Worker</h3>
+Move the trace folder to your local machine by running:
 <div
-style="font-weight: bold; background-color: #ffcccc; min-width: 1050px">
+style="font-weight: bold; background-color: #ffcccc; font-size: 0.8em; min-width: 1050px">
 <div class="sourceCode" id="cb11"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">scp</span> <span class="at">-r</span> {user_name}@jureca.fz-juelich.de:/p/project1/atmlaml/HPC_Supporter_Workshop/nsys_traces .</span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">scp</span> <span class="at">-r</span> <span class="at">-4</span> <span class="op">&lt;</span>user<span class="op">&gt;</span>@jureca.fz-juelich.de:/p/project1/training2560/AI_profiling/Nsys_trace_update_Jan_2026 .</span></code></pre></div>
 </div>
 <div
 style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 1050px;">
@@ -514,10 +508,13 @@ style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">
 </div>
 <ul style="margin: 5px 0 0 20px;">
 <li>
-Find the main Python process with CUDA HW thread
+Find the Python process with CUDA HW
 </li>
 <li>
-Explore PyTorch &amp; NVTX annotations (main Python process)
+Find the Python thread inside the above process
+</li>
+<li>
+Explore PyTorch &amp; NVTX annotations
 </li>
 <li>
 How long does it take until one iteration is finished (data transfers,
@@ -529,18 +526,15 @@ Explore CUDA HW thread and what is the GPU peak memory?
 <li>
 Explore PyTorch &amp; NVTX annotations (inside CUDA HW)
 </li>
-<li>
-Why are some annotations missing inside CUDA HW?
-</li>
 </ul>
 </div>
 </section>
-<section id="single-gpu-multiprocesses" class="slide level2">
-<h2>Single GPU Multiprocesses</h2>
+<section id="single-gpu-multiworkers" class="slide level2">
+<h2>Single GPU Multiworkers</h2>
 </section>
 <section class="slide level2">
 
-<h3 id="single-gpu-multiprocesses-1">Single GPU Multiprocesses</h3>
+<h3 id="single-gpu-multiworkers-1">Single GPU Multiworkers</h3>
 <p><img data-src="images/profiling/dataloader_workers.webp"
 style="width: 70%; max-width: 1200px; margin-left: 0; margin-right: auto;" /></p>
 <p>Main process send indexes to workers</p>
@@ -556,11 +550,23 @@ style="width: 70%; max-width: 1200px; margin-left: 0; margin-right: auto;" /></p
 </section>
 <section class="slide level2">
 
-<h3 id="single-gpu-multiprocesses-2">Single GPU Multiprocesses</h3>
+<h3 id="single-gpu-multiworkers-2">Single GPU Multiworkers</h3>
+<div style="font-weight: bold; background-color: #ffcccc;">
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>train_loader <span class="op">=</span> DataLoader(train_dataset, </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                        batch_size<span class="op">=</span>args.batch_size, </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                        num_workers<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                        pin_memory<span class="op">=</span><span class="va">False</span>)</span></code></pre></div>
+</div>
+<div style="font-weight: bold; background-color: #ffcccc;">
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training.sbatch <span class="at">--profile</span></span></code></pre></div>
+</div>
+<h3 id="single-gpu-multiworkers-3">Single GPU Multiworkers</h3>
 <div
 style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 1150px;">
-<div class="sourceCode" id="cb13"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> Single_GPU/Single_GPU/Report_01_multi_woker_unpined_non_blocking_False/nsys_logs/647_ATA_566_nsys_logs_rank.nsys-rep</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> Single_GPU/Single_GPU/Report_01_multi_woker_unpined_non_blocking_False/nsys_logs/647_ATA_566_nsys_logs_rank.nsys-rep</span></code></pre></div>
 </div>
 <div
 style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
@@ -583,13 +589,13 @@ How can we determine that this setup is not I/O-bound?
 </section>
 <section class="slide level2">
 
-<h3 id="single-gpu-multiprocesses-3">Single GPU Multiprocesses</h3>
-<p><img data-src="images/profiling/data_transfer_sys_mem.png"
+<h3 id="single-gpu-multiworkers-4">Single GPU Multiworkers</h3>
+<p><img data-src="images/profiling/multiworker_vs_zeroworkers.png"
 style="width: 70%; max-width: 1200px; margin-left: 0; margin-right: auto;" /></p>
 </section>
 <section class="slide level2">
 
-<h3 id="single-gpu-multiprocesses-4">Single GPU Multiprocesses</h3>
+<h3 id="single-gpu-multiworkers-5">Single GPU Multiworkers</h3>
 <div
 style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
 <div
@@ -598,7 +604,7 @@ style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">
 </div>
 <ul style="margin: 5px 0 0 20px;">
 <li>
-Check one iteration of training
+Check one iteration of training (PyTorch trace)
 </li>
 <li>
 Which operation dominates the training time (per iteration)?
@@ -606,41 +612,79 @@ Which operation dominates the training time (per iteration)?
 </ul>
 </div>
 </section>
-<section class="slide level2">
+<section id="section" class="slide level2">
+<h2><!--
+---
 
-<h3 id="single-gpu-multiprocesses-asyn.-transfer">Single GPU
-Multiprocesses (Asyn. Transfer)</h3>
-<p><img data-src="images/profiling/Asynchronous_Transfer.png"
+### Single GPU Multiworkers (Asyn. Transfer)
+
+![](images/profiling/Asynchronous_Transfer.png){style="width: 45%; max-width: 1200px; margin-left: 0; margin-right: auto;"}
+
+--></h2>
+</section>
+<section id="dma-direct-memory-access" class="slide level2">
+<h2>DMA (Direct Memory Access)</h2>
+<p><img data-src="images/profiling/DMA.png"
 style="width: 45%; max-width: 1200px; margin-left: 0; margin-right: auto;" /></p>
+<div
+style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
+<div style="font-weight: bold; margin-bottom: 8px;">
+📌 Questions
+</div>
+<ul style="margin: 5px 0 0 20px;">
+<li class="fragment">
+What does DMA do?
+</li>
+<li class="fragment">
+What is the problem with data transfer by the CPU?
+</li>
+<li class="fragment">
+What is the problem of data transfer by the DMA?
+</li>
+<li class="fragment">
+How can we prevent data corruption during DMA transfers?
+</li>
+</ul>
+</div>
+</section>
+<section id="section-1" class="slide level2">
+<h2></h2>
+<p><img data-src="images/profiling/cuda_q.png"
+style="width: 60%; max-width: 1200px; margin-left: 0; margin-right: auto;" /></p>
+<p>How does <code>cudaMemcpy</code> copy data from host to device?</p>
+</section>
+<section id="memory-pinning" class="slide level2">
+<h2>Memory pinning</h2>
+<p><img data-src="images/profiling/pageable_pinned.svg"
+style="width: 110%; max-width: 1200px; margin-left: 0; margin-right: auto;" /></p>
 </section>
 <section class="slide level2">
 
 <h3 id="single-gpu-asyn.-transfer">Single GPU (Asyn. Transfer)</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb14"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>train_loader <span class="op">=</span> DataLoader(train_dataset, </span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                        batch_size<span class="op">=</span>args.batch_size, </span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                        shuffle<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                        num_workers<span class="op">=</span><span class="dv">4</span>,</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                        pin_memory<span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
-</div>
-<div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb15"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>    src, tgt <span class="op">=</span> src.to(device, non_blocking<span class="op">=</span><span class="va">True</span>), tgt.to(device, non_blocking<span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
-</div>
-<div style="font-weight: bold; background-color: #ffcccc;">
 <div class="sourceCode" id="cb16"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training.sbatch <span class="at">--profile</span></span></code></pre></div>
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>train_loader <span class="op">=</span> DataLoader(train_dataset, </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                        batch_size<span class="op">=</span>args.batch_size, </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                        num_workers<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                        pin_memory<span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
+</div>
+<div style="font-weight: bold; background-color: #ffcccc;">
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>    src, tgt <span class="op">=</span> src.to(device, non_blocking<span class="op">=</span><span class="va">True</span>), tgt.to(device, non_blocking<span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
+</div>
+<div style="font-weight: bold; background-color: #ffcccc;">
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 </section>
 <section class="slide level2">
 
-<h3 id="single-gpu-multiprocesses-asyn.-transfer-1">Single GPU
-Multiprocesses (Asyn. Transfer)</h3>
+<h3 id="single-gpu-multiworkers-asyn.-transfer">Single GPU Multiworkers
+(Asyn. Transfer)</h3>
 <div
 style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 1150px;">
-<div class="sourceCode" id="cb17"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> Single_GPU/Report_02_multiwoker_pined_non_blocking_True/nsys_logs/107_RKN_402_nsys_logs_rank.nsys-rep</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> Single_GPU/Report_02_multiwoker_pined_non_blocking_True/nsys_logs/107_RKN_402_nsys_logs_rank.nsys-rep</span></code></pre></div>
 </div>
 <div
 style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
@@ -650,20 +694,22 @@ style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">
 </div>
 <ul style="margin: 5px 0 0 20px;">
 <li>
-Check one iteration of training
+Check one iteration of training (PyTorch trace)
 </li>
 <li>
 Which part of code dominates the training time (per iteration)?
 </li>
 </ul>
 </div>
-</section>
-<section class="slide level2">
+<!--
 
-<h3 id="single-gpu-multiprocesses-asyn.-transfer-2">Single GPU
-Multiprocesses (Asyn. Transfer)</h3>
-<p><img data-src="images/profiling/data_transfer_GPU_mem.png"
-style="width: 70%; max-width: 1200px; margin-left: 0; margin-right: auto;" /></p>
+---
+
+### Single GPU Multiworkers (Asyn. Transfer)
+![](images/profiling/data_transfer_GPU_mem.png){style="width: 70%; max-width: 1200px; margin-left: 0; margin-right: auto;"}
+
+---
+-->
 </section>
 <section id="ddp" class="slide level2">
 <h2>DDP</h2>
@@ -672,8 +718,8 @@ style="width: 70%; max-width: 1200px; margin-left: 0; margin-right: auto;" /></p
 
 <h3 id="ddp-1">DDP</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb18"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 1 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 1 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 <div
 style="padding: 15px 15px 15px 25px; background-color: #fff9c4; border-left: 5px solid #fbc02d; margin: 10px 0; font-size: 0.7em;">
@@ -687,8 +733,8 @@ Multi_GPUs/DDP/Single_node/Report_03_DDP_one_node/nsys_logs
 </div>
 <div
 style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 800px;">
-<div class="sourceCode" id="cb19"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
 </div>
 <div
 style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
@@ -720,8 +766,8 @@ inside the GPU
 
 <h3 id="ddp-2">DDP</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb20"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 <div
 style="padding: 15px 15px 15px 25px; background-color: #fff9c4; border-left: 5px solid #fbc02d; margin: 10px 0; font-size: 0.7em;">
@@ -735,8 +781,8 @@ Multi_GPUs/DDP/Multi_nodes/Report_03_DDP_multi_nodes/GPU_Direct_RDMA_enable/nsys
 </div>
 <div
 style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 800px;">
-<div class="sourceCode" id="cb21"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
 </div>
 <div
 style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
@@ -761,8 +807,8 @@ Do you think the training will be scalable?
 
 <h3 id="ddp-3">DDP</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb22"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="va">NCCL_P2P_LEVEL</span><span class="op">=</span>LOC <span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="va">NCCL_P2P_LEVEL</span><span class="op">=</span>LOC <span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 <div
 style="padding: 15px 15px 15px 25px; background-color: #fff9c4; border-left: 5px solid #fbc02d; margin: 10px 0; font-size: 0.7em;">
@@ -776,8 +822,8 @@ Multi_GPUs/DDP/Multi_nodes/Report_03_DDP_multi_nodes/GPU_Direct_RDMA_disable/nsy
 </div>
 <div
 style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 800px;">
-<div class="sourceCode" id="cb23"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
 </div>
 <div
 style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
@@ -799,8 +845,8 @@ Do you think the training will be scalable?
 
 <h3 id="ddp-4">DDP</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb24"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="va">NCCL_IB_DISABLE</span><span class="op">=</span>1 <span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="va">NCCL_IB_DISABLE</span><span class="op">=</span>1 <span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 <div
 style="padding: 15px 15px 15px 25px; background-color: #fff9c4; border-left: 5px solid #fbc02d; margin: 10px 0; font-size: 0.7em;">
@@ -814,8 +860,8 @@ Multi_GPUs/DDP/Multi_nodes/Report_03_DDP_multi_nodes/NOT_IB_USAGE
 </div>
 <div
 style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 800px;">
-<div class="sourceCode" id="cb25"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
 </div>
 <div
 style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
