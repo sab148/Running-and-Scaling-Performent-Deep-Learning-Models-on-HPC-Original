@@ -678,7 +678,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a h
 to the sampler argument of the test_dataLoader</p>
 <div class="sourceCode" id="cb18"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>test_loader <span class="op">=</span> DataLoader(test_dataset,</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                        batch_size<span class="op">=</span>args.test_batch_size,</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                        batch_size<span class="op">=</span>args.batch_size,</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>                        sampler<span class="op">=</span>test_sampler, <span class="co"># pass the sampler argument to the DataLoader</span></span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>                        pin_memory<span class="op">=</span><span class="va">True</span>)    </span></code></pre></div></li>
 </ul></li>

@@ -472,7 +472,7 @@ def setup():
 
         ```python
         test_loader = DataLoader(test_dataset,
-                                batch_size=args.test_batch_size,
+                                batch_size=args.batch_size,
                                 sampler=test_sampler, # pass the sampler argument to the DataLoader
                                 pin_memory=True)    
         ```
