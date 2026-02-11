@@ -13,11 +13,16 @@ date: February 10, 2026
 }
 </style>
 
----
+
+## Who’s Stealing My Speed?
+
+
+
+![](images/profiling/profiling_questions.png){style="width: 90%; max-width: 1200px; margin-left: 0; margin-right: auto;"}
+
 
 ## Agenda
 
-- Performance Terminology
 - Node Communications
 - NVIDIA AI Profiling tools
 - Single GPU training
@@ -25,18 +30,6 @@ date: February 10, 2026
     - Single node training
     - Multi node training
 - DDP scaling
-
----
-
-### Performance Terminology
-
-- Latency: the time it takes for one GPU or node to start exchanging information with another GPU or node.
-
-- Bandwidth: The maximum amount of data that can be transferred per unit of time between GPUs, CPUs, or nodes.
-
-- Host: CPU + system memory.
-
-- Device: GPU + GPU memory.
 
 ---
 
@@ -101,9 +94,9 @@ GPU 0  →  NVLink  →  GPU 2
 
 | Communication Type | Throughput   |
 |---------------------|------------------------|
-| Naive communication               | ~16 GB/s              <span style="font-size:2em">🐢</span> |
-| PCIe Bus P2P communication       | ~32 GB/s              <span style="font-size:2em">🚗</span> |
-| GPUDirect P2P communication             | 600 GB/s total per GPU          <span style="font-size:2em">🏎️</span> |
+| Naive communication               | ~16 GB/s per GPU             <span style="font-size:2em">🐢</span> |
+| PCIe Bus P2P communication       | ~32 GB/s per GPU             <span style="font-size:2em">🚗</span> |
+| GPUDirect P2P communication             | 300 GB/s total per GPU          <span style="font-size:2em">🏎️</span> |
 
 ---
 
@@ -127,8 +120,8 @@ GPU 0  →  NVLink  →  GPU 2
 
 | Communication Type | Throughput   |
 |---------------------|------------------------|
-| GPUDirect Without RDMA              | ~16 GB/s              <span style="font-size:2em">🐢</span> |
-| GPUDirect With RDMA             | ~ 50 GB/s (2 HDR InfiniBand)          <span style="font-size:2em">🏎️</span> |
+| GPUDirect Without RDMA              | <50 GB/s              <span style="font-size:2em">🐢</span> |
+| GPUDirect With RDMA             | ~ 50 GB/s per node (2 HDR InfiniBand)          <span style="font-size:2em">🏎️</span> |
 
 ---
 
@@ -161,17 +154,18 @@ https://developer.nvidia.com/tools-downloads
 
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```bash
-    srun torchrun_jsc \
-        --nnodes=$SLURM_NNODES \
-        --rdzv_backend c10d \
-        --nproc_per_node=gpu \
-        --rdzv_id $RANDOM \
-        --rdzv_endpoint=$MASTER_ADDR:$MASTER_PORT \
-        --no-python ./run_profile.sh train/ddp_training.py --profile
+    srun env -u CUDA_VISIBLE_DEVICES bash -c 'torchrun \
+       --nproc-per-node=gpu \
+       --nnodes="$SLURM_JOB_NUM_NODES" \
+       --rdzv-id="$SLURM_JOB_ID" \
+       --rdzv-endpoint="$MASTER_ADDR":"$MASTER_PORT" \
+       --rdzv-backend=c10d \
+       --rdzv-conf=is_host="$(if ((SLURM_NODEID)); then echo 0; else echo 1; fi)" \
+       --local-addr="$(if ((SLURM_NODEID)); then echo $MASTER_ADDR; else hostname; fi)" \
+       --no-python ./run_profile.sh train/ddp_training.py --profile'
 ```
 </div>
 
-Inside of `run_profile.sh`
 
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```bash
@@ -246,13 +240,12 @@ for step in range(num_steps):
 
 ---
 
-### Single GPU Single Process
+### Single GPU without dataloader Worker
 
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```python
 train_loader = DataLoader(train_dataset, 
                         batch_size=args.batch_size, 
-                        shuffle=True,
                         num_workers=0,
                         pin_memory=False)
 ```
@@ -268,12 +261,12 @@ Only the main process transfers data to system memory.
 
 ---
 
-### Single GPU Single Process
+### Single GPU without dataloader Worker
 
-Move the trace file to your local machine by running:
-<div style="font-weight: bold; background-color: #ffcccc; min-width: 1050px">
+Move the trace folder to your local machine by running:
+<div style="font-weight: bold; background-color: #ffcccc; font-size: 0.8em; min-width: 1050px">
 ```bash
-scp -r {user_name}@jureca.fz-juelich.de:/p/project1/atmlaml/HPC_Supporter_Workshop/nsys_traces .
+scp -r -4 <user>@jureca.fz-juelich.de:/p/project1/training2560/AI_profiling/Nsys_trace_update_Jan_2026 .
 ```
 </div>
 
@@ -288,22 +281,22 @@ Use + and − keys to zoom in and out
 <div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
 <div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Exercise</div>
 <ul style="margin: 5px 0 0 20px;">
-<li>Find the main Python process with CUDA HW thread</li>
-<li>Explore PyTorch & NVTX annotations (main Python process)</li>
+<li>Find the Python process with CUDA HW </li>
+<li>Find the Python thread inside the above process</li>
+<li>Explore PyTorch & NVTX annotations</li>
 <li>How long does it take until one iteration is finished (data transfers, forward, backward, ...)?</li>
 <li>Explore CUDA HW thread and what is the GPU peak memory?</li>
 <li>Explore PyTorch & NVTX annotations (inside CUDA HW)</li>
-<li>Why are some annotations missing inside CUDA HW?</li>
 </ul>
 </div>
 
 ---
 
-## Single GPU Multiprocesses
+## Single GPU Multiworkers
 
 ---
 
-### Single GPU Multiprocesses
+### Single GPU Multiworkers
 
 ![](images/profiling/dataloader_workers.webp){style="width: 70%; max-width: 1200px; margin-left: 0; margin-right: auto;"}
 
@@ -316,7 +309,25 @@ Main process send indexes to workers
 
 ---
 
-### Single GPU Multiprocesses
+### Single GPU Multiworkers
+
+<div style="font-weight: bold; background-color: #ffcccc;">
+```python
+train_loader = DataLoader(train_dataset, 
+                        batch_size=args.batch_size, 
+                        num_workers=4,
+                        pin_memory=False)
+```
+</div>
+
+<div style="font-weight: bold; background-color: #ffcccc;">
+```bash
+sbatch --disable-dcgm single_gpu_training.sbatch --profile
+```
+</div>
+
+
+### Single GPU Multiworkers
 
 <div style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 1150px;">
 ```bash
@@ -338,35 +349,69 @@ File -> Open -> Single_GPU/Single_GPU/Report_01_multi_woker_unpined_non_blocking
 
 ---
 
-### Single GPU Multiprocesses
-![](images/profiling/data_transfer_sys_mem.png){style="width: 70%; max-width: 1200px; margin-left: 0; margin-right: auto;"}
+### Single GPU Multiworkers
+![](images/profiling/multiworker_vs_zeroworkers.png){style="width: 70%; max-width: 1200px; margin-left: 0; margin-right: auto;"}
 
 ---
 
-### Single GPU Multiprocesses
+### Single GPU Multiworkers
 
 <div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
 <div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Exercise</div>
 <ul style="margin: 5px 0 0 20px;">
-<li>Check one iteration of training</li>
+<li>Check one iteration of training (PyTorch trace)</li>
 <li>Which operation dominates the training time (per iteration)?</li>
 </ul>
 </div>
 
+<!--
 ---
 
-### Single GPU Multiprocesses (Asyn. Transfer)
+### Single GPU Multiworkers (Asyn. Transfer)
 
 ![](images/profiling/Asynchronous_Transfer.png){style="width: 45%; max-width: 1200px; margin-left: 0; margin-right: auto;"}
 
+-->
 ---
+
+## DMA (Direct Memory Access)
+
+
+![](images/profiling/DMA.png){style="width: 45%; max-width: 1200px; margin-left: 0; margin-right: auto;"}
+
+<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
+  <div style="font-weight: bold; margin-bottom: 8px;">📌 Questions</div>
+
+  <ul style="margin: 5px 0 0 20px;">
+    <li class="fragment">What does DMA do?</li>
+    <li class="fragment">What is the problem with data transfer by the CPU?</li>
+    <li class="fragment">What is the problem of data transfer by the DMA?</li>
+    <li class="fragment">How can we prevent data corruption during DMA transfers?</li>
+  </ul>
+</div>
+
+
+## 
+
+![](images/profiling/cuda_q.png){style="width: 60%; max-width: 1200px; margin-left: 0; margin-right: auto;"}
+
+How does `cudaMemcpy` copy data from host to device?
+
+---
+
+## Memory pinning
+
+
+![](images/profiling/pageable_pinned.svg){style="width: 110%; max-width: 1200px; margin-left: 0; margin-right: auto;"}
+
+---
+
 
 ### Single GPU (Asyn. Transfer)
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```python
 train_loader = DataLoader(train_dataset, 
                         batch_size=args.batch_size, 
-                        shuffle=False,
                         num_workers=4,
                         pin_memory=True)
 ```
@@ -386,7 +431,7 @@ sbatch --disable-dcgm single_gpu_training.sbatch --profile
 
 ---
 
-### Single GPU Multiprocesses (Asyn. Transfer)
+### Single GPU Multiworkers (Asyn. Transfer)
 
 <div style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 1150px;">
 ```bash
@@ -397,17 +442,20 @@ File -> Open -> Single_GPU/Report_02_multiwoker_pined_non_blocking_True/nsys_log
 <div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
 <div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Exercise</div>
 <ul style="margin: 5px 0 0 20px;">
-<li>Check one iteration of training</li>
+<li>Check one iteration of training (PyTorch trace)</li>
 <li>Which part of code dominates the training time (per iteration)?</li>
 </ul>
 </div>
 
+<!--
+
 ---
 
-### Single GPU Multiprocesses (Asyn. Transfer)
+### Single GPU Multiworkers (Asyn. Transfer)
 ![](images/profiling/data_transfer_GPU_mem.png){style="width: 70%; max-width: 1200px; margin-left: 0; margin-right: auto;"}
 
 ---
+-->
 
 ## DDP 
 
