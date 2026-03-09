@@ -10,14 +10,14 @@ date: March 09, 2025
 Links for the complimentary parts of this course: 
 
 - [Zoom](https://go.fzj.de/bringing-dl-workloads-to-jsc-zoom)
-- [Slack](https://go.fzj.de/bringing-dl-workloads-to-jsc-slack)
-- [JSC Training Page](https://go.fzj.de/bringing-dl-workloads-to-jsc-course)
-- [Judoor project page invite](https://go.fzj.de/bringing-dl-workloads-to-jsc-project-join)
-- [This document: https://go.fzj.de/bringing-dl-workloads-to-jsc](https://go.fzj.de/bringing-dl-workloads-to-jsc)
-- Our mailing list for [AI news](https://lists.fz-juelich.de/mailman/listinfo/ml)
+- [Slack](https://runningandsca-tdc6193.slack.com)
+- [JSC Training Page](https://www.fz-juelich.de/en/jsc/news/events/training-courses/training-courses-2026/ai-sc-1)
+- [Judoor project page invite](https://judoor.fz-juelich.de/projects/join/training2609)
+- [This document: https://go.fzj.de/bringing-dl-workloads-to-jsc](https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC)
+- Our mailing list for [AI news](https://lists.fz-juelich.de/postorius/lists/ai.jsc.lists.fz-juelich.de/)
 - [Survey at the end of the course](https://go.fzj.de/bringing-dl-workloads-to-jsc-survey)
 - [Virtual Environment template](https://gitlab.jsc.fz-juelich.de/kesselheim1/sc_venv_template)
-- [SOURCE of the course/slides on Github](https://go.fzj.de/bringing-dl-workloads-to-jsc-repo)
+- [SOURCE of the course/slides on Github](https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC-Original)
 
 ![](images/Logo_FZ_Juelich_rgb_Schutzzone_transparent.svg)
 
@@ -70,9 +70,9 @@ Links for the complimentary parts of this course:
 ### Note
 
 Please open this document on your own browser! We will need it for the exercises.
-[https://go.fzj.de/bringing-dl-workloads-to-jsc](https://go.fzj.de/bringing-dl-workloads-to-jsc)
+[https://sab148.github.io/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC-Original/](https://sab148.github.io/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC-Original/)
 
-![Mobile friendly, but you need it on your computer, really](images/bringing-dl-workloads-to-jsc.png)
+![Mobile friendly, but you need it on your computer, really](images/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC.png)
 
 ---
 
