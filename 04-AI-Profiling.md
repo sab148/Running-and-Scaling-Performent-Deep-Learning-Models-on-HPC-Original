@@ -1,7 +1,7 @@
 ---
 author: Javad Kasravi
 title: AI Profiling
-date: February 10, 2026
+date: March 12, 2026
 ---
 <style>
 .reveal h3 {
@@ -139,7 +139,7 @@ GPU 0  →  NVLink  →  GPU 2
 ---
 
 ### Nsight Systems GUI
-Go to the following link and download the **Nsight System 1.3.2025**:
+Go to the following link and download the **Nsight System 2025.3.1**:
 
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```bash
@@ -266,7 +266,7 @@ Only the main process transfers data to system memory.
 Move the trace folder to your local machine by running:
 <div style="font-weight: bold; background-color: #ffcccc; font-size: 0.8em; min-width: 1050px">
 ```bash
-scp -r -4 <user>@jureca.fz-juelich.de:/p/project1/training2560/AI_profiling/Nsys_trace_update_Jan_2026 .
+scp -r -4 <user>@jureca.fz-juelich.de:/p/project1/training2609/AI_profiling/Nsys_trace_update_Jan_2026 .
 ```
 </div>
 
