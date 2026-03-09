@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
-  <meta name="author" content="Alexandre Strube // Sabrina Benassou">
-  <meta name="dcterms.date" content="2025-09-16">
-  <title>Bringing Deep Learning Workloads to JSC supercomputers</title>
+  <meta name="author" content="Alexandre Strube // Sabrina Benassou // Ismail Khalfaoui-Hassani // Javad Kasravi">
+  <meta name="dcterms.date" content="2025-03-10">
+  <title>Running and Scaling Performent Deep Learning Models on HPC</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -15,13 +15,19 @@
     .reveal .sourceCode {  /* see #7635 */
       overflow: visible;
     }
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    ul.task-list{list-style: none;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
     ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
       width: 0.8em;
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
@@ -158,27 +164,22 @@
     <div class="slides">
 
 <section id="title-slide">
-  <h1 class="title">Bringing Deep Learning Workloads to JSC
-supercomputers</h1>
-  <p class="author">Alexandre Strube // Sabrina Benassou</p>
-  <p class="date">September 16, 2025</p>
+  <h1 class="title">Running and Scaling Performent Deep Learning Models
+on HPC</h1>
+  <p class="author">Alexandre Strube // Sabrina Benassou // Ismail
+Khalfaoui-Hassani // Javad Kasravi</p>
+  <p class="date">March 10, 2025</p>
 </section>
 
 <section id="topics-as-links" class="slide level1">
 <h1>Topics (as links)</h1>
 <ul>
 <li class="fragment"><a href="01-access-machines.html">Day 1: Access
-machines, slurm, etc</a>
-<ul>
-<li class="fragment"><a href="day-1-recap.html">Day 1: Recap</a></li>
-</ul></li>
+machines, slurm, etc</a></li>
 <li class="fragment"><a href="02-speedup-data-loading.html">Day 2:
 Speedup Data Loading</a></li>
 <li class="fragment"><a href="03-parallelize-training.html">Day 2:
-Parallelize training</a>
-<ul>
-<li class="fragment"><a href="day-2-recap.html">Day 2: Recap</a></li>
-</ul></li>
+Parallelize training</a></li>
 </ul>
 </section>
     </div>

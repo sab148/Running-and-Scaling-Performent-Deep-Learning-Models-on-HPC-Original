@@ -14,19 +14,26 @@
     .reveal .sourceCode {  /* see #7635 */
       overflow: visible;
     }
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    ul.task-list{list-style: none;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
     ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
       width: 0.8em;
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -1009,29 +1016,24 @@ single GPU</li>
 </section>
 <section id="fully-sharded-data-parallel-fsdp" class="slide level2">
 <h2>Fully Sharded Data Parallel (FSDP)</h2>
-<p><img data-src="images/fsdp/fsdp-0.svg"
-style="height:4.16667in" /></p>
+<p><img data-src="images/fsdp/fsdp-0.svg" style="height:300pt" /></p>
 <!-- ![](images/fsdp_.png){height=50pt}  -->
 </section>
 <section id="fsdp" class="slide level2">
 <h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-1.svg"
-style="height:5.90278in" /></p>
+<p><img data-src="images/fsdp/fsdp-1.svg" style="height:425pt" /></p>
 </section>
 <section id="fsdp-1" class="slide level2">
 <h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-2.svg"
-style="height:5.90278in" /></p>
+<p><img data-src="images/fsdp/fsdp-2.svg" style="height:425pt" /></p>
 </section>
 <section id="fsdp-2" class="slide level2">
 <h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-3.svg"
-style="height:5.90278in" /></p>
+<p><img data-src="images/fsdp/fsdp-3.svg" style="height:425pt" /></p>
 </section>
 <section id="fsdp-3" class="slide level2">
 <h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-4.svg"
-style="height:5.90278in" /></p>
+<p><img data-src="images/fsdp/fsdp-4.svg" style="height:425pt" /></p>
 <!-- 
 ## FSDP
 
@@ -1183,13 +1185,11 @@ style="height:5.90278in" /></p>
 </section>
 <section id="fsdp-4" class="slide level2">
 <h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-25s.svg"
-style="height:5.90278in" /></p>
+<p><img data-src="images/fsdp/fsdp-25s.svg" style="height:425pt" /></p>
 </section>
 <section id="fsdp-5" class="slide level2">
 <h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-28s.svg"
-style="height:5.90278in" /></p>
+<p><img data-src="images/fsdp/fsdp-28s.svg" style="height:425pt" /></p>
 </section>
 <section id="fsdp-workflow" class="slide level2">
 <h2>FSDP workflow</h2>

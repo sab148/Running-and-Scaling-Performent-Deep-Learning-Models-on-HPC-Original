@@ -15,19 +15,26 @@
     .reveal .sourceCode {  /* see #7635 */
       overflow: visible;
     }
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    ul.task-list{list-style: none;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
     ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
       width: 0.8em;
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -234,25 +241,25 @@ supercomputers</h1>
 <h3 id="schedule-for-day-2">Schedule for day 2</h3>
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th>Time</th>
 <th>Title</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>13:00 - 13:10</td>
 <td>Welcome, questions</td>
 </tr>
-<tr class="even">
+<tr>
 <td>13:10 - 14:10</td>
 <td>Data loading</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>14:10 - 14:25</td>
 <td>Coffee Break (flexible)</td>
 </tr>
-<tr class="even">
+<tr>
 <td>14:25 - 17:00</td>
 <td>Parallelize Training</td>
 </tr>
@@ -271,7 +278,7 @@ same files</li>
 <li class="fragment">Performance tradeoff between shared accessibility
 and speed</li>
 <li class="fragment">Our I/O server is almost a supercomputer by itself
-<img data-src="images/machines.png" style="height:4.86111in"
+<img data-src="images/machines.png" style="height:350pt"
 alt="JSC Supercomputer Stragegy" /></li>
 </ul>
 </section>
