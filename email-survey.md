@@ -1,8 +1,8 @@
 ---
-author: Alexandre Strube // Sabrina Benassou
-title: Survey on the course "Bringing Deep Learning Workloads to JSC supercomputers"
-# subtitle: A primer in supercomputers`
-date: September 16th, 2025
+author: Alexandre Strube // Sabrina Benassou // Ismail Khalfaoui-Hassani // Javad Kasravi
+title: Running and Scaling Performent Deep Learning Models on HPC
+#subtitle: A primer in supercomputers
+date: March 10, 2025
 ---
 
 Hello everyone! 
@@ -20,4 +20,4 @@ it would be very nice if you would give us some feedback, here: http://go.fzj.de
 
 Again, thanks for your time!
 
-Alexandre, Sabrina and Ismail
+Alexandre, Sabrina, Ismail and Javad
