@@ -889,6 +889,9 @@ datasets==3.6.0
 fsspec==2025.2.0.*
 torch==2.8
 torchrun_jsc>=0.0.15
+wandb
+tensorboard
+lightning
 ```
 
 - Run on the terminal: `sc_venv_template/setup.sh`
