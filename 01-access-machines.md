@@ -1,8 +1,8 @@
 ---
-author: Alexandre Strube // Sabrina Benassou
+author: Alexandre Strube // Ismail Khalfaoui-Hassani
 title: Accessing the machines, intro
 #subtitle: A primer in supercomputers
-date: September 16, 2025
+date: March 10, 2025
 
 ---
 ## Communication:
@@ -10,14 +10,14 @@ date: September 16, 2025
 Links for the complimentary parts of this course: 
 
 - [Zoom](https://go.fzj.de/bringing-dl-workloads-to-jsc-zoom)
-- [Slack](https://go.fzj.de/bringing-dl-workloads-to-jsc-slack)
-- [JSC Training Page](https://go.fzj.de/bringing-dl-workloads-to-jsc-course)
-- [Judoor project page invite](https://go.fzj.de/bringing-dl-workloads-to-jsc-project-join)
-- [This document: https://go.fzj.de/bringing-dl-workloads-to-jsc](https://go.fzj.de/bringing-dl-workloads-to-jsc)
-- Our mailing list for [AI news](https://lists.fz-juelich.de/mailman/listinfo/ml)
+- [Slack](https://go.fzj.de/running-and-scaling-deep-learning-models-on-HPC-slack)
+- [JSC Training Page](https://www.fz-juelich.de/en/jsc/news/events/training-courses/training-courses-2026/ai-sc-1)
+- [Judoor project page invite](https://judoor.fz-juelich.de/projects/join/training2609)
+- [This document: https://go.fzj.de/running-and-scaling-deep-learning-models-on-HPC](https://go.fzj.de/running-and-scaling-deep-learning-models-on-HPC)
+- Our mailing list for [AI news](https://lists.fz-juelich.de/postorius/lists/ai.jsc.lists.fz-juelich.de/)
 - [Survey at the end of the course](https://go.fzj.de/bringing-dl-workloads-to-jsc-survey)
 - [Virtual Environment template](https://gitlab.jsc.fz-juelich.de/kesselheim1/sc_venv_template)
-- [SOURCE of the course/slides on Github](https://go.fzj.de/bringing-dl-workloads-to-jsc-repo)
+- [SOURCE of the course/slides on Github](https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC-Original)
 
 ![](images/Logo_FZ_Juelich_rgb_Schutzzone_transparent.svg)
 
@@ -27,7 +27,7 @@ Links for the complimentary parts of this course:
 ## Goals for this course:
 
 - Make sure you know how to access and use our machines 👩‍💻
-- Put your data in way that supercomputer can use it fast 💨
+- Put your data in way that supercomputer can use it fast 🏃
 - Distribute your ML workload 💪
 - Important: This is _*NOT*_ a basic AI course 🙇‍♂️
   - If you need one, check [fast.ai](https://course.fast.ai)
@@ -44,6 +44,12 @@ Links for the complimentary parts of this course:
 ::::
 :::: {.col}
 ![Sabrina Benassou](pics/sabrina.jpg)
+::::
+:::: {.col}
+![Ismail Khalfaoui-Hassani](pics/ismail.jpeg)
+::::
+:::: {.col}
+![Javad Kasravi](pics/javad.jpg)
 ::::
 :::
 
@@ -70,9 +76,9 @@ Links for the complimentary parts of this course:
 ### Note
 
 Please open this document on your own browser! We will need it for the exercises.
-[https://go.fzj.de/bringing-dl-workloads-to-jsc](https://go.fzj.de/bringing-dl-workloads-to-jsc)
+[https://sab148.github.io/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC-Original/](https://sab148.github.io/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC-Original/)
 
-![Mobile friendly, but you need it on your computer, really](images/bringing-dl-workloads-to-jsc.png)
+![Mobile friendly, but you need it on your computer, really](images/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC.png)
 
 ---
 
@@ -85,14 +91,14 @@ Please open this document on your own browser! We will need it for the exercises
 ### What is a supercomputer?
 
 - Compute cluster: Many computers bound together locally 
-- Supercomputer: A damn lot of computers bound together locally😒
+- Supercomputer: A lot of computers bound together locally😒
   - with a fancy network 🤯
 
 ---
 
 ### Anatomy of a supercomputer
 
--  Login Nodes: Normal machines, for compilation, data transfer, scripting, etc. No GPUs.
+-  Login Nodes: Normal machines, for compilation, data transfer, scripting, etc. No GPUs. Limited number of shared CPU cores.
 - Compute Nodes: Guess what? 
   - For compute! With GPUs! 🤩
 - High-speed, ultra-low-latency network
@@ -213,8 +219,8 @@ Please open this document on your own browser! We will need it for the exercises
 
 ### Recap:
 
-- Login nodes are for submitting jobs, move files, compile, etc
-- NOT FOR TRAINING NEURAL NETS
+- Login nodes are for submitting jobs, download and move files, compile, etc
+- NOT FOR TRAINING NEURAL NETS!
 
 ---
 
@@ -230,7 +236,7 @@ Please open this document on your own browser! We will need it for the exercises
 ### Connecting to Jureca DC
 
 #### Getting compute time
-- Go to [https://go.fzj.de/bringing-dl-workloads-to-jsc-project-join](https://go.fzj.de/bringing-dl-workloads-to-jsc-project-join)
+- Go to [https://judoor.fz-juelich.de/projects/join/training2609](https://judoor.fz-juelich.de/projects/join/training2609)
 - Join the course project `training2609`
 - Sign the Usage Agreements ([Video](https://drive.google.com/file/d/1mEN1GmWyGFp75uMIi4d6Tpek2NC_X8eY/view))
 - Compute time allocation is based on compute projects. For every compute job, a compute project pays.
@@ -246,6 +252,7 @@ Please open this document on your own browser! We will need it for the exercises
 - Jupyter-JSC uses the queue 
 - When you are working on it, you are using project time ⌛️
 - *Yes, if you are just thinking and looking at the 📺, you are burning project time*🤦‍♂️
+- *Yes, if you are just thinking and looking at the 📺, you are slowing down the queue for everyone*🤦
 - It's useful for small tests - not for full-fledged development 🙄
 
 ---
@@ -306,10 +313,10 @@ $ ssh-keygen -a 100 -t ed25519 -f ~/.ssh/id_ed25519-JSC
 Generating public/private ed25519 key pair.
 Enter passphrase (empty for no passphrase): 
 Enter same passphrase again: 
-Your identification has been saved in /Users/strube1/.ssh/id_ed25519-JSC
-Your public key has been saved in /Users/strube1/.ssh/id_ed25519-JSC.pub
+Your identification has been saved in /Users/khalfaoui1/.ssh/id_ed25519-JSC
+Your public key has been saved in /Users/khalfaoui1/.ssh/id_ed25519-JSC.pub
 The key fingerprint is:
-SHA256:EGNNC1NTaN8fHwpfuZRPa50qXHmGcQjxp0JuU0ZA86U strube1@Strube-16
+SHA256:EGNNC1NTaN8fHwpfuZRPa50qXHmGcQjxp0JuU0ZA86U khalfaoui1@homepc
 The keys randomart image is:
 +--[ED25519 256]--+
 |      *++oo=o. . |
@@ -361,7 +368,7 @@ Host jureca
 
 Copy contents to the config file and save it 
 
-**REPLACE [MY_USERNAME] WITH YOUR USERNAME!!! 🤦‍♂️**
+**REPLACE [MY_USERNAME] WITH YOUR USERNAME!**
 
 ---
 
@@ -402,7 +409,7 @@ Did everyone get their **own** ip address?
 
 - I will use the number `93.199.55.163`
 - **YOUR NUMBER IS DIFFERENT**
-- Seriously
+
 
 ---
 
@@ -427,7 +434,7 @@ Did everyone get their **own** ip address?
 - Terminal: `code ~/.ssh/id_ed25519-JSC.pub`
 - Something like this will open:
 
-- `ssh-ed25519 AAAAC3NzaC1lZDE1NTA4AAAAIHaoOJF3gqXd7CV6wncoob0DL2OJNfvjgnHLKEniHV6F strube@demonstration.fz-juelich.de`
+- `ssh-ed25519 AAAAC3NzaC1lZDE1NTA4AAAAIHaoOJF3gqXd7CV6wncoob0DL2OJNfvjgnHLKEniHV6F khalfaoui@demonstration.fz-juelich.de`
 
 - Paste this line at the same `key.txt` which you just opened
 
@@ -438,7 +445,7 @@ Did everyone get their **own** ip address?
 #### Example: `93.199.0.0/16`
 
 - Put them together and copy again:
-- `from="93.199.0.0/16,10.0.0.0/8" ssh-ed25519 AAAAC3NzaC1lZDE1NTA4AAAAIHaoOJF3gqXd7CV6wncoob0DL2OJNfvjgnHLKEniHV6F strube@demonstration.fz-juelich.de`
+- `from="93.199.0.0/16,10.0.0.0/8" ssh-ed25519 AAAAC3NzaC1lZDE1NTA4AAAAIHaoOJF3gqXd7CV6wncoob0DL2OJNfvjgnHLKEniHV6F khalfaoui@demonstration.fz-juelich.de`
 
 ---
 
@@ -475,7 +482,7 @@ Are you sure you want to continue connecting (yes/no/[fingerprint])? Yes
 **************************************************************************
 ...
 ...
-strube1@jrlogin03~ $ 
+khalfaoui1@jrlogin03~ $ 
 ```
 
 ---
@@ -521,7 +528,7 @@ rm -rf $HOME/.fastai ; ln -s ~/course/.fastai $HOME/
 #### Tool for finding software: `module spider`
 
 ```bash
-strube1$ module spider PyTorch
+khalfaoui1$ module spider PyTorch
 ------------------------------------------------------------------------------------
   PyTorch:
 ------------------------------------------------------------------------------------
@@ -554,7 +561,7 @@ strube1$ module spider PyTorch
 - MPI
 - Module
 
-- Eg: `module load Stages/2023 GCC OpenMPI PyTorch`
+- Eg: `module load Stages/2025 GCC OpenMPI PyTorch`
 
 ---
 
@@ -586,7 +593,8 @@ Search with the version - it will suggest the hierarchy
 
 ```bash
 $ python
-Python 3.12.3 (main, Apr 15 2024, 18:07:06) [GCC 11.4.1 20231218 (Red Hat 11.4.1-3)] on linux
+Python 3.12.3 (main, Nov 10 2025, 00:00:00) 
+[GCC 11.5.0 20240719 (Red Hat 11.5.0-11)] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import torch
 Traceback (most recent call last):
@@ -793,7 +801,7 @@ Submitted batch job 412169
 ```bash
 squeue --me
    JOBID  PARTITION    NAME      USER    ST       TIME  NODES NODELIST(REASON)
-   412169 gpus         matrix-m  strube1 CF       0:02      1 jsfc013
+   412169 gpus         matrix-m  khalfaoui1 CF       0:02      1 jsfc013
 
 ```
 
@@ -1029,7 +1037,7 @@ If you run it longer, you will get the actual error:
 
 ```python
 Traceback (most recent call last):
-  File "/p/project/training2609/strube1/cats.py", line 5, in <module>
+  File "/p/project/training2609/khalfaoui1/cats.py", line 5, in <module>
     path = untar_data(URLs.PETS)/'images'
     ...
     ...
@@ -1120,7 +1128,7 @@ sbatch fastai.sbatch
 
 ---
 
-## Masoquistically waiting for the job to run?
+## Waiting for the job to run?
 
 ```bash
 watch squeue --me
@@ -1241,7 +1249,7 @@ As of now, I expect you managed to:
 
 - Blablador is our Large Language Model inference server (eg. ChatGPT)
 - It's a service for the Helmholtz Association.
-  - It's fast, free and PRIVATE - I don't record your conversations!
+  - It's fast, free and PRIVATE - It does not record your conversations!
 - Anyone here can use it
 
 ---
@@ -1249,66 +1257,6 @@ As of now, I expect you managed to:
 ### Blablador 
 
 ![https://helmholtz-blablador.fz-juelich.de](images/blablador-qrcode.png){width=500px}
-
----
-
-## VScode + Continue.dev
-
-![](images/continue-ask-code.png)
-
----
-
-### Obtaining a token
-
-- Go to helmholtz codebase at [http://codebase.helmholtz.cloud](http://codebase.helmholtz.cloud)
-- Log in with your email
-- On the left side, click on your profile, and then on "Preferences"
-- On "Access tokens", click "Add new token",
-  - give it a name, 
-  - put an expiration date (max 1 year)
-  - and choose "api" in the "scopes" section
-- Click "Create Personal Access Token"
-  - You will see a "............................." - copy this and save somewhere.
-
----
-
-### Blablador
-
-![](images/blablador-api-scope.png){width=800px}
-
----
-
-### Blablador on VSCode!
-
-- Add [continue.dev](https://marketplace.visualstudio.com/items?itemName=Continue.continue) extension to VSCode
-- On Continue, choose to add model, choose Other OpenAI-compatible API
-- Click in Open Config.json at the end
-
----
-
-## Blablador: VScode + Continue.dev
-
-Inside config.json, add at the `"models"` section:
-
-```json
-    {
-      "model": "AUTODETECT",
-      "title": "Blablador",
-      "apiKey": "ADD_BLABLADOR_TOKEN_HERE",
-      "apiBase": "https://api.helmholtz-blablador.fz-juelich.de/v1",
-      "provider": "openai"
-    },
-```
-
-- REPLACE THE APIKEY WITH YOUR OWN TOKEN!!!!
-
----
-
-### Blablador on VSCode
-
-- Click on the "Continue.dev extension on the left side of VSCode.
-- Select some code from our exercises, select it and send it to continue with cmd-shift-L (or ctrl-shift-L)
-- Ask it to add unit tests, for example.
 
 ---
 
