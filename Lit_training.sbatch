@@ -34,7 +34,7 @@ fi
 export MASTER_PORT=7010
 
 # We activate our environemnt
-source ./sc_venv_template_HPC_supporter_course/activate.sh
+source $HOME/course/sc_venv_template/activate.sh
 # The above path is a virtual environment that was created and tested previously.
 # If you create a new virtual environment, you should update the path above and activate yours.
 
