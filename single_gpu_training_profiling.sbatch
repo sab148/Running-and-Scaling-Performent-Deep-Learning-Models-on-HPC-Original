@@ -23,7 +23,7 @@ export SRUN_CPUS_PER_TASK="$SLURM_CPUS_PER_TASK"
 # We activate our environemnt
 # The above path is a virtual environment that was created and tested previously.
 # If you create a new virtual environment, you should update the path above and activate yours.
-source ./sc_venv_template_HPC_supporter_course/activate.sh
+source $HOME/course/sc_venv_template/activate.sh
 
 
 PROFILE=false

@@ -20,7 +20,7 @@ export HF_DATASETS_OFFLINE=1
 # Get number of cpu per task
 export SRUN_CPUS_PER_TASK="$SLURM_CPUS_PER_TASK"
 
-## TODO 15: Set the CUDA_VISIBLE_DEVICES environment variable to 0,1,2,3 to specify the GPUs to use for training.
+## TODO 14: Set the CUDA_VISIBLE_DEVICES environment variable to 0,1,2,3 to specify the GPUs to use for training.
 
 
 ## TODO 16: 
@@ -32,7 +32,7 @@ export SRUN_CPUS_PER_TASK="$SLURM_CPUS_PER_TASK"
 # We activate our environemnt
 # The following path is a virtual environment that was created and tested previously.
 # If you create a new virtual environment, you should update the path above and activate yours.
-source ./sc_venv_template_HPC_supporter_course/activate.sh
+source $HOME/course/sc_venv_template/activate.sh
 
 ## TODO 17: Replace this line with the distributed training launch script that uses torchrun_jsc and pass the following arguments:
 # --nnodes=$SLURM_NNODES that specifies the total number of nodes to use
