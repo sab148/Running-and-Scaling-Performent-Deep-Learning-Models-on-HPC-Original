@@ -42,4 +42,4 @@ source $HOME/course/sc_venv_template/activate.sh
 # --rdzv_endpoint=$MASTER_ADDR:$MASTER_PORT that specifies the address and port for the rendezvous server
 # --rdzv_conf=is_host=$(if ((SLURM_NODEID)); then echo 0; else echo 1; fi) that configures whether the node is the rendezvous host based on its SLURM ID
 # train.py that runs the training script using the specified distributed setup
-srun --cpu_bind=none python train/single_gpu_training.py
+srun --cpu_bind=none python train/to_distributed_training.py
