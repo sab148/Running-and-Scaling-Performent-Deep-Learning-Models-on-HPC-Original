@@ -23,7 +23,7 @@ export SRUN_CPUS_PER_TASK="$SLURM_CPUS_PER_TASK"
 ## TODO 14: Set the CUDA_VISIBLE_DEVICES environment variable to 0,1,2,3 to specify the GPUs to use for training.
 
 
-## TODO 16: 
+## TODO 15: 
 # 1. Extracts the first hostname
 # 2. Allow communication over InfiniBand cells.
 # 3. Setup MASTER_ADDR and MASTER_PORT
@@ -34,7 +34,7 @@ export SRUN_CPUS_PER_TASK="$SLURM_CPUS_PER_TASK"
 # If you create a new virtual environment, you should update the path above and activate yours.
 source $HOME/course/sc_venv_template/activate.sh
 
-## TODO 17: Replace this line with the distributed training launch script that uses torchrun_jsc and pass the following arguments:
+## TODO 16: Replace this line with the distributed training launch script that uses torchrun_jsc and pass the following arguments:
 # --nnodes=$SLURM_NNODES that specifies the total number of nodes to use
 # --rdzv_backend c10d that sets the backend for rendezvous (process coordination) to PyTorch’s c10d
 # --nproc_per_node=gpu that indicates the number of processes per node, matching the number of GPUs
