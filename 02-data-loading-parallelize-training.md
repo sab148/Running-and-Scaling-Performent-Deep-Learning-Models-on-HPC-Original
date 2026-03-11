@@ -1292,7 +1292,7 @@ def save_sharded_model(model, optimizer=None, CHECKPOINT_DIR='checkpoints'):
 - This allows training of very large models (often >1B parameters) that wouldn’t fit in memory otherwise.
 - However, FSDP relies on frequent communication between GPUs, so it requires a high-bandwidth interconnect (e.g., InfiniBand).
 - On bandwidth-limited clusters, FSDP may become a bottleneck, and pipeline parallelism might be preferable.
-
+<!-- 
 ## DDP/FSDP with Hugging Face (HF)
 
 The HF `Trainer` offers a high level of abstraction with minimal boilerplate.
@@ -1341,7 +1341,7 @@ trainer = Trainer(
 trainer.train()
 ```
 
-Check out more examples in our [HF recipe](https://sdlaml.pages.jsc.fz-juelich.de/ai/recipes/llm_hf/).
+Check out more examples in our [HF recipe](https://sdlaml.pages.jsc.fz-juelich.de/ai/recipes/llm_hf/). -->
 
 ---
 
@@ -1349,262 +1349,295 @@ Check out more examples in our [HF recipe](https://sdlaml.pages.jsc.fz-juelich.d
 
 ---
 
-## Model Parallel
-
-- Before talking about pipelining, let's talk about Model Parallelism (MP).
-- Model *itself* is too big to fit in one single GPU 🐋
-- Each GPU holds a slice of the model 🍕
-- Data moves from one GPU to the next
-
----
-
-## Model Parallel
-
-![](images/model-parallel.svg)
-
----
-
-
-## Model Parallel
-
-![](images/model-parallel-pipeline-1.svg)
-
----
-
-## Model Parallel
-
-![](images/model-parallel-pipeline-2.svg)
-
----
-
-## Model Parallel
-
-![](images/model-parallel-pipeline-3.svg)
-
----
-
-## Model Parallel
-
-![](images/model-parallel-pipeline-4.svg)
-
----
-
-## Model Parallel
-
-![](images/model-parallel-pipeline-5.svg)
-
----
-
-## Model Parallel
-
-![](images/model-parallel-pipeline-6.svg)
-
----
-
-## Model Parallel
-
-![](images/model-parallel-pipeline-7.svg)
-
----
-
-## Model Parallel
-
-![](images/model-parallel-pipeline-8.svg)
-
----
-
-## Model Parallel
-
-![](images/model-parallel-pipeline-9.svg)
-
----
-
-## Model Parallel
-
-![](images/model-parallel-pipeline-10.svg)
-
----
-
-## What's the problem here? 🧐
-
----
-
-## Model Parallel
-
-- Waste of resources
-- While one GPU is working, others are waiting the whole process to end
-- ![](images/no_pipe.png)
-    - [Source: GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism](https://arxiv.org/abs/1811.06965)
-
-
----
-
-## Model Parallel - Pipelining
-
-![](images/model-parallel-pipeline-1.svg)
-
----
-
-## Model Parallel - Pipelining
-
-![](images/model-parallel-pipeline-2-multibatch.svg)
-
----
-
-## Model Parallel - Pipelining
-
-![](images/model-parallel-pipeline-3-multibatch.svg)
-
----
-
-## Model Parallel - Pipelining
-
-![](images/model-parallel-pipeline-4-multibatch.svg)
-
----
-
-## Model Parallel - Pipelining
-
-![](images/model-parallel-pipeline-5-multibatch.svg)
-
----
-
-## Model Parallel - Pipelining
-
-![](images/model-parallel-pipeline-6-multibatch.svg)
-
----
-
-## Model Parallel - Pipelining
-
-![](images/model-parallel-pipeline-7-multibatch.svg)
-
----
-
-## Model Parallel - Pipelining
-
-![](images/model-parallel-pipeline-8-multibatch.svg)
-
----
-
-## Model Parallel - Pipelining
-
-![](images/model-parallel-pipeline-9-multibatch.svg)
-
----
-
-## This is an oversimplification!
-
-- Actually, you split the input minibatch into multiple microbatches.
-- There's still idle time - an unavoidable "bubble" 🫧
-![](images/pipe.png)
-
----
-
-## Model Parallel - Multi Node
-
-- In this case, each node does the same as the others. 
-- At each step, they all synchronize their weights.
-
----
-
-## Model Parallel - Multi Node
-
-![](images/model-parallel-multi-node.svg)
-
----
-
-## Pipeline Parallelism
-
-- Pipeline parallelism does not require frequent communication because the model is stored sequentially in stages.
-- If your model is computationally intensive with extremely wide layers, you may consider Tensor Parallelism (TP).
-
----
-
 ## Tensor Parallelism (TP)
 
-![](images/tp/row_parallel_1.svg)
+- Like FSDP, tensor parallelism is a sharding strategy.
+- But unlike FSDP, it does not shard everything.
+- It shards only the model parameters inside layers.
+- Gradients and optimizer states are not sharded the way they are in FSDP.
+- Tensor parallelism is especially useful when:
+    - A single layer — typically a large linear layer — is too big to fit on one GPU.
+    - Instead of splitting layers across time like FSDP, we split the tensor operations themselves across devices 
+        -> This is intra-layer parallelism.
 
 ---
 
-## TP
-
-![](images/tp/row_parallel_2.svg)
-
----
-
-## TP
-
-![](images/tp/row_parallel_3.svg)
-
----
-
-## TP
+## TP: Column-wise Parallel
 
 ![](images/tp/column_parallel_1.svg)
 
 ---
 
-## TP
+## TP: Column-wise Parallel
 
 ![](images/tp/column_parallel_2.svg)
 
 ---
 
-## TP
+## TP: Column-wise Parallel
 
 ![](images/tp/column_parallel_3.svg)
 
 ---
 
-## TP
+## TP: Row-wise Parallel
+
+![](images/tp/row_parallel_1.svg)
+
+---
+
+## TP: Row-wise Parallel
+
+![](images/tp/row_parallel_2.svg)
+
+---
+
+## TP: Row-wise Parallel
+
+![](images/tp/row_parallel_3.svg)
+
+---
+
+## TP: Combined Column- and Row-wise Parallel
 
 ![](images/tp/column_row_parallel_1.svg)
 
 ---
 
-## TP
+## TP: Combined Column- and Row-wise Parallel
 
 ![](images/tp/column_row_parallel_2.svg)
 
 ---
 
-## TP
+## TP: Combined Column- and Row-wise Parallel
 
 ![](images/tp/column_row_parallel_3.svg)
 
 ---
 
-## TP
+## TP: Combined Column- and Row-wise Parallel
 
 ![](images/tp/column_row_parallel_4.svg)
 
 ---
 
-<!-- 
-![](images/tp/tp-1.png)
+## Minimal Code
+
+```python
+import torch.nn as nn
+from torch.distributed.device_mesh import init_device_mesh
+from torch.distributed.tensor.parallel import (
+    parallelize_module,
+    ColwiseParallel,
+    RowwiseParallel,
+)
+
+mesh = init_device_mesh("cuda", (world_size,))
+
+model = nn.Sequential(
+    nn.Linear(512, 1024),
+    nn.ReLU(),
+    nn.Linear(1024, 512)
+).to(rank)
+
+parallelize_module(model, mesh, {
+    "0": ColwiseParallel(),
+    "2": RowwiseParallel(),
+})
+```
 
 ---
-
-## TP
-
-![](images/tp/tp-2.png)
-
----
-
-## TP
-
-![](images/tp/tp-3.png)
-
-
---- -->
 
 ## TP 
 
-- We have introduced row parallelism.
-- There is also column parallelism, where the weight columns are split across GPUs.
-- Tensor Parallelism (TP) is great for large, compute-heavy layers like matrix multiplications.
+- TP is great for large, compute-heavy layers like matrix multiplications.
 - However, TP requires frequent communication during tensor operations.
+- If TP is not enough .....
+
+---
+
+## Pipeline Parallelism (PP)
+
+- Model *itself* is too big to fit in one single GPU 🐋
+- Each GPU holds a slice of the model 🍕
+- Instead of sending a single large batch through the model, it is split into micro-batches to keep all GPUs utilized.
+- Data moves from one GPU to the next
+
+---
+
+## PP
+
+![](images/pp/pp-0.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-1.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-2.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-3.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-4.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-5.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-6.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-7.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-8.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-9.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-10.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-11.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-12.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-13.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-14.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-15.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-16.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-17.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-18.svg)
+
+---
+
+## PP
+
+![](images/pp/pp-19.svg)
+
+---
+
+## Minimal Code
+
+```python
+import torch
+import torch.nn as nn
+import torch.distributed as dist
+from torch.distributed.pipelining import SplitPoint, pipeline, ScheduleGPipe
+
+model = nn.Sequential(
+    nn.Linear(512, 1024), nn.ReLU(),
+    nn.Linear(1024, 1024), nn.ReLU(),
+    nn.Linear(1024, 1024), nn.ReLU(),
+    nn.Linear(1024, 512),
+)
+
+pipe = pipeline(model, mb_args=(torch.randn(8, 512),), split_spec={
+    "2": SplitPoint.BEGINNING,
+    "4": SplitPoint.BEGINNING,
+    "6": SplitPoint.BEGINNING,
+})
+
+stage = pipe.build_stage(rank, device=torch.device("cuda", rank))
+schedule = ScheduleGPipe(stage, n_microbatches=4)
+
+if rank == 0:  # first stage gets input
+    schedule.step(torch.randn(32, 512, device=torch.device("cuda", rank)))
+elif rank == dist.get_world_size() - 1:  # last stage gets target (to compute loss)
+    loss = schedule.step(target=torch.randn(32, 512, device=torch.device("cuda", rank)))
+else:  # middle stages: no input / no target
+    schedule.step()
+
+```
+
+--- 
+
+## GPipe
+
+- This method is called GPipe
+- There's an idle time - an unavoidable "bubble" 🫧
+![](images/pipe.png)
+- Other schedules reduce this overhead, such as 1F1B and Zero-Bubble
+
+---
+
+## When to use each parallelism strategy
+
+| Strategy | What it does | Best when |
+|---|---|---|
+| **DDP** | Replicates the full model and splits data across GPUs | The model fits on one GPU |
+| **FSDP** | Shards model states across GPUs | The model almost fits in memory |
+| **TP** | Splits large layers across GPUs | A single layer is too large |
+| **PP** | Splits the model into layer stages across GPUs | The model is very deep |
 
 ---
 
@@ -1622,7 +1655,7 @@ Check out more examples in our [HF recipe](https://sdlaml.pages.jsc.fz-juelich.d
 - You know where to store your code and your data. 🗂️📄
 - You know what distributed training is. 🧑‍💻
 - You can submit training jobs on a single GPU, multiple GPUs, or across multiple nodes. 🎮💻
-- You are familiar with DDP and aware of other distributed training techniques like FSDP, TP, PP, and 3D parallelism. ⚙️💡
+- You are familiar with DDP and FSDP and aware of other distributed training techniques like TP, PP, and 3D parallelism. 💡
 - You know how to monitor your training using llview. 📊👀
 
 ---
@@ -1635,6 +1668,7 @@ Check out more examples in our [HF recipe](https://sdlaml.pages.jsc.fz-juelich.d
         - [FSDP paper](https://arxiv.org/pdf/2304.11277)
         - [Pipeline Parallelism](https://arxiv.org/pdf/1811.06965)
         - [Tensor Parallelism](https://arxiv.org/pdf/1909.08053)
+        - [TorchTitan](https://arxiv.org/pdf/2410.06511)
 
     - Tutorials:
         - [PyTorch at JSC](https://sdlaml.pages.jsc.fz-juelich.de/ai/recipes/pytorch_at_jsc/)

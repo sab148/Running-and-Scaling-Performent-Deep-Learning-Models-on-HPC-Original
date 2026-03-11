@@ -1555,67 +1555,57 @@ model parameters, gradients, and optimizer states across GPUs.</li>
 between GPUs, so it requires a high-bandwidth interconnect (e.g.,
 InfiniBand).</li>
 <li class="fragment">On bandwidth-limited clusters, FSDP may become a
-bottleneck, and pipeline parallelism might be preferable.</li>
+bottleneck, and pipeline parallelism might be preferable. <!-- 
+## DDP/FSDP with Hugging Face (HF)
+
+The HF `Trainer` offers a high level of abstraction with minimal boilerplate.
+The following example fine-tunes a text classification model using HF:
+
+- `train/hf_training.py`
+- `hf_training.sbatch`
+
+## HF Ecosystem
+
+HF is an end-to-end ML ecosystem, not only a model library.
+
+- **Hub**: discover, version, and share models and datasets.
+- **[Datasets](https://huggingface.co/docs/datasets/index)**: scalable data loading, preprocessing, and caching.
+- **Training stack**: [`Trainer`](https://huggingface.co/docs/transformers/main_classes/trainer), [`Accelerate`](https://huggingface.co/docs/accelerate/index), and integrations for distributed training.
+- **Reproducibility**: [model cards](https://huggingface.co/docs/hub/model-cards), dataset versions, and shareable configs.
+- Download the models and datasets we need.
+
+```bash
+hf download imdb --repo-type dataset
+hf download gpt2
+```
+
+- Model and dataset loading:
+```python
+# AutoModel* classes support different downstream tasks
+model = AutoModelForSequenceClassification.from_pretrained(<name>)
+dataset = load_dataset(<name>)
+```
+
+## DDP/FSDP Training
+
+Everything is configured through `TrainingArguments`.
+
+```python
+trainer = Trainer(
+    model=model,
+    args=TrainingArguments(
+        num_train_epochs=3,
+        learning_rate=2e-5,
+        ...
+    ),
+    train_dataset=dataset,
+    ...
+)
+trainer.train()
+```
+
+Check out more examples in our [HF recipe](https://sdlaml.pages.jsc.fz-juelich.de/ai/recipes/llm_hf/). --></li>
 </ul>
-</section>
-<section id="ddpfsdp-with-hugging-face-hf" class="slide level2">
-<h2>DDP/FSDP with Hugging Face (HF)</h2>
-<p>The HF <code>Trainer</code> offers a high level of abstraction with
-minimal boilerplate. The following example fine-tunes a text
-classification model using HF:</p>
-<ul>
-<li class="fragment"><code>train/hf_training.py</code></li>
-<li class="fragment"><code>hf_training.sbatch</code></li>
-</ul>
-</section>
-<section id="hf-ecosystem" class="slide level2">
-<h2>HF Ecosystem</h2>
-<p>HF is an end-to-end ML ecosystem, not only a model library.</p>
-<ul>
-<li class="fragment"><strong>Hub</strong>: discover, version, and share
-models and datasets.</li>
-<li class="fragment"><strong><a
-href="https://huggingface.co/docs/datasets/index">Datasets</a></strong>:
-scalable data loading, preprocessing, and caching.</li>
-<li class="fragment"><strong>Training stack</strong>: <a
-href="https://huggingface.co/docs/transformers/main_classes/trainer"><code>Trainer</code></a>,
-<a
-href="https://huggingface.co/docs/accelerate/index"><code>Accelerate</code></a>,
-and integrations for distributed training.</li>
-<li class="fragment"><strong>Reproducibility</strong>: <a
-href="https://huggingface.co/docs/hub/model-cards">model cards</a>,
-dataset versions, and shareable configs.</li>
-<li class="fragment">Download the models and datasets we need.</li>
-</ul>
-<div class="sourceCode" id="cb47"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hf</span> download imdb <span class="at">--repo-type</span> dataset</span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="ex">hf</span> download gpt2</span></code></pre></div>
-<ul>
-<li class="fragment">Model and dataset loading:</li>
-</ul>
-<div class="sourceCode" id="cb48"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># AutoModel* classes support different downstream tasks</span></span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForSequenceClassification.from_pretrained(<span class="op">&lt;</span>name<span class="op">&gt;</span>)</span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> load_dataset(<span class="op">&lt;</span>name<span class="op">&gt;</span>)</span></code></pre></div>
-</section>
-<section id="ddpfsdp-training" class="slide level2">
-<h2>DDP/FSDP Training</h2>
-<p>Everything is configured through <code>TrainingArguments</code>.</p>
-<div class="sourceCode" id="cb49"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>trainer <span class="op">=</span> Trainer(</span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>model,</span>
-<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>    args<span class="op">=</span>TrainingArguments(</span>
-<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>        num_train_epochs<span class="op">=</span><span class="dv">3</span>,</span>
-<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>        learning_rate<span class="op">=</span><span class="fl">2e-5</span>,</span>
-<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>        ...</span>
-<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>    train_dataset<span class="op">=</span>dataset,</span>
-<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>    ...</span>
-<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>trainer.train()</span></code></pre></div>
-<p>Check out more examples in our <a
-href="https://sdlaml.pages.jsc.fz-juelich.de/ai/recipes/llm_hf/">HF
-recipe</a>.</p>
 </section>
 <section
 id="thats-it-for-fsdp-now-lets-move-to-another-parallelization-technique."
@@ -1623,224 +1613,275 @@ class="slide level2">
 <h2>That’s it for FSDP, now let’s move to another parallelization
 technique.</h2>
 </section>
-<section id="model-parallel" class="slide level2">
-<h2>Model Parallel</h2>
+<section id="tensor-parallelism-tp" class="slide level2">
+<h2>Tensor Parallelism (TP)</h2>
 <ul>
-<li class="fragment">Before talking about pipelining, let’s talk about
-Model Parallelism (MP).</li>
-<li class="fragment">Model <em>itself</em> is too big to fit in one
-single GPU 🐋</li>
-<li class="fragment">Each GPU holds a slice of the model 🍕</li>
-<li class="fragment">Data moves from one GPU to the next</li>
-</ul>
-</section>
-<section id="model-parallel-1" class="slide level2">
-<h2>Model Parallel</h2>
-<p><img data-src="images/model-parallel.svg" /></p>
-</section>
-<section id="model-parallel-2" class="slide level2">
-<h2>Model Parallel</h2>
-<p><img data-src="images/model-parallel-pipeline-1.svg" /></p>
-</section>
-<section id="model-parallel-3" class="slide level2">
-<h2>Model Parallel</h2>
-<p><img data-src="images/model-parallel-pipeline-2.svg" /></p>
-</section>
-<section id="model-parallel-4" class="slide level2">
-<h2>Model Parallel</h2>
-<p><img data-src="images/model-parallel-pipeline-3.svg" /></p>
-</section>
-<section id="model-parallel-5" class="slide level2">
-<h2>Model Parallel</h2>
-<p><img data-src="images/model-parallel-pipeline-4.svg" /></p>
-</section>
-<section id="model-parallel-6" class="slide level2">
-<h2>Model Parallel</h2>
-<p><img data-src="images/model-parallel-pipeline-5.svg" /></p>
-</section>
-<section id="model-parallel-7" class="slide level2">
-<h2>Model Parallel</h2>
-<p><img data-src="images/model-parallel-pipeline-6.svg" /></p>
-</section>
-<section id="model-parallel-8" class="slide level2">
-<h2>Model Parallel</h2>
-<p><img data-src="images/model-parallel-pipeline-7.svg" /></p>
-</section>
-<section id="model-parallel-9" class="slide level2">
-<h2>Model Parallel</h2>
-<p><img data-src="images/model-parallel-pipeline-8.svg" /></p>
-</section>
-<section id="model-parallel-10" class="slide level2">
-<h2>Model Parallel</h2>
-<p><img data-src="images/model-parallel-pipeline-9.svg" /></p>
-</section>
-<section id="model-parallel-11" class="slide level2">
-<h2>Model Parallel</h2>
-<p><img data-src="images/model-parallel-pipeline-10.svg" /></p>
-</section>
-<section id="whats-the-problem-here" class="slide level2">
-<h2>What’s the problem here? 🧐</h2>
-</section>
-<section id="model-parallel-12" class="slide level2">
-<h2>Model Parallel</h2>
+<li class="fragment">Like FSDP, tensor parallelism is a sharding
+strategy.</li>
+<li class="fragment">But unlike FSDP, it does not shard everything.</li>
+<li class="fragment">It shards only the model parameters inside
+layers.</li>
+<li class="fragment">Gradients and optimizer states are not sharded the
+way they are in FSDP.</li>
+<li class="fragment">Tensor parallelism is especially useful when:
 <ul>
-<li class="fragment">Waste of resources</li>
-<li class="fragment">While one GPU is working, others are waiting the
-whole process to end</li>
-<li class="fragment"><img data-src="images/no_pipe.png" />
-<ul>
-<li class="fragment"><a href="https://arxiv.org/abs/1811.06965">Source:
-GPipe: Efficient Training of Giant Neural Networks using Pipeline
-Parallelism</a></li>
+<li class="fragment">A single layer — typically a large linear layer —
+is too big to fit on one GPU.</li>
+<li class="fragment">Instead of splitting layers across time like FSDP,
+we split the tensor operations themselves across devices -&gt; This is
+intra-layer parallelism.</li>
 </ul></li>
 </ul>
 </section>
-<section id="model-parallel---pipelining" class="slide level2">
-<h2>Model Parallel - Pipelining</h2>
-<p><img data-src="images/model-parallel-pipeline-1.svg" /></p>
+<section id="tp-column-wise-parallel" class="slide level2">
+<h2>TP: Column-wise Parallel</h2>
+<p><img data-src="images/tp/column_parallel_1.svg" /></p>
 </section>
-<section id="model-parallel---pipelining-1" class="slide level2">
-<h2>Model Parallel - Pipelining</h2>
-<p><img
-data-src="images/model-parallel-pipeline-2-multibatch.svg" /></p>
+<section id="tp-column-wise-parallel-1" class="slide level2">
+<h2>TP: Column-wise Parallel</h2>
+<p><img data-src="images/tp/column_parallel_2.svg" /></p>
 </section>
-<section id="model-parallel---pipelining-2" class="slide level2">
-<h2>Model Parallel - Pipelining</h2>
-<p><img
-data-src="images/model-parallel-pipeline-3-multibatch.svg" /></p>
+<section id="tp-column-wise-parallel-2" class="slide level2">
+<h2>TP: Column-wise Parallel</h2>
+<p><img data-src="images/tp/column_parallel_3.svg" /></p>
 </section>
-<section id="model-parallel---pipelining-3" class="slide level2">
-<h2>Model Parallel - Pipelining</h2>
-<p><img
-data-src="images/model-parallel-pipeline-4-multibatch.svg" /></p>
-</section>
-<section id="model-parallel---pipelining-4" class="slide level2">
-<h2>Model Parallel - Pipelining</h2>
-<p><img
-data-src="images/model-parallel-pipeline-5-multibatch.svg" /></p>
-</section>
-<section id="model-parallel---pipelining-5" class="slide level2">
-<h2>Model Parallel - Pipelining</h2>
-<p><img
-data-src="images/model-parallel-pipeline-6-multibatch.svg" /></p>
-</section>
-<section id="model-parallel---pipelining-6" class="slide level2">
-<h2>Model Parallel - Pipelining</h2>
-<p><img
-data-src="images/model-parallel-pipeline-7-multibatch.svg" /></p>
-</section>
-<section id="model-parallel---pipelining-7" class="slide level2">
-<h2>Model Parallel - Pipelining</h2>
-<p><img
-data-src="images/model-parallel-pipeline-8-multibatch.svg" /></p>
-</section>
-<section id="model-parallel---pipelining-8" class="slide level2">
-<h2>Model Parallel - Pipelining</h2>
-<p><img
-data-src="images/model-parallel-pipeline-9-multibatch.svg" /></p>
-</section>
-<section id="this-is-an-oversimplification" class="slide level2">
-<h2>This is an oversimplification!</h2>
-<ul>
-<li class="fragment">Actually, you split the input minibatch into
-multiple microbatches.</li>
-<li class="fragment">There’s still idle time - an unavoidable “bubble”
-🫧 <img data-src="images/pipe.png" /></li>
-</ul>
-</section>
-<section id="model-parallel---multi-node" class="slide level2">
-<h2>Model Parallel - Multi Node</h2>
-<ul>
-<li class="fragment">In this case, each node does the same as the
-others.</li>
-<li class="fragment">At each step, they all synchronize their
-weights.</li>
-</ul>
-</section>
-<section id="model-parallel---multi-node-1" class="slide level2">
-<h2>Model Parallel - Multi Node</h2>
-<p><img data-src="images/model-parallel-multi-node.svg" /></p>
-</section>
-<section id="pipeline-parallelism" class="slide level2">
-<h2>Pipeline Parallelism</h2>
-<ul>
-<li class="fragment">Pipeline parallelism does not require frequent
-communication because the model is stored sequentially in stages.</li>
-<li class="fragment">If your model is computationally intensive with
-extremely wide layers, you may consider Tensor Parallelism (TP).</li>
-</ul>
-</section>
-<section id="tensor-parallelism-tp" class="slide level2">
-<h2>Tensor Parallelism (TP)</h2>
+<section id="tp-row-wise-parallel" class="slide level2">
+<h2>TP: Row-wise Parallel</h2>
 <p><img data-src="images/tp/row_parallel_1.svg" /></p>
+</section>
+<section id="tp-row-wise-parallel-1" class="slide level2">
+<h2>TP: Row-wise Parallel</h2>
+<p><img data-src="images/tp/row_parallel_2.svg" /></p>
+</section>
+<section id="tp-row-wise-parallel-2" class="slide level2">
+<h2>TP: Row-wise Parallel</h2>
+<p><img data-src="images/tp/row_parallel_3.svg" /></p>
+</section>
+<section id="tp-combined-column--and-row-wise-parallel"
+class="slide level2">
+<h2>TP: Combined Column- and Row-wise Parallel</h2>
+<p><img data-src="images/tp/column_row_parallel_1.svg" /></p>
+</section>
+<section id="tp-combined-column--and-row-wise-parallel-1"
+class="slide level2">
+<h2>TP: Combined Column- and Row-wise Parallel</h2>
+<p><img data-src="images/tp/column_row_parallel_2.svg" /></p>
+</section>
+<section id="tp-combined-column--and-row-wise-parallel-2"
+class="slide level2">
+<h2>TP: Combined Column- and Row-wise Parallel</h2>
+<p><img data-src="images/tp/column_row_parallel_3.svg" /></p>
+</section>
+<section id="tp-combined-column--and-row-wise-parallel-3"
+class="slide level2">
+<h2>TP: Combined Column- and Row-wise Parallel</h2>
+<p><img data-src="images/tp/column_row_parallel_4.svg" /></p>
+</section>
+<section id="minimal-code" class="slide level2">
+<h2>Minimal Code</h2>
+<div class="sourceCode" id="cb47"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.distributed.device_mesh <span class="im">import</span> init_device_mesh</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.distributed.tensor.parallel <span class="im">import</span> (</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>    parallelize_module,</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>    ColwiseParallel,</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>    RowwiseParallel,</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>mesh <span class="op">=</span> init_device_mesh(<span class="st">&quot;cuda&quot;</span>, (world_size,))</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> nn.Sequential(</span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">512</span>, <span class="dv">1024</span>),</span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a>    nn.ReLU(),</span>
+<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">1024</span>, <span class="dv">512</span>)</span>
+<span id="cb47-15"><a href="#cb47-15" aria-hidden="true" tabindex="-1"></a>).to(rank)</span>
+<span id="cb47-16"><a href="#cb47-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-17"><a href="#cb47-17" aria-hidden="true" tabindex="-1"></a>parallelize_module(model, mesh, {</span>
+<span id="cb47-18"><a href="#cb47-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;0&quot;</span>: ColwiseParallel(),</span>
+<span id="cb47-19"><a href="#cb47-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;2&quot;</span>: RowwiseParallel(),</span>
+<span id="cb47-20"><a href="#cb47-20" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 </section>
 <section id="tp" class="slide level2">
 <h2>TP</h2>
-<p><img data-src="images/tp/row_parallel_2.svg" /></p>
-</section>
-<section id="tp-1" class="slide level2">
-<h2>TP</h2>
-<p><img data-src="images/tp/row_parallel_3.svg" /></p>
-</section>
-<section id="tp-2" class="slide level2">
-<h2>TP</h2>
-<p><img data-src="images/tp/column_parallel_1.svg" /></p>
-</section>
-<section id="tp-3" class="slide level2">
-<h2>TP</h2>
-<p><img data-src="images/tp/column_parallel_2.svg" /></p>
-</section>
-<section id="tp-4" class="slide level2">
-<h2>TP</h2>
-<p><img data-src="images/tp/column_parallel_3.svg" /></p>
-</section>
-<section id="tp-5" class="slide level2">
-<h2>TP</h2>
-<p><img data-src="images/tp/column_row_parallel_1.svg" /></p>
-</section>
-<section id="tp-6" class="slide level2">
-<h2>TP</h2>
-<p><img data-src="images/tp/column_row_parallel_2.svg" /></p>
-</section>
-<section id="tp-7" class="slide level2">
-<h2>TP</h2>
-<p><img data-src="images/tp/column_row_parallel_3.svg" /></p>
-</section>
-<section id="tp-8" class="slide level2">
-<h2>TP</h2>
-<p><img data-src="images/tp/column_row_parallel_4.svg" /></p>
-</section>
-<section class="slide level2">
-
-<!-- 
-![](images/tp/tp-1.png)
-
----
-
-## TP
-
-![](images/tp/tp-2.png)
-
----
-
-## TP
-
-![](images/tp/tp-3.png)
-
-
---- -->
-</section>
-<section id="tp-9" class="slide level2">
-<h2>TP</h2>
 <ul>
-<li class="fragment">We have introduced row parallelism.</li>
-<li class="fragment">There is also column parallelism, where the weight
-columns are split across GPUs.</li>
-<li class="fragment">Tensor Parallelism (TP) is great for large,
-compute-heavy layers like matrix multiplications.</li>
+<li class="fragment">TP is great for large, compute-heavy layers like
+matrix multiplications.</li>
 <li class="fragment">However, TP requires frequent communication during
 tensor operations.</li>
+<li class="fragment">If TP is not enough …..</li>
 </ul>
+</section>
+<section id="pipeline-parallelism-pp" class="slide level2">
+<h2>Pipeline Parallelism (PP)</h2>
+<ul>
+<li class="fragment">Model <em>itself</em> is too big to fit in one
+single GPU 🐋</li>
+<li class="fragment">Each GPU holds a slice of the model 🍕</li>
+<li class="fragment">Instead of sending a single large batch through the
+model, it is split into micro-batches to keep all GPUs utilized.</li>
+<li class="fragment">Data moves from one GPU to the next</li>
+</ul>
+</section>
+<section id="pp" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-0.svg" /></p>
+</section>
+<section id="pp-1" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-1.svg" /></p>
+</section>
+<section id="pp-2" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-2.svg" /></p>
+</section>
+<section id="pp-3" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-3.svg" /></p>
+</section>
+<section id="pp-4" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-4.svg" /></p>
+</section>
+<section id="pp-5" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-5.svg" /></p>
+</section>
+<section id="pp-6" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-6.svg" /></p>
+</section>
+<section id="pp-7" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-7.svg" /></p>
+</section>
+<section id="pp-8" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-8.svg" /></p>
+</section>
+<section id="pp-9" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-9.svg" /></p>
+</section>
+<section id="pp-10" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-10.svg" /></p>
+</section>
+<section id="pp-11" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-11.svg" /></p>
+</section>
+<section id="pp-12" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-12.svg" /></p>
+</section>
+<section id="pp-13" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-13.svg" /></p>
+</section>
+<section id="pp-14" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-14.svg" /></p>
+</section>
+<section id="pp-15" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-15.svg" /></p>
+</section>
+<section id="pp-16" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-16.svg" /></p>
+</section>
+<section id="pp-17" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-17.svg" /></p>
+</section>
+<section id="pp-18" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-18.svg" /></p>
+</section>
+<section id="pp-19" class="slide level2">
+<h2>PP</h2>
+<p><img data-src="images/pp/pp-19.svg" /></p>
+</section>
+<section id="minimal-code-1" class="slide level2">
+<h2>Minimal Code</h2>
+<div class="sourceCode" id="cb48"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.distributed <span class="im">as</span> dist</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.distributed.pipelining <span class="im">import</span> SplitPoint, pipeline, ScheduleGPipe</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> nn.Sequential(</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">512</span>, <span class="dv">1024</span>), nn.ReLU(),</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">1024</span>, <span class="dv">1024</span>), nn.ReLU(),</span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">1024</span>, <span class="dv">1024</span>), nn.ReLU(),</span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">1024</span>, <span class="dv">512</span>),</span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a>pipe <span class="op">=</span> pipeline(model, mb_args<span class="op">=</span>(torch.randn(<span class="dv">8</span>, <span class="dv">512</span>),), split_spec<span class="op">=</span>{</span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;2&quot;</span>: SplitPoint.BEGINNING,</span>
+<span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;4&quot;</span>: SplitPoint.BEGINNING,</span>
+<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;6&quot;</span>: SplitPoint.BEGINNING,</span>
+<span id="cb48-17"><a href="#cb48-17" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb48-18"><a href="#cb48-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-19"><a href="#cb48-19" aria-hidden="true" tabindex="-1"></a>stage <span class="op">=</span> pipe.build_stage(rank, device<span class="op">=</span>torch.device(<span class="st">&quot;cuda&quot;</span>, rank))</span>
+<span id="cb48-20"><a href="#cb48-20" aria-hidden="true" tabindex="-1"></a>schedule <span class="op">=</span> ScheduleGPipe(stage, n_microbatches<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb48-21"><a href="#cb48-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-22"><a href="#cb48-22" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> rank <span class="op">==</span> <span class="dv">0</span>:  <span class="co"># first stage gets input</span></span>
+<span id="cb48-23"><a href="#cb48-23" aria-hidden="true" tabindex="-1"></a>    schedule.step(torch.randn(<span class="dv">32</span>, <span class="dv">512</span>, device<span class="op">=</span>torch.device(<span class="st">&quot;cuda&quot;</span>, rank)))</span>
+<span id="cb48-24"><a href="#cb48-24" aria-hidden="true" tabindex="-1"></a><span class="cf">elif</span> rank <span class="op">==</span> dist.get_world_size() <span class="op">-</span> <span class="dv">1</span>:  <span class="co"># last stage gets target (to compute loss)</span></span>
+<span id="cb48-25"><a href="#cb48-25" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> schedule.step(target<span class="op">=</span>torch.randn(<span class="dv">32</span>, <span class="dv">512</span>, device<span class="op">=</span>torch.device(<span class="st">&quot;cuda&quot;</span>, rank)))</span>
+<span id="cb48-26"><a href="#cb48-26" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:  <span class="co"># middle stages: no input / no target</span></span>
+<span id="cb48-27"><a href="#cb48-27" aria-hidden="true" tabindex="-1"></a>    schedule.step()</span></code></pre></div>
+</section>
+<section id="gpipe" class="slide level2">
+<h2>GPipe</h2>
+<ul>
+<li class="fragment">This method is called GPipe</li>
+<li class="fragment">There’s an idle time - an unavoidable “bubble” 🫧
+<img data-src="images/pipe.png" /></li>
+<li class="fragment">Other schedules reduce this overhead, such as 1F1B
+and Zero-Bubble</li>
+</ul>
+</section>
+<section id="when-to-use-each-parallelism-strategy"
+class="slide level2">
+<h2>When to use each parallelism strategy</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Strategy</th>
+<th>What it does</th>
+<th>Best when</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>DDP</strong></td>
+<td>Replicates the full model and splits data across GPUs</td>
+<td>The model fits on one GPU</td>
+</tr>
+<tr class="even">
+<td><strong>FSDP</strong></td>
+<td>Shards model states across GPUs</td>
+<td>The model almost fits in memory</td>
+</tr>
+<tr class="odd">
+<td><strong>TP</strong></td>
+<td>Splits large layers across GPUs</td>
+<td>A single layer is too large</td>
+</tr>
+<tr class="even">
+<td><strong>PP</strong></td>
+<td>Splits the model into layer stages across GPUs</td>
+<td>The model is very deep</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="d-parallelism" class="slide level2">
 <h2>3D Parallelism</h2>
@@ -1867,9 +1908,9 @@ way.</li>
 <li class="fragment">You know what distributed training is. 🧑‍💻</li>
 <li class="fragment">You can submit training jobs on a single GPU,
 multiple GPUs, or across multiple nodes. 🎮💻</li>
-<li class="fragment">You are familiar with DDP and aware of other
-distributed training techniques like FSDP, TP, PP, and 3D parallelism.
-⚙️💡</li>
+<li class="fragment">You are familiar with DDP and FSDP and aware of
+other distributed training techniques like TP, PP, and 3D parallelism.
+💡</li>
 <li class="fragment">You know how to monitor your training using llview.
 📊👀</li>
 </ul>
@@ -1887,6 +1928,8 @@ paper</a></li>
 Parallelism</a></li>
 <li class="fragment"><a href="https://arxiv.org/pdf/1909.08053">Tensor
 Parallelism</a></li>
+<li class="fragment"><a
+href="https://arxiv.org/pdf/2410.06511">TorchTitan</a></li>
 </ul></li>
 <li class="fragment">Tutorials:
 <ul>

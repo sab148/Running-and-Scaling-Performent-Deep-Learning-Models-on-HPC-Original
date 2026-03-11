@@ -10,5 +10,5 @@ date: March 10, 2025
 
 - [Day 1: Access machines, slurm, etc](01-access-machines.html)
     - [Day 1: Recap](day-1-recap.html)
-- [Day 2: Data Loading & Parallelize training](03-data-loading-parallelize-training.html)
-- [Day 3: AI Profiling](04-AI-Profiling.html)
+- [Day 2: Data Loading & Parallelize training](02-data-loading-parallelize-training.html)
+- [Day 3: AI Profiling](03-AI-Profiling.html)
