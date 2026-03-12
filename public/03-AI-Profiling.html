@@ -502,7 +502,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href=
 <p>Use + and − keys to zoom in and out</p>
 <p>Go to this link to answer the questions:</p>
 <div
-style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 1050px; padding: 8px;">
+style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 8px;">
 <p><a href="https://forms.gle/LMyJAzm3Q5tfWJqc7" target="_blank"> Single
 GPU without dataloader Worker </a></p>
 </div>
@@ -567,7 +567,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a h
 </div>
 <div style="font-weight: bold; background-color: #ffcccc;">
 <div class="sourceCode" id="cb14"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training.sbatch <span class="at">--profile</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training_profiling.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 <h3 id="single-gpu-multiworkers-3">Single GPU Multiworkers</h3>
 <div
@@ -577,7 +577,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href=
 </div>
 <p>Go to this link to answer the questions:</p>
 <div
-style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 1050px; padding: 2px;">
+style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
 <p><a href="https://forms.gle/oxNaBnjP8cA9kPJw5" target="_blank"> Single
 GPU Multiworkers </a></p>
 </div>
@@ -672,7 +672,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a h
 </div>
 <div style="font-weight: bold; background-color: #ffcccc;">
 <div class="sourceCode" id="cb18"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training.sbatch <span class="at">--profile</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training_profiling.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 </section>
 <section class="slide level2">
@@ -686,12 +686,12 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href=
 </div>
 <p>Go to this link to answer the questions:</p>
 <div
-style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 1050px; padding: 2px;">
+style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
 <p><a href="https://forms.gle/Fi1EVARNaVRZcpsR8" target="_blank"> Single
 GPU Multiworkers (Asyn. Transfer) </a></p>
 </div>
 <div
-style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
+style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
 <div
 style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">
 📘 Exercise
@@ -744,8 +744,14 @@ style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-widt
 <div class="sourceCode" id="cb21"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
 </div>
+<p>Go to this link to answer the questions:</p>
 <div
-style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
+style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
+<p><a href="https://forms.gle/z6VoTiQ1gZjwZTRDA" target="_blank"> DDP (4
+GPUs) </a></p>
+</div>
+<div
+style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
 <div
 style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">
 📘 Exercise
@@ -755,17 +761,17 @@ style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">
 Which intra-node communication is active (PCIe or NVLink)?
 </li>
 <li>
-Check NIC metrics (why? There is some traffic on one node)
+Check NIC metrics (Why is there some traffic on one node?)
 </li>
 <li>
-Check the NCCL trace inside the GPU
+Check the NCCL trace inside of CUDA HW
 </li>
 <li>
-Check the number of all-reduce calls
+How many times is the all-reduce operation called (check NCCL trace
+inside of CUDA HW)?
 </li>
 <li>
-Check the overlap between the all-reduce calls and the compute kernels
-inside the GPU
+Do the compute kernels overlap with the NCCL all-reduce operation?
 </li>
 </ul>
 </div>
@@ -792,8 +798,14 @@ style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-widt
 <div class="sourceCode" id="cb23"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
 </div>
+<p>Go to this link to answer the questions:</p>
 <div
-style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
+style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
+<p><a href="https://forms.gle/KvvPEqvEnVLhVNrL8" target="_blank"> DDP (8
+GPUs) </a></p>
+</div>
+<div
+style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
 <div
 style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">
 📘 Exercise
@@ -803,7 +815,10 @@ style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">
 Which intra-node communication is active (PCIe or NVLink)?
 </li>
 <li>
-Check NIC metrics &amp; compre the traffic with previous run
+Check the NCCL trace inside of CUDA HW
+</li>
+<li>
+Do the compute kernels overlap with the NCCL all-reduce operation?
 </li>
 <li>
 Do you think the training will be scalable?
@@ -833,15 +848,24 @@ style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-widt
 <div class="sourceCode" id="cb25"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
 </div>
+<p>Go to this link to answer the questions:</p>
 <div
-style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
+style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
+<p><a href="https://forms.gle/XXF5EHMLQkRaM88k8" target="_blank"> DDP (8
+GPUs without GPU_Direct_RDMA) </a></p>
+</div>
+<div
+style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
 <div
 style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">
 📘 Exercise
 </div>
 <ul style="margin: 5px 0 0 20px;">
 <li>
-Which intra-node communication is active (PCIe or NVLink)?
+Check the NCCL trace inside of CUDA HW
+</li>
+<li>
+Do the compute kernels overlap with the NCCL all-reduce operation?
 </li>
 <li>
 Do you think the training will be scalable?
@@ -871,19 +895,21 @@ style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-widt
 <div class="sourceCode" id="cb27"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
 </div>
+<p>Go to this link to answer the questions:</p>
 <div
-style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
+style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
+<p><a href="https://forms.gle/zn58hSUSLZZWPzLX8" target="_blank"> DDP (8
+GPUs without Infiniband usage) </a></p>
+</div>
+<div
+style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
 <div
 style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">
 📘 Exercise
 </div>
 <ul style="margin: 5px 0 0 20px;">
 <li>
-Which intra-node communication is active (PCIe or NVLink)?
-</li>
-<li>
-Check the overlap between the all-reduce calls and the compute kernels
-inside the GPU
+Do the compute kernels overlap with the NCCL all-reduce operation?
 </li>
 <li>
 Do you think the training will be scalable?

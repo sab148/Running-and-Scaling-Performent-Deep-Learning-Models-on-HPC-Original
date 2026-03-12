@@ -280,7 +280,7 @@ Use + and − keys to zoom in and out
 
 Go to this link to answer the questions:
 
-<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 1050px; padding: 8px;">
+<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 8px;">
   <a href="https://forms.gle/LMyJAzm3Q5tfWJqc7" target="_blank">
     Single GPU without dataloader Worker
   </a>
@@ -330,7 +330,7 @@ train_loader = DataLoader(train_dataset,
 
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```bash
-sbatch --disable-dcgm single_gpu_training.sbatch --profile
+sbatch --disable-dcgm single_gpu_training_profiling.sbatch --profile
 ```
 </div>
 
@@ -345,7 +345,7 @@ File -> Open -> Single_GPU/Single_GPU/Report_01_multi_woker_unpined_non_blocking
 
 Go to this link to answer the questions:
 
-<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 1050px; padding: 2px;">
+<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
   <a href="https://forms.gle/oxNaBnjP8cA9kPJw5" target="_blank">
     Single GPU Multiworkers
   </a>
@@ -430,7 +430,7 @@ train_loader = DataLoader(train_dataset,
 
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```bash
-sbatch --disable-dcgm single_gpu_training.sbatch --profile
+sbatch --disable-dcgm single_gpu_training_profiling.sbatch --profile
 ```
 </div>
 
@@ -446,14 +446,14 @@ File -> Open -> Single_GPU/Report_02_multiwoker_pined_non_blocking_True/nsys_log
 
 Go to this link to answer the questions:
 
-<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 1050px; padding: 2px;">
+<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
   <a href="https://forms.gle/Fi1EVARNaVRZcpsR8" target="_blank">
     Single GPU Multiworkers (Asyn. Transfer)
   </a>
 </div>
 
 
-<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
+<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
 <div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Exercise</div>
 <ul style="margin: 5px 0 0 20px;">
 <li>Check one iteration of training (PyTorch trace)</li>
@@ -502,17 +502,25 @@ File -> Open -> select all .nsys-rep files --> create a multi-view report -> sel
 ```
 </div>
 
+Go to this link to answer the questions:
+
+<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
+  <a href="https://forms.gle/z6VoTiQ1gZjwZTRDA" target="_blank">
+    DDP (4 GPUs)
+  </a>
+</div>
 
 
 
-<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
+
+<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
 <div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Exercise</div>
 <ul style="margin: 5px 0 0 20px;">
 <li>Which intra-node communication is active (PCIe or NVLink)?</li>
-<li>Check NIC metrics (why? There is some traffic on one node) </li>
-<li>Check the NCCL trace inside the GPU </li>
-<li>Check the number of all-reduce calls </li>
-<li>Check the overlap between the all-reduce calls and the compute kernels inside the GPU </li>
+<li>Check NIC metrics (Why is there some traffic on one node?) </li>
+<li>Check the NCCL trace inside of CUDA HW </li>
+<li>How many times is the all-reduce operation called (check NCCL trace inside of CUDA HW)?  </li>
+<li>Do the compute kernels overlap with the NCCL all-reduce operation? </li>
 </ul>
 </div>
 
@@ -549,12 +557,23 @@ File -> Open -> select all .nsys-rep files --> create a multi-view report -> sel
 
 
 
+Go to this link to answer the questions:
 
-<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
+<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
+  <a href="https://forms.gle/KvvPEqvEnVLhVNrL8" target="_blank">
+    DDP (8 GPUs)
+  </a>
+</div>
+
+
+
+
+<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
 <div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Exercise</div>
 <ul style="margin: 5px 0 0 20px;">
 <li>Which intra-node communication is active (PCIe or NVLink)?</li>
-<li>Check NIC metrics & compre the traffic with previous run</li>
+<li>Check the NCCL trace inside of CUDA HW </li>
+<li>Do the compute kernels overlap with the NCCL all-reduce operation? </li>
 <li>Do you think the training will be scalable?</li>
 </ul>
 </div>
@@ -592,11 +611,22 @@ File -> Open -> select all .nsys-rep files --> create a multi-view report -> sel
 
 
 
+Go to this link to answer the questions:
 
-<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
+<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
+  <a href="https://forms.gle/XXF5EHMLQkRaM88k8" target="_blank">
+    DDP (8 GPUs without GPU_Direct_RDMA)
+  </a>
+</div>
+
+
+
+
+<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
 <div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Exercise</div>
 <ul style="margin: 5px 0 0 20px;">
-<li>Which intra-node communication is active (PCIe or NVLink)?</li>
+<li>Check the NCCL trace inside of CUDA HW </li>
+<li>Do the compute kernels overlap with the NCCL all-reduce operation? </li>
 <li>Do you think the training will be scalable?</li>
 </ul>
 </div>
@@ -633,12 +663,21 @@ File -> Open -> select all .nsys-rep files --> create a multi-view report -> sel
 ```
 </div>
 
+Go to this link to answer the questions:
 
-<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
+<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
+  <a href="https://forms.gle/zn58hSUSLZZWPzLX8" target="_blank">
+    DDP (8 GPUs without Infiniband usage)
+  </a>
+</div>
+
+
+
+
+<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
 <div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Exercise</div>
 <ul style="margin: 5px 0 0 20px;">
-<li>Which intra-node communication is active (PCIe or NVLink)?</li>
-<li>Check the overlap between the all-reduce calls and the compute kernels inside the GPU </li>
+<li>Do the compute kernels overlap with the NCCL all-reduce operation? </li>
 <li>Do you think the training will be scalable?</li>
 </ul>
 </div>
