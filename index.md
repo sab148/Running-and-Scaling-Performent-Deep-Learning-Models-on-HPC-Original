@@ -6,6 +6,14 @@ date: May 27, 2026
 
 ---
 
+![](images/nn/dl.png)
+
+Class 0: Dog
+
+Class 1: Cat
+
+---
+
 ## Neural Network
 
 ![](images/nn/intro_jsc.003.svg){height=1000px}
