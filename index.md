@@ -14,8 +14,12 @@ date: May 27, 2026
 
 ## What is Training 
 
-- Learn patterns by updating neural network parameters to minimize the loss function using an **optimizer algorithm**.
-
+- Learn patterns by updating neural network parameters using 4 iterative steps:
+    1. Forward pass
+    2. Calculate Loss
+    3. Backward Pass
+    4. Parameter Update
+    
 ---
 
 ## Forward pass
@@ -102,19 +106,27 @@ date: May 27, 2026
 
 ---
 
-## Optimizer
-
-- Common optimization strategies:
-    - **SGD (Stochastic Gradient Descent)**: Updates parameters opposite to the gradient using a learning rate. Efficient but may converge slowly and oscillate in complex loss landscapes
-    - **SGD with Momentum**: Improves SGD by adding part of the previous update to the current one. Helps faster convergence and smoother optimization
-    - **RMSProp**: Adapts the learning rate for each parameter using recent gradient magnitudes. Enables faster and more stable learning
-    - **Adam (Adaptive Moment Estimation)**: Combines Momentum and RMSProp. Fast, stable, and widely used in deep learning
-
----
-
 ## update weights
 
 ![](images/nn/intro_jsc.030.svg){height=600px}
+
+---
+
+## Iterations & Epochs
+
+- **Iteration**: one full training step using a single subset (batch) of data.
+    
+    forward pass → loss computation → backward pass → parameter update
+
+- **Epoch**: one complete pass through the entire dataset.
+
+---
+
+## Dataset Concepts
+
+* **Training set:** data used to train the model and update weights.
+* **Validation set:** data used during training to tune hyperparameters and monitor performance.
+* **Test set:** unseen data used only for the final evaluation of the model.
 
 ---
 
@@ -126,14 +138,6 @@ date: May 27, 2026
 - Depth unlocks capabilities that shallow networks can't approximate efficiently.
 
 --- 
-
-## Why Deep Learning Succeeded
-
-- **Large datasets** — ImageNet's 1.2M+ labelled images gave models enough examples to generalise.
-- **Powerful GPUs** — ~1000× speedup over CPUs for matrix operations made training feasible in days, not years.
-- **Better algorithms** — ReLU, Dropout, and Batch Normalisation solved vanishing gradients, overfitting, and slow convergence that blocked earlier progress.
-
----
 
 ## Deep Learning Models Types
 
@@ -151,44 +155,27 @@ date: May 27, 2026
 
 <figure style="text-align:center;">
   <img src="images/nn/sdm.svg" height="300px" width="600px">
-  <figcaption>Stable Diffusion Model</figcaption>
+  <figcaption>Diffusion Model</figcaption>
 </figure>
 
 </div>
 
 --- 
 
-## Applications
+## The Scaling Law
 
-![](images/nn/dl_tasks.svg){height=600px}
+- **Model Capacity**: Larger models with more parameters are required to absorb massive amounts of data without saturating.
+- **Data Capacity**: More data allows these larger models to learn richer, more diverse patterns without overfitting.
+- **Compute Demand**: Scaling both models and datasets demands significantly more computational power and memory to train.
 
---- 
-
-## Scaling Laws 
-<div style="text-align: left">
--> More data helps models learn richer and more diverse patterns.
-
--> Larger datasets usually require larger models with more parameters.
-
--> Larger models require significantly more compute power and memory.
-</div>
-**Bigger models + more data + more compute = better performance**
+**Bigger Models + More Data + More Compute = Better Performance**
 
 ---
 
-## Deep Learning & High-Performance Computing
-- GPUs allows thousands of operations to run in parallel, making DL dramatically faster than on a CPU.
-- However, a single GPU is no longer enough. Training a model with billions of parameters demands far more memory and compute than any one device can provide. To scale efficiently, training is distributed across multiple GPUs, multi-node clusters, and supercomputers.
-- High-Performance Computing (HPC) provides the infrastructure — fast interconnects, large storage, and job orchestration — that makes this possible.
-
----
-
-## Distributed Training
-
-- Parallelize the training across multiple nodes, 
-- Significantly enhancing training speed and model accuracy.
-- It is particularly beneficial for large models and computationally intensive tasks, such as deep learning.[[1]](https://pytorch.org/tutorials/distributed/home.html)
-
+## Deep Learning, High-Performance Computing & Distributed Training
+- GPUs enable thousands of parallel operations, making deep learning far faster than CPUs.
+- But modern AI models exceed the capacity of a single GPU, requiring training to be distributed across multiple GPUs and nodes, significantly enhancing training speed and model accuracy.
+- **High-Performance Computing (HPC)** provides the infrastructure — high-speed communication, large-scale storage — that enables this scaling.
 
 ---
 
@@ -265,10 +252,13 @@ If you're scaling DDP to use multiple nodes, the underlying principle remains th
 
 ---
 
-## Let's code it
+## Demo
+
+- Let's train a deep learning model on the supercomputer.
 
 ---
 
+## Setup
 #### Make sure you are connected to the supercomputer
 
 ```bash
@@ -295,13 +285,47 @@ rm -rf $HOME/.fastai ; ln -s ~/course/.fastai $HOME/
 ```
 ---
 
+## Setup
+
 ```bash
 cd $PROJECT_training2623/$USER
 git clone -b intro_jsc https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC.git
 cd Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC/
+```
+
+---
+
+## setup
+
+```bash
 source install_venv.sh
 sbatch Lit_training.sbatch
+watch squeue --me
 ```
+
+---
+
+## Libraries
+
+- We will use today:
+    - **PyTorch Lightning:** A deep learning framework for building and training models.
+    - **datasets** A library from Hugging Face used to access, load, process, and share large datasets.
+    
+---
+
+## What this code does 
+
+- It trains a [Transformer](https://arxiv.org/pdf/1706.03762) language model on [WikiText-2](https://huggingface.co/datasets/mindchain/wikitext2) dataset to predict the next word in a sequence. 
+- **Transformers** is a deep learning model architecture that uses self-attention to process sequences in parallel.
+- **WikiText-2** is a word-level language modeling dataset consisting of over 2 million tokens extracted from high-quality Wikipedia articles. 
+
+---
+
+## What this code does 
+
+- If you are not familiar with the model and the dataset, just imagine it as a black box: you provide it with text, and it generates another text.
+
+    ![](images/black_box.svg)
 
 ---
 

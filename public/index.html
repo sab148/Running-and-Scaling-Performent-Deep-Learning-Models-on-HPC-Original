@@ -235,8 +235,13 @@
 <h2>What is Training</h2>
 <ul>
 <li class="fragment">Learn patterns by updating neural network
-parameters to minimize the loss function using an <strong>optimizer
-algorithm</strong>.</li>
+parameters using 4 iterative steps:
+<ol type="1">
+<li class="fragment">Forward pass</li>
+<li class="fragment">Calculate Loss</li>
+<li class="fragment">Backward Pass</li>
+<li class="fragment">Parameter Update</li>
+</ol></li>
 </ul>
 </section>
 <section id="forward-pass" class="slide level2">
@@ -295,30 +300,31 @@ algorithm</strong>.</li>
 <h2>backward pass</h2>
 <p><img data-src="images/nn/intro_jsc.028.svg" height="600" /></p>
 </section>
-<section id="optimizer" class="slide level2">
-<h2>Optimizer</h2>
-<ul>
-<li class="fragment">Common optimization strategies:
-<ul>
-<li class="fragment"><strong>SGD (Stochastic Gradient Descent)</strong>:
-Updates parameters opposite to the gradient using a learning rate.
-Efficient but may converge slowly and oscillate in complex loss
-landscapes</li>
-<li class="fragment"><strong>SGD with Momentum</strong>: Improves SGD by
-adding part of the previous update to the current one. Helps faster
-convergence and smoother optimization</li>
-<li class="fragment"><strong>RMSProp</strong>: Adapts the learning rate
-for each parameter using recent gradient magnitudes. Enables faster and
-more stable learning</li>
-<li class="fragment"><strong>Adam (Adaptive Moment Estimation)</strong>:
-Combines Momentum and RMSProp. Fast, stable, and widely used in deep
-learning</li>
-</ul></li>
-</ul>
-</section>
 <section id="update-weights" class="slide level2">
 <h2>update weights</h2>
 <p><img data-src="images/nn/intro_jsc.030.svg" height="600" /></p>
+</section>
+<section id="iterations-epochs" class="slide level2">
+<h2>Iterations &amp; Epochs</h2>
+<ul>
+<li class="fragment"><p><strong>Iteration</strong>: one full training
+step using a single subset (batch) of data.</p>
+<p>forward pass → loss computation → backward pass → parameter
+update</p></li>
+<li class="fragment"><p><strong>Epoch</strong>: one complete pass
+through the entire dataset.</p></li>
+</ul>
+</section>
+<section id="dataset-concepts" class="slide level2">
+<h2>Dataset Concepts</h2>
+<ul>
+<li class="fragment"><strong>Training set:</strong> data used to train
+the model and update weights.</li>
+<li class="fragment"><strong>Validation set:</strong> data used during
+training to tune hyperparameters and monitor performance.</li>
+<li class="fragment"><strong>Test set:</strong> unseen data used only
+for the final evaluation of the model.</li>
+</ul>
 </section>
 <section id="from-neural-networks-to-deep-learning"
 class="slide level2">
@@ -332,19 +338,6 @@ representations — edges → textures → objects.</li>
 50-layer model recognises complex objects.</li>
 <li class="fragment">Depth unlocks capabilities that shallow networks
 can’t approximate efficiently.</li>
-</ul>
-</section>
-<section id="why-deep-learning-succeeded" class="slide level2">
-<h2>Why Deep Learning Succeeded</h2>
-<ul>
-<li class="fragment"><strong>Large datasets</strong> — ImageNet’s 1.2M+
-labelled images gave models enough examples to generalise.</li>
-<li class="fragment"><strong>Powerful GPUs</strong> — ~1000× speedup
-over CPUs for matrix operations made training feasible in days, not
-years.</li>
-<li class="fragment"><strong>Better algorithms</strong> — ReLU, Dropout,
-and Batch Normalisation solved vanishing gradients, overfitting, and
-slow convergence that blocked earlier progress.</li>
 </ul>
 </section>
 <section id="deep-learning-models-types" class="slide level2">
@@ -366,54 +359,42 @@ Transformer
 <figure style="text-align:center;">
 <img src="images/nn/sdm.svg" height="300px" width="600px">
 <figcaption>
-Stable Diffusion Model
+Diffusion Model
 </figcaption>
 </figure>
 </div>
 </section>
-<section id="applications" class="slide level2">
-<h2>Applications</h2>
-<p><img data-src="images/nn/dl_tasks.svg" height="600" /></p>
-</section>
-<section id="scaling-laws" class="slide level2">
-<h2>Scaling Laws</h2>
-<div style="text-align: left">
-<p>-&gt; More data helps models learn richer and more diverse
-patterns.</p>
-<p>-&gt; Larger datasets usually require larger models with more
-parameters.</p>
-<p>-&gt; Larger models require significantly more compute power and
-memory.</p>
-</div>
-<p><strong>Bigger models + more data + more compute = better
-performance</strong></p>
-</section>
-<section id="deep-learning-high-performance-computing"
-class="slide level2">
-<h2>Deep Learning &amp; High-Performance Computing</h2>
+<section id="the-scaling-law" class="slide level2">
+<h2>The Scaling Law</h2>
 <ul>
-<li class="fragment">GPUs allows thousands of operations to run in
-parallel, making DL dramatically faster than on a CPU.</li>
-<li class="fragment">However, a single GPU is no longer enough. Training
-a model with billions of parameters demands far more memory and compute
-than any one device can provide. To scale efficiently, training is
-distributed across multiple GPUs, multi-node clusters, and
-supercomputers.</li>
-<li class="fragment">High-Performance Computing (HPC) provides the
-infrastructure — fast interconnects, large storage, and job
-orchestration — that makes this possible.</li>
+<li class="fragment"><strong>Model Capacity</strong>: Larger models with
+more parameters are required to absorb massive amounts of data without
+saturating.</li>
+<li class="fragment"><strong>Data Capacity</strong>: More data allows
+these larger models to learn richer, more diverse patterns without
+overfitting.</li>
+<li class="fragment"><strong>Compute Demand</strong>: Scaling both
+models and datasets demands significantly more computational power and
+memory to train.</li>
 </ul>
+<p><strong>Bigger Models + More Data + More Compute = Better
+Performance</strong></p>
 </section>
-<section id="distributed-training" class="slide level2">
-<h2>Distributed Training</h2>
+<section
+id="deep-learning-high-performance-computing-distributed-training"
+class="slide level2">
+<h2>Deep Learning, High-Performance Computing &amp; Distributed
+Training</h2>
 <ul>
-<li class="fragment">Parallelize the training across multiple
-nodes,</li>
-<li class="fragment">Significantly enhancing training speed and model
+<li class="fragment">GPUs enable thousands of parallel operations,
+making deep learning far faster than CPUs.</li>
+<li class="fragment">But modern AI models exceed the capacity of a
+single GPU, requiring training to be distributed across multiple GPUs
+and nodes, significantly enhancing training speed and model
 accuracy.</li>
-<li class="fragment">It is particularly beneficial for large models and
-computationally intensive tasks, such as deep learning.<a
-href="https://pytorch.org/tutorials/distributed/home.html">[1]</a></li>
+<li class="fragment"><strong>High-Performance Computing (HPC)</strong>
+provides the infrastructure — high-speed communication, large-scale
+storage — that enables this scaling.</li>
 </ul>
 </section>
 <section id="distributed-data-parallel-ddp" class="slide level2">
@@ -475,11 +456,15 @@ all processes.</li>
 <li class="fragment">Each process updates its optimizer.</li>
 </ul>
 </section>
-<section id="lets-code-it" class="slide level2">
-<h2>Let’s code it</h2>
+<section id="demo" class="slide level2">
+<h2>Demo</h2>
+<ul>
+<li class="fragment">Let’s train a deep learning model on the
+supercomputer.</li>
+</ul>
 </section>
-<section class="slide level2">
-
+<section id="setup" class="slide level2">
+<h2>Setup</h2>
 <h4 id="make-sure-you-are-connected-to-the-supercomputer">Make sure you
 are connected to the supercomputer</h4>
 <div class="sourceCode" id="cb1"><pre
@@ -504,14 +489,56 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-rf</span> <span class="va">$HOME</span>/.config <span class="kw">;</span> <span class="fu">ln</span> <span class="at">-s</span> ~/course/.config <span class="va">$HOME</span>/</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-rf</span> <span class="va">$HOME</span>/.fastai <span class="kw">;</span> <span class="fu">ln</span> <span class="at">-s</span> ~/course/.fastai <span class="va">$HOME</span>/</span></code></pre></div>
 </section>
-<section class="slide level2">
-
+<section id="setup-1" class="slide level2">
+<h2>Setup</h2>
 <div class="sourceCode" id="cb2"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="va">$PROJECT_training2623</span>/<span class="va">$USER</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone <span class="at">-b</span> intro_jsc https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC.git</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC/</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> install_venv.sh</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> Lit_training.sbatch</span></code></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC/</span></code></pre></div>
+</section>
+<section id="setup-2" class="slide level2">
+<h2>setup</h2>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> install_venv.sh</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> Lit_training.sbatch</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">watch</span> squeue <span class="at">--me</span></span></code></pre></div>
+</section>
+<section id="libraries" class="slide level2">
+<h2>Libraries</h2>
+<ul>
+<li class="fragment">We will use today:
+<ul>
+<li class="fragment"><strong>PyTorch Lightning:</strong> A deep learning
+framework for building and training models.</li>
+<li class="fragment"><strong>datasets</strong> A library from Hugging
+Face used to access, load, process, and share large datasets.</li>
+</ul></li>
+</ul>
+</section>
+<section id="what-this-code-does" class="slide level2">
+<h2>What this code does</h2>
+<ul>
+<li class="fragment">It trains a <a
+href="https://arxiv.org/pdf/1706.03762">Transformer</a> language model
+on <a
+href="https://huggingface.co/datasets/mindchain/wikitext2">WikiText-2</a>
+dataset to predict the next word in a sequence.</li>
+<li class="fragment"><strong>Transformers</strong> is a deep learning
+model architecture that uses self-attention to process sequences in
+parallel.</li>
+<li class="fragment"><strong>WikiText-2</strong> is a word-level
+language modeling dataset consisting of over 2 million tokens extracted
+from high-quality Wikipedia articles.</li>
+</ul>
+</section>
+<section id="what-this-code-does-1" class="slide level2">
+<h2>What this code does</h2>
+<ul>
+<li class="fragment"><p>If you are not familiar with the model and the
+dataset, just imagine it as a black box: you provide it with text, and
+it generates another text.</p>
+<p><img data-src="images/black_box.svg" /></p></li>
+</ul>
 </section>
 <section id="lets-have-a-look-at-the-code" class="slide level2">
 <h2>Let’s have a look at the code</h2>
