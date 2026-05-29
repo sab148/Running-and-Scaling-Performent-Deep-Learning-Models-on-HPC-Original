@@ -12,7 +12,7 @@ Links for the complimentary parts of this course:
 - [Zoom](https://go.fzj.de/bringing-dl-workloads-to-jsc-zoom)
 - [Slack](https://go.fzj.de/running-and-scaling-deep-learning-models-on-HPC-slack)
 - [JSC Training Page](https://www.fz-juelich.de/en/jsc/news/events/training-courses/training-courses-2026/ai-sc-1)
-- [Judoor project page invite](https://judoor.fz-juelich.de/projects/join/training2609)
+- [Judoor project page invite](https://judoor.fz-juelich.de/projects/join/training2626)
 - [This document: https://go.fzj.de/running-and-scaling-deep-learning-models-on-HPC](https://go.fzj.de/running-and-scaling-deep-learning-models-on-HPC)
 - Our mailing list for [AI news](https://lists.fz-juelich.de/postorius/lists/ai.jsc.lists.fz-juelich.de/)
 - [Survey at the end of the course](https://go.fzj.de/bringing-dl-workloads-to-jsc-survey)
@@ -236,8 +236,8 @@ Please open this document on your own browser! We will need it for the exercises
 ### Connecting to Jureca DC
 
 #### Getting compute time
-- Go to [https://judoor.fz-juelich.de/projects/join/training2609](https://judoor.fz-juelich.de/projects/join/training2609)
-- Join the course project `training2609`
+- Go to [https://judoor.fz-juelich.de/projects/join/training2626](https://judoor.fz-juelich.de/projects/join/training2626)
+- Join the course project `training2626`
 - Sign the Usage Agreements ([Video](https://drive.google.com/file/d/1mEN1GmWyGFp75uMIi4d6Tpek2NC_X8eY/view))
 - Compute time allocation is based on compute projects. For every compute job, a compute project pays.
 - Time is measured in core-hours. One hour of Jureca DC is 128 core-hours.
@@ -492,10 +492,10 @@ khalfaoui1@jrlogin03~ $
 
 ```bash
 # Create a folder for myself
-mkdir $PROJECT_training2609/$USER
+mkdir $PROJECT_training2626/$USER
 
 # Create a shortcut for the project on the home folder
-rm -rf ~/course ; ln -s $PROJECT_training2609/$USER ~/course
+rm -rf ~/course ; ln -s $PROJECT_training2626/$USER ~/course
 
 # Enter course folder and
 cd ~/course
@@ -759,7 +759,7 @@ Simple Linux Utility for Resource Management
 
 ``` {.bash .number-lines}
 #!/bin/bash
-#SBATCH --account=training2609           # Who pays?
+#SBATCH --account=training2626           # Who pays?
 #SBATCH --nodes=1                        # How many compute nodes
 #SBATCH --job-name=matrix-multiplication
 #SBATCH --ntasks-per-node=1              # How many mpi processes/node
@@ -768,7 +768,7 @@ Simple Linux Utility for Resource Management
 #SBATCH --error=error.%j
 #SBATCH --time=00:01:00          # For how long can it run?
 #SBATCH --partition=dc-gpu         # Machine partition
-#SBATCH --reservation=Run_Scal_day1  # For today only
+#SBATCH --reservation=RSPDLM_day1  # For today only
 
 module load Stages/2025
 module load GCC OpenMPI PyTorch  # Load the correct modules on the compute node(s)
@@ -817,7 +817,7 @@ squeue --me
 ### Reservations
 
 - Some partitions have reservations, which means that only certain users can use them at certain times.
-- For this course, it's called `training2609`
+- For this course, it's called `training2626`
 
 --- 
 
@@ -968,7 +968,7 @@ code fastai.sbatch
 
 ```bash
 #!/bin/bash
-#SBATCH --account=training2609
+#SBATCH --account=training2626
 #SBATCH --mail-user=MYUSER@fz-juelich.de
 #SBATCH --mail-type=ALL
 #SBATCH --nodes=1
@@ -979,7 +979,7 @@ code fastai.sbatch
 #SBATCH --error=error.%j
 #SBATCH --time=00:20:00
 #SBATCH --partition=dc-gpu
-#SBATCH --reservation=Run_Scal_day1  # For today only
+#SBATCH --reservation=RSPDLM_day1  # For today only
 
 cd $HOME/course/
 source sc_venv_template/activate.sh # Now we finally use the fastai module
@@ -1040,7 +1040,7 @@ If you run it longer, you will get the actual error:
 
 ```python
 Traceback (most recent call last):
-  File "/p/project/training2609/khalfaoui1/cats.py", line 5, in <module>
+  File "/p/project/training2626/khalfaoui1/cats.py", line 5, in <module>
     path = untar_data(URLs.PETS)/'images'
     ...
     ...
@@ -1309,7 +1309,7 @@ On the supercomputer:
 srun --time=00:05:00 \
      --nodes=1 --ntasks=1 \
      --partition=dc-gpu \
-     --account training2609 \
+     --account training2626 \
      --cpu_bind=none \
      --pty /bin/bash -i
 
