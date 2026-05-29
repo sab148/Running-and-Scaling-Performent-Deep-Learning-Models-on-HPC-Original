@@ -1,7 +1,7 @@
 ---
 author: Sabrina Benassou 
 title: Data Loading & Parallelize Training
-date: March 11th, 2026
+date: June 02, 2026
 ---
 
 ### Schedule for day 2

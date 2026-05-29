@@ -2,7 +2,7 @@
 author: Alexandre Strube // Sabrina Benassou // Ismail Khalfaoui
 title: Bringing Deep Learning Workloads to JSC supercomputers
 subtitle: Recap of Day 2
-date: September 17th, 2025
+date: June 02, 2026
 ---
 
 # Summary of Day 2

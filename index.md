@@ -2,7 +2,7 @@
 author: Alexandre Strube // Sabrina Benassou // Ismail Khalfaoui-Hassani // Javad Kasravi
 title: Running and Scaling Performent Deep Learning Models on HPC
 #subtitle: A primer in supercomputers
-date: March 10, 2025
+date: June 01/02/03, 2026
 
 ---
 

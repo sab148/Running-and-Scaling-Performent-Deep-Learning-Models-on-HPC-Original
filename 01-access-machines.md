@@ -2,7 +2,7 @@
 author: Alexandre Strube // Ismail Khalfaoui-Hassani
 title: Accessing the machines, intro
 #subtitle: A primer in supercomputers
-date: March 10, 2025
+date: June 01, 2026
 
 ---
 ## Communication:
