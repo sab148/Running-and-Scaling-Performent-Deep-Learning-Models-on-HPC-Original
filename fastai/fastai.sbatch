@@ -11,7 +11,7 @@
 #SBATCH --time=00:10:00
 #SBATCH --partition=dc-gpu
 
-#SBATCH --reservation=Run_Scal_day1 # For today only
+#SBATCH --reservation=RSPDLM_day1 # For today only
 
 # We activate our environemnt
 source ./sc_venv_template_HPC_supporter_course/activate.sh
