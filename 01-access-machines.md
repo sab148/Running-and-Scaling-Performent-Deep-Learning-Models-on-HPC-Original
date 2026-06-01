@@ -9,9 +9,9 @@ date: June 01, 2026
 
 Links for the complimentary parts of this course: 
 
-- [Zoom](https://go.fzj.de/bringing-dl-workloads-to-jsc-zoom)
+- [Zoom](https://go.fzj.de/running-and-scaling-deep-learning-models-on-HPC-zoom)
 - [Slack](https://go.fzj.de/running-and-scaling-deep-learning-models-on-HPC-slack)
-- [JSC Training Page](https://www.fz-juelich.de/en/jsc/news/events/training-courses/training-courses-2026/ai-sc-1)
+- [JSC Training Page](https://go.fzj.de/running-and-scaling-deep-learning-models-on-HPC-training-page)
 - [Judoor project page invite](https://judoor.fz-juelich.de/projects/join/training2626)
 - [This document: https://go.fzj.de/running-and-scaling-deep-learning-models-on-HPC](https://go.fzj.de/running-and-scaling-deep-learning-models-on-HPC)
 - Our mailing list for [AI news](https://lists.fz-juelich.de/postorius/lists/ai.jsc.lists.fz-juelich.de/)
@@ -29,8 +29,7 @@ Links for the complimentary parts of this course:
 - Make sure you know how to access and use our machines 👩‍💻
 - Put your data in way that supercomputer can use it fast 🏃
 - Distribute your ML workload 💪
-- Important: This is _*NOT*_ a basic AI course 🙇‍♂️
-  - If you need one, check [fast.ai](https://course.fast.ai)
+
 
 ![](images/Logo_FZ_Juelich_rgb_Schutzzone_transparent.svg)
 
@@ -91,7 +90,7 @@ Please open this document on your own browser! We will need it for the exercises
 ### What is a supercomputer?
 
 - Compute cluster: Many computers bound together locally 
-- Supercomputer: A lot of computers bound together locally😒
+- Supercomputer: A lot of computers bound together locally 😒
   - with a fancy network 🤯
 
 ---
