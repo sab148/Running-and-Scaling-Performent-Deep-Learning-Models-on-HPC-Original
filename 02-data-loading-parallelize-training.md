@@ -1242,7 +1242,7 @@ def save_sharded_model(model, optimizer=None, CHECKPOINT_DIR='checkpoints'):
 - You can run the same sbatch file without any modification.
 
     ```bash
-    sbatch fsdp_training.sbatch
+    sbatch to_distributed_training.sbatch
     ```
 
 ---
