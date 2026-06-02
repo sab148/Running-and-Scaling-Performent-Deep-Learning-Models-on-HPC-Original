@@ -1189,14 +1189,25 @@ style="height:5.90278in" /></p>
 </section>
 <section id="fsdp-2" class="slide level2">
 <h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-3.svg"
-style="height:5.90278in" /></p>
-</section>
-<section id="fsdp-3" class="slide level2">
-<h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-4.svg"
-style="height:5.90278in" /></p>
+<p><img data-src="images/fsdp/fsdp_whole.png" /></p>
 <!-- 
+
+---
+
+
+## FSDP
+
+![](images/fsdp/fsdp-3.svg){height=425pt}
+
+
+---
+
+## FSDP
+
+![](images/fsdp/fsdp-4.svg){height=425pt}
+
+
+
 ## FSDP
 
 ![](images/fsdp/fsdp-5.svg){height=425pt}
@@ -1343,17 +1354,22 @@ style="height:5.90278in" /></p>
 
 
 ---
+
+---
+
+## FSDP
+
+![](images/fsdp/fsdp-25s.svg){height=425pt}
+
+
+
+---
+
+## FSDP
+
+![](images/fsdp/fsdp-28s.svg){height=425pt}
+
  -->
-</section>
-<section id="fsdp-4" class="slide level2">
-<h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-25s.svg"
-style="height:5.90278in" /></p>
-</section>
-<section id="fsdp-5" class="slide level2">
-<h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-28s.svg"
-style="height:5.90278in" /></p>
 </section>
 <section id="fsdp-workflow" class="slide level2">
 <h2>FSDP workflow</h2>
@@ -1543,7 +1559,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb46-1"><a href=
 - **HYBRID_SHARD**: Apply FULL_SHARD within a node, and replicate parameters across nodes. Set **reshard_after_forward=True** with a 2D device mesh
 - **_HYBRID_SHARD_ZERO2**: Apply SHARD_GRAD_OP within a node, and replicate parameters across nodes. This is like HYBRID_SHARD, except this may provide even higher throughput since the unsharded parameters are not freed after the forward pass, saving the all-gathers in the pre-backward. Set **reshard_after_forward=False** with a 2D device mesh -->
 </section>
-<section id="fsdp-6" class="slide level2">
+<section id="fsdp-3" class="slide level2">
 <h2>FSDP</h2>
 <ul>
 <li class="fragment">FSDP is a built-in primitive in PyTorch for

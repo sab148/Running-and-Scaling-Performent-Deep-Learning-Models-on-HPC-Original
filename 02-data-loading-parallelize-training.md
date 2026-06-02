@@ -917,8 +917,16 @@ To use DDP with PL, we need to make some changes to the model code and the sbatc
 
 ![](images/fsdp/fsdp-2.svg){height=425pt}
 
+---
+
+## FSDP
+
+![](images/fsdp/fsdp_whole.png)
+
+<!-- 
 
 ---
+
 
 ## FSDP
 
@@ -932,7 +940,7 @@ To use DDP with PL, we need to make some changes to the model code and the sbatc
 ![](images/fsdp/fsdp-4.svg){height=425pt}
 
 
-<!-- 
+
 ## FSDP
 
 ![](images/fsdp/fsdp-5.svg){height=425pt}
@@ -1079,7 +1087,7 @@ To use DDP with PL, we need to make some changes to the model code and the sbatc
 
 
 ---
- -->
+
 ---
 
 ## FSDP
@@ -1093,6 +1101,9 @@ To use DDP with PL, we need to make some changes to the model code and the sbatc
 ## FSDP
 
 ![](images/fsdp/fsdp-28s.svg){height=425pt}
+
+ -->
+
 
 ---
 
