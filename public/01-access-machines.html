@@ -20,8 +20,11 @@
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    ul.task-list{list-style: none;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
     ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
       width: 0.8em;
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
@@ -29,7 +32,7 @@
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
     pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span { line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
     .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -232,11 +235,11 @@
 <p>Links for the complimentary parts of this course:</p>
 <ul>
 <li class="fragment"><a
-href="https://go.fzj.de/bringing-dl-workloads-to-jsc-zoom">Zoom</a></li>
+href="https://go.fzj.de/running-and-scaling-deep-learning-models-on-HPC-zoom">Zoom</a></li>
 <li class="fragment"><a
 href="https://go.fzj.de/running-and-scaling-deep-learning-models-on-HPC-slack">Slack</a></li>
 <li class="fragment"><a
-href="https://www.fz-juelich.de/en/jsc/news/events/training-courses/training-courses-2026/ai-sc-1">JSC
+href="https://go.fzj.de/running-and-scaling-deep-learning-models-on-HPC-training-page">JSC
 Training Page</a></li>
 <li class="fragment"><a
 href="https://judoor.fz-juelich.de/projects/join/training2626">Judoor
@@ -269,12 +272,6 @@ machines 👩‍💻</li>
 <li class="fragment">Put your data in way that supercomputer can use it
 fast 🏃</li>
 <li class="fragment">Distribute your ML workload 💪</li>
-<li class="fragment">Important: This is <em><em>NOT</em></em> a basic AI
-course 🙇‍♂️
-<ul>
-<li class="fragment">If you need one, check <a
-href="https://course.fast.ai">fast.ai</a></li>
-</ul></li>
 </ul>
 <p><img
 data-src="images/Logo_FZ_Juelich_rgb_Schutzzone_transparent.svg" /></p>
@@ -389,7 +386,7 @@ computer, really</figcaption>
 <li class="fragment">Compute cluster: Many computers bound together
 locally</li>
 <li class="fragment">Supercomputer: A lot of computers bound together
-locally😒
+locally 😒
 <ul>
 <li class="fragment">with a fancy network 🤯</li>
 </ul></li>
