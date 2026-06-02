@@ -1206,37 +1206,6 @@ To use DDP with PL, we need to make some changes to the model code and the sbatc
 
 ---
 
-## Save full model state
-
-- We use **get_model_state_dict** method with **full_state_dict=True** and **cpu_offload=True** to all-gathers tensors and offload them to CPU. No ShardedTensor will be in the returned state_dict. 
-
-    ```python
-    def save_full_model(model, optimizer=None, *args, **kwargs):
-        """Stream all model parameters to rank 0 on the CPU, then pass all
-        other given arguments to `torch.save` to save the model, but only on
-        the root process.
-        """
-        state_dict_options = dist_state_dict.StateDictOptions(
-            full_state_dict=True,
-            cpu_offload=True,
-        )
-        cpu_state_dict = dist_state_dict.get_model_state_dict(
-            model,
-            options=state_dict_options,
-        )
-        cpu_state = {'model': cpu_state_dict}
-        if optimizer is not None:
-            optim_state_dict = dist_state_dict.get_optimizer_state_dict(
-                model,
-                optimizer,
-                options=state_dict_options,
-            )
-            cpu_state['optimizer'] = optim_state_dict
-        save0(cpu_state, *args, **kwargs)
-    ```
-
----
-
 ## Save sharded model 
 
 ```python
