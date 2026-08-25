@@ -1241,27 +1241,6 @@ As of now, I expect you managed to:
 
 ---
 
-### Helmholtz Blablador
-
-![](images/blablador.png)
-
----
-
-### Blablador
-
-- Blablador is our Large Language Model inference server (eg. ChatGPT)
-- It's a service for the Helmholtz Association.
-  - It's fast, free and PRIVATE - It does not record your conversations!
-- Anyone here can use it
-
----
-
-### Blablador 
-
-![https://helmholtz-blablador.fz-juelich.de](images/blablador-qrcode.png){width=500px}
-
----
-
 ## Backup slides
 
 ---
