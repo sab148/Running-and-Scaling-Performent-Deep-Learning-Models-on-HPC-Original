@@ -264,7 +264,7 @@ Only the main process transfers data to system memory.
 Move the trace folder to your local machine by running:
 <div style="font-weight: bold; background-color: #ffcccc; font-size: 0.8em; min-width: 1050px">
 ```bash
-scp -r -4 <user>@jureca.fz-juelich.de:/p/project1/training2626/AI_profiling/Nsys_trace_update_Jan_2026 .
+scp -r -4 <user>@jureca.fz-juelich.de:/p/project1/training2643/AI_profiling/Nsys_trace_update_Jan_2026 .
 ```
 </div>
 
