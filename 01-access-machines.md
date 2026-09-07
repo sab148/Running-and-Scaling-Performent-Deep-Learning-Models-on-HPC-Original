@@ -842,7 +842,7 @@ Or simply open it on VSCode!
 
 ---
 
-## Extra software, modules and kernels
+### Extra software, modules and kernels
 
 #### You want some extra Python software from PyPI...
 
@@ -854,7 +854,7 @@ We will use [`uv`](https://docs.astral.sh/uv/) to create a virtual environment a
 
 ---
 
-## Install `uv`
+### Install `uv`
 
 Check whether `uv` is already available:
 
@@ -876,7 +876,7 @@ uv --version
 
 ---
 
-## Create a virtual environment
+### Create a virtual environment
 
 Go to the course directory:
 
@@ -907,7 +907,7 @@ Activate with: source .venv/bin/activate
 
 ---
 
-## Example: Let's install some software!
+### Example: Let's install some software!
 
 Even though the supercomputer provides a lot of software, sometimes we need additional Python packages.
 
@@ -918,12 +918,11 @@ For example:
 * Transformers
 * Lightning
 * 🤗 Datasets
-
-We will install them into our `.venv`.
+* We will install them into our `.venv`.
 
 ---
 
-## Create `requirements.txt`
+### Create `requirements.txt`
 
 From `$HOME/course/`:
 
@@ -955,13 +954,9 @@ tensorboard
 lightning
 ```
 
-Notice that we do **not** need to add `pip`.
-
-`uv` will install the packages for us.
-
 ---
 
-## Install the dependencies with `uv`
+### Install the dependencies with `uv`
 
 Make sure you are still in the course directory:
 
@@ -975,13 +970,12 @@ Then run:
 uv pip install -r requirements.txt
 ```
 
-Because `.venv` exists in this directory, `uv` automatically installs the packages into:
+`uv` automatically installs the packages into:
 
 ```text
 $HOME/course/.venv
 ```
 
-We don't even need to activate the environment to install packages. ✨
 
 Check the installation:
 
@@ -991,7 +985,7 @@ uv pip check
 
 ---
 
-## Activating the virtual environment
+### Activating the virtual environment
 
 When working interactively, activate it with:
 
@@ -1020,7 +1014,7 @@ python -c "import fastai; print('fastai:', fastai.__version__)"
 python -c "import wandb; print('wandb:', wandb.__version__)"
 ```
 
-🎉
+---
 
 To leave the environment:
 
@@ -1030,7 +1024,7 @@ deactivate
 
 ---
 
-## Adding more software later
+### Adding more software later
 
 Want another Python package?
 
@@ -1043,7 +1037,7 @@ uv pip install rich
 
 ---
 
-## Create a Jupyter kernel
+### Create a Jupyter kernel
 
 Our environment already contains `ipykernel`.
 
@@ -1062,17 +1056,15 @@ python -m ipykernel install --user \
     --display-name "Python (training2643 / uv)"
 ```
 
-You can now select:
+You can now select it as the kernel in Jupyter.
 
 ```text
 Python (training2643 / uv)
 ```
 
-as the kernel in Jupyter.
-
 ---
 
-## Using the environment in VS Code
+### Using the environment in VS Code
 
 You do not have to create a separate environment for VS Code.
 
@@ -1093,26 +1085,7 @@ VS Code will use the packages installed in our `uv` environment.
 
 ---
 
-## Using the environment in a Slurm job
-
-The virtual environment lives on the shared filesystem, so we do **not** reinstall anything inside the job.
-
-Load the same modules:
-
-```bash
-module load Stages/2025
-module load GCC OpenMPI Python
-```
-
-Then run Python directly from the virtual environment:
-
-```bash
-cd $HOME/course/
-
-srun .venv/bin/python cats.py
-```
-
-There is no need to activate the environment inside the batch script.
+### Using the environment in a Slurm job
 
 For example:
 
@@ -1140,11 +1113,9 @@ source .venv/bin/activate
 srun cats.py
 ```
 
-That's it: one `.venv`, managed with `uv`, usable interactively, from VS Code/Jupyter, and inside Slurm jobs. 🚀
-
 ---
 
-## Important: install packages on the login node
+### Important: install packages on the login node
 
 The compute nodes do not have Internet access.
 
@@ -1166,7 +1137,7 @@ Once the packages are installed in `$HOME/course/.venv`, the same environment ca
 
 ---
 
-## Recap
+### Recap
 
 Create the environment:
 
