@@ -2,7 +2,7 @@
 author: Alexandre Strube // Ismail Khalfaoui-Hassani
 title: Accessing the machines, intro
 #subtitle: A primer in supercomputers
-date: June 01, 2026
+date: September 8, 2026
 
 ---
 ## Communication:
@@ -64,7 +64,7 @@ Links for the complimentary parts of this course:
 | 13:15 - 14:00 | Introduction |
 | 14:00 - 14:15 | Coffee break |
 | 14:16 - 14:30 | Judoor, Keys |
-| 14:30 - 15:00 | SSH, Jupyter, VS Code |
+| 14:30 - 15:00 | SSH, VS Code |
 | 15:00 - 15:15 | Coffee Break |
 | 15:15 - 16:00 | Running services on the login and compute nodes | 
 | 16:00 - 16:15 | Coffee Break |
@@ -75,7 +75,7 @@ Links for the complimentary parts of this course:
 ### Note
 
 Please open this document on your own browser! We will need it for the exercises.
-[https://sab148.github.io/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC-Original/](https://sab148.github.io/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC-Original/)
+[https://sab148.github.io/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC-Original/#/title-slide](https://sab148.github.io/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC-Original/#/title-slide)
 
 ![Mobile friendly, but you need it on your computer, really](images/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC.png)
 
@@ -244,7 +244,7 @@ Please open this document on your own browser! We will need it for the exercises
 
 ---
 
-## Jupyter
+<!-- ## Jupyter
 
 [jupyter-jsc.fz-juelich.de](https://jupyter-jsc.fz-juelich.de)
 
@@ -254,9 +254,9 @@ Please open this document on your own browser! We will need it for the exercises
 - *Yes, if you are just thinking and looking at the 📺, you are slowing down the queue for everyone*🤦
 - It's useful for small tests - not for full-fledged development 🙄
 
----
+--- -->
 
-## Jupyter
+<!-- ## Jupyter
 
 #### Pay attention to the partition - DON'T RUN IT ON THE LOGIN NODE!!!
 
@@ -277,7 +277,7 @@ Please open this document on your own browser! We will need it for the exercises
 - Install [Remote: SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
 - If you have Windows, you need WSL as explained on the email.
 
----
+--- -->
 
 ## VSCode
 
@@ -592,7 +592,7 @@ Search with the version - it will suggest the hierarchy
 
 ```bash
 $ python
-Python 3.12.3 (main, Nov 10 2025, 00:00:00) 
+Python 3.12.3 (main, Sep 7 2026, 00:00:00) 
 [GCC 11.5.0 20240719 (Red Hat 11.5.0-11)] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import torch
@@ -844,34 +844,96 @@ Or simply open it on VSCode!
 
 ## Extra software, modules and kernels
 
-#### You want that extra software from `pip`....
+#### You want some extra Python software from PyPI...
 
-[venv/Kernel template](https://gitlab.jsc.fz-juelich.de/kesselheim1/sc_venv_template)
+We will use [`uv`](https://docs.astral.sh/uv/) to create a virtual environment and install our Python dependencies.
+
+* The environment will live in `$HOME/course/.venv`
+* Install packages on the **login node**
+* The same environment can then be used from the compute nodes
+
+---
+
+## Install `uv`
+
+Check whether `uv` is already available:
+
+```bash
+uv --version
+```
+
+If it is not installed, install it into your home directory:
+
+```bash
+pip install uv
+```
+
+Check that it works:
+
+```bash
+uv --version
+```
+
+---
+
+## Create a virtual environment
+
+Go to the course directory:
 
 ```bash
 cd $HOME/course/
-git clone https://gitlab.jsc.fz-juelich.de/kesselheim1/sc_venv_template.git
+```
+
+Load the Python environment we want to use:
+
+```bash
+module load Stages/2025
+module load GCC OpenMPI Python
+```
+
+Now create a virtual environment using that Python:
+
+```bash
+uv venv --python 3.12 
+```
+
+You should see something similar to:
+
+```text
+Using CPython ...
+Creating virtual environment at: .venv
+Activate with: source .venv/bin/activate
 ```
 
 ---
 
 ## Example: Let's install some software!
 
-- Even though we have PyTorch, we don't have PyTorch Lightning Flash
-- Same for fast.ai and wandb
-- We will install them in a virtual environment
+Even though the supercomputer provides a lot of software, sometimes we need additional Python packages.
+
+For example:
+
+* fast.ai
+* Weights & Biases
+* Transformers
+* Lightning
+* 🤗 Datasets
+
+We will install them into our `.venv`.
 
 ---
 
-### Example: Let's install some software!
+## Create `requirements.txt`
 
-- Edit the file sc_venv_template/requirements.txt
+From `$HOME/course/`:
 
-- Add these lines at the end: 
--
- ```bash
-# Add here the pip packages you would like to install on this virtual environment / kernel
-pip
+```bash
+code requirements.txt
+```
+
+Add:
+
+```text
 ipykernel
 fastai
 numba==0.60.0
@@ -893,37 +955,245 @@ tensorboard
 lightning
 ```
 
-- Run on the terminal: `sc_venv_template/setup.sh`
+Notice that we do **not** need to add `pip`.
+
+`uv` will install the packages for us.
 
 ---
 
-### Example: Activating the virtual environment
+## Install the dependencies with `uv`
+
+Make sure you are still in the course directory:
 
 ```bash
-source sc_venv_template/activate.sh
+cd $HOME/course/
+```
+
+Then run:
+
+```bash
+uv pip install -r requirements.txt
+```
+
+Because `.venv` exists in this directory, `uv` automatically installs the packages into:
+
+```text
+$HOME/course/.venv
+```
+
+We don't even need to activate the environment to install packages. ✨
+
+Check the installation:
+
+```bash
+uv pip check
 ```
 
 ---
 
-### Example: Activating the virtual environment
+## Activating the virtual environment
+
+When working interactively, activate it with:
 
 ```bash
-source sc_venv_template/activate.sh 
-The activation script must be sourced, otherwise the virtual environment will not work.
-Setting vars
-The following modules were not unloaded:
-  (Use "module --force purge" to unload all):
- 1) Stages/2025
+cd $HOME/course/
+source .venv/bin/activate
 ```
+
+Check which Python you are using:
 
 ```bash
-jureca01 $ python
-Python 3.11.3 (main, Jun 25 2023, 13:17:30) [GCC 12.3.0]
->>> import fastai
->>> fastai.__version__
-'2.7.14'
-
+which python
 ```
+
+It should point to something like:
+
+```text
+.../course/.venv/bin/python
+```
+
+Now test some packages:
+
+```bash
+python -c "import torch; print('PyTorch:', torch.__version__)"
+python -c "import fastai; print('fastai:', fastai.__version__)"
+python -c "import wandb; print('wandb:', wandb.__version__)"
+```
+
+🎉
+
+To leave the environment:
+
+```bash
+deactivate
+```
+
+---
+
+## Adding more software later
+
+Want another Python package?
+
+For example:
+
+```bash
+cd $HOME/course/
+uv pip install rich
+```
+
+---
+
+## Create a Jupyter kernel
+
+Our environment already contains `ipykernel`.
+
+Activate it:
+
+```bash
+cd $HOME/course/
+source .venv/bin/activate
+```
+
+Then register it as a Jupyter kernel:
+
+```bash
+python -m ipykernel install --user \
+    --name training2643-uv \
+    --display-name "Python (training2643 / uv)"
+```
+
+You can now select:
+
+```text
+Python (training2643 / uv)
+```
+
+as the kernel in Jupyter.
+
+---
+
+## Using the environment in VS Code
+
+You do not have to create a separate environment for VS Code.
+
+Open the course directory:
+
+```bash
+cd $HOME/course/
+code .
+```
+
+Then select the Python interpreter:
+
+```text
+$HOME/course/.venv/bin/python
+```
+
+VS Code will use the packages installed in our `uv` environment.
+
+---
+
+## Using the environment in a Slurm job
+
+The virtual environment lives on the shared filesystem, so we do **not** reinstall anything inside the job.
+
+Load the same modules:
+
+```bash
+module load Stages/2025
+module load GCC OpenMPI Python
+```
+
+Then run Python directly from the virtual environment:
+
+```bash
+cd $HOME/course/
+
+srun .venv/bin/python cats.py
+```
+
+There is no need to activate the environment inside the batch script.
+
+For example:
+
+```bash
+#!/bin/bash
+
+#SBATCH --account=training2643
+#SBATCH --nodes=1
+#SBATCH --job-name=cat-classifier
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=128
+#SBATCH --output=output.%j
+#SBATCH --error=error.%j
+#SBATCH --time=00:20:00
+#SBATCH --partition=dc-gpu
+#SBATCH --reservation=RSPDLM_Day1
+
+module load Stages/2025
+module load GCC OpenMPI Python
+
+cd $HOME/course/
+
+source .venv/bin/activate
+
+srun cats.py
+```
+
+That's it: one `.venv`, managed with `uv`, usable interactively, from VS Code/Jupyter, and inside Slurm jobs. 🚀
+
+---
+
+## Important: install packages on the login node
+
+The compute nodes do not have Internet access.
+
+Therefore, commands such as:
+
+```bash
+uv pip install -r requirements.txt
+```
+
+or:
+
+```bash
+uv pip install some-package
+```
+
+must be run on the **login node**.
+
+Once the packages are installed in `$HOME/course/.venv`, the same environment can be used from the compute nodes because the course directory is on the shared filesystem.
+
+---
+
+## Recap
+
+Create the environment:
+
+```bash
+cd $HOME/course/
+
+module load Stages/2025
+module load GCC OpenMPI Python
+
+uv venv --python "3.12" .venv
+uv pip install -r requirements.txt
+```
+
+Use it interactively:
+
+```bash
+source .venv/bin/activate
+python cats.py
+```
+
+Use it in a Slurm job:
+
+```bash
+srun $HOME/course/.venv/bin/python cats.py
+```
+
+No custom virtual-environment scripts needed. 🎉
 
 ---
 
@@ -981,7 +1251,7 @@ code fastai.sbatch
 #SBATCH --reservation=RSPDLM_Day1  # For today only
 
 cd $HOME/course/
-source sc_venv_template/activate.sh # Now we finally use the fastai module
+source .venv/bin/activate # Now we finally use the fastai module
 
 srun python cats.py
 ```
@@ -1098,7 +1368,7 @@ Comment out the line which does AI training:
 ```
 Call our code on the login node!
 ```bash
-source sc_venv_template/activate.sh # So that we have fast.ai library
+source .venv/bin/activate # So that we have fast.ai library
 python cats.py
 ```
 
@@ -1107,7 +1377,7 @@ python cats.py
 ## Run the downloader on the login node
 
 ```bash
-$ source sc_venv_template/activate.sh
+$ source .venv/bin/activate
 $ python cats.py 
 Downloading dataset...
  |████████-------------------------------| 23.50% [190750720/811706944 00:08<00:26]
@@ -1206,7 +1476,7 @@ tensorboard --logdir=runs  --port=9999 serve
 On VSCode's terminal:
 ```bash
 cd $HOME/course/
-source sc_venv_template/activate.sh
+source .venv/bin/activate
 tensorboard --logdir=runs  --port=12345 serve
 ```
 - Note the tab `PORTS` next to the terminal 
@@ -1238,27 +1508,6 @@ As of now, I expect you managed to:
 ## ANY QUESTIONS??
 
 #### Feedback is more than welcome!
-
----
-
-### Helmholtz Blablador
-
-![](images/blablador.png)
-
----
-
-### Blablador
-
-- Blablador is our Large Language Model inference server (eg. ChatGPT)
-- It's a service for the Helmholtz Association.
-  - It's fast, free and PRIVATE - It does not record your conversations!
-- Anyone here can use it
-
----
-
-### Blablador 
-
-![https://helmholtz-blablador.fz-juelich.de](images/blablador-qrcode.png){width=500px}
 
 ---
 
