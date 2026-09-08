@@ -13,7 +13,7 @@ PANDOC_OPTIONS=-t revealjs -s \
 	-V revealjs-url=. \
 	--include-in-header=slides.css \
 	-V hlss=zenburn \
-	-V theme=sky \
+	-V theme=simple \
 	-V transition=fade  \
 	-i 
 # --embed-resources   # This make a single file, good for distribution
