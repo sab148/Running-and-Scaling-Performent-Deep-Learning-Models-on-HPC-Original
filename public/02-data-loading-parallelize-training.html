@@ -15,26 +15,19 @@
     .reveal .sourceCode {  /* see #7635 */
       overflow: visible;
     }
-    /* Default styles provided by pandoc.
-    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
-       override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
+    ul.task-list{list-style: none;}
     ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
       width: 0.8em;
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
-    html { -webkit-text-size-adjust: 100%; }
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -243,50 +236,50 @@
 <col style="width: 45%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>Time</th>
 <th>Title</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>13:00 - 13:15</td>
 <td>Welcome, questions</td>
 </tr>
-<tr>
+<tr class="even">
 <td>13:15 - 13:30</td>
 <td>Data loading</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>13:30 - 14:15</td>
 <td>Single GPU Training</td>
 </tr>
-<tr>
+<tr class="even">
 <td>14:15 - 14:25</td>
 <td>Coffee Break (flexible)</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>14:25 - 15:15</td>
 <td>Data Parallel Training (DDP)</td>
 </tr>
-<tr>
+<tr class="even">
 <td>15:15 - 15:20</td>
 <td>Coffee Break (flexible)</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>15:20 - 16:00</td>
 <td>Fully Sharded Data Parallel (FSDP)</td>
 </tr>
-<tr>
+<tr class="even">
 <td>16:00 - 16:05</td>
 <td>Coffee Break (flexible)</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>16:05 - 16:40</td>
 <td>Pipeline Parallelism (PP), Tensor Parallelism (TP) &amp; 3D
 Parallelism</td>
 </tr>
-<tr>
+<tr class="even">
 <td>16:40 - 17:00</td>
 <td>Questions</td>
 </tr>
@@ -313,7 +306,7 @@ same files</li>
 <li class="fragment">Performance tradeoff between shared accessibility
 and speed</li>
 <li class="fragment">Our I/O server is almost a supercomputer by itself
-<img data-src="images/machines.png" style="height:350pt"
+<img data-src="images/machines.png" style="height:4.86111in"
 alt="JSC Supercomputer Stragegy" /></li>
 </ul>
 </section>
@@ -1180,16 +1173,19 @@ single GPU</li>
 </section>
 <section id="fully-sharded-data-parallel-fsdp" class="slide level2">
 <h2>Fully Sharded Data Parallel (FSDP)</h2>
-<p><img data-src="images/fsdp/fsdp-0.svg" style="height:300pt" /></p>
+<p><img data-src="images/fsdp/fsdp-0.svg"
+style="height:4.16667in" /></p>
 <!-- ![](images/fsdp_.png){height=50pt}  -->
 </section>
 <section id="fsdp" class="slide level2">
 <h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-1.svg" style="height:425pt" /></p>
+<p><img data-src="images/fsdp/fsdp-1.svg"
+style="height:5.90278in" /></p>
 </section>
 <section id="fsdp-1" class="slide level2">
 <h2>FSDP</h2>
-<p><img data-src="images/fsdp/fsdp-2.svg" style="height:425pt" /></p>
+<p><img data-src="images/fsdp/fsdp-2.svg"
+style="height:5.90278in" /></p>
 </section>
 <section id="fsdp-2" class="slide level2">
 <h2>FSDP</h2>
@@ -1544,65 +1540,24 @@ model parameters, gradients, and optimizer states across GPUs.</li>
 between GPUs, so it requires a high-bandwidth interconnect (e.g.,
 InfiniBand).</li>
 <li class="fragment">On bandwidth-limited clusters, FSDP may become a
-bottleneck, and pipeline parallelism might be preferable. &lt;!– ##
-DDP/FSDP with Hugging Face (HF)</li>
+bottleneck, and pipeline parallelism might be preferable.</li>
 </ul>
-<p>The HF <code>Trainer</code> offers a high level of abstraction with
-minimal boilerplate. The following example fine-tunes a text
-classification model using HF:</p>
-<ul>
-<li class="fragment"><code>train/hf_training.py</code></li>
-<li class="fragment"><code>hf_training.sbatch</code></li>
-</ul>
-</section>
-<section id="hf-ecosystem" class="slide level2">
-<h2>HF Ecosystem</h2>
-<p>HF is an end-to-end ML ecosystem, not only a model library.</p>
-<ul>
-<li class="fragment"><strong>Hub</strong>: discover, version, and share
-models and datasets.</li>
-<li class="fragment"><strong><a
-href="https://huggingface.co/docs/datasets/index">Datasets</a></strong>:
-scalable data loading, preprocessing, and caching.</li>
-<li class="fragment"><strong>Training stack</strong>: <a
-href="https://huggingface.co/docs/transformers/main_classes/trainer"><code>Trainer</code></a>,
-<a
-href="https://huggingface.co/docs/accelerate/index"><code>Accelerate</code></a>,
-and integrations for distributed training.</li>
-<li class="fragment"><strong>Reproducibility</strong>: <a
-href="https://huggingface.co/docs/hub/model-cards">model cards</a>,
-dataset versions, and shareable configs.</li>
-<li class="fragment">Download the models and datasets we need.</li>
-</ul>
-<div class="sourceCode" id="cb46"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hf</span> download imdb <span class="at">--repo-type</span> dataset</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="ex">hf</span> download gpt2</span></code></pre></div>
-<ul>
-<li class="fragment">Model and dataset loading:</li>
-</ul>
-<div class="sourceCode" id="cb47"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># AutoModel* classes support different downstream tasks</span></span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForSequenceClassification.from_pretrained(<span class="op">&lt;</span>name<span class="op">&gt;</span>)</span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> load_dataset(<span class="op">&lt;</span>name<span class="op">&gt;</span>)</span></code></pre></div>
 </section>
 <section id="ddpfsdp-training" class="slide level2">
 <h2>DDP/FSDP Training</h2>
 <p>Everything is configured through <code>TrainingArguments</code>.</p>
-<div class="sourceCode" id="cb48"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>trainer <span class="op">=</span> Trainer(</span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>model,</span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>    args<span class="op">=</span>TrainingArguments(</span>
-<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>        num_train_epochs<span class="op">=</span><span class="dv">3</span>,</span>
-<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>        learning_rate<span class="op">=</span><span class="fl">2e-5</span>,</span>
-<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>        ...</span>
-<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>    train_dataset<span class="op">=</span>dataset,</span>
-<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>    ...</span>
-<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>trainer.train()</span></code></pre></div>
-<p>Check out more examples in our <a
-href="https://sdlaml.pages.jsc.fz-juelich.de/ai/recipes/llm_hf/">HF
-recipe</a>. –&gt;</p>
+<div class="sourceCode" id="cb46"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>trainer <span class="op">=</span> Trainer(</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>model,</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    args<span class="op">=</span>TrainingArguments(</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>        num_train_epochs<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>        learning_rate<span class="op">=</span><span class="fl">2e-5</span>,</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>        ...</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>    train_dataset<span class="op">=</span>dataset,</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>    ...</span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>trainer.train()</span></code></pre></div>
 </section>
 <section
 id="thats-it-for-fsdp-now-lets-move-to-another-parallelization-technique."
@@ -1676,27 +1631,27 @@ class="slide level2">
 </section>
 <section id="minimal-code" class="slide level2">
 <h2>Minimal Code</h2>
-<div class="sourceCode" id="cb49"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.distributed.device_mesh <span class="im">import</span> init_device_mesh</span>
-<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.distributed.tensor.parallel <span class="im">import</span> (</span>
-<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>    parallelize_module,</span>
-<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>    ColwiseParallel,</span>
-<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>    RowwiseParallel,</span>
-<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>mesh <span class="op">=</span> init_device_mesh(<span class="st">&quot;cuda&quot;</span>, (world_size,))</span>
-<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> nn.Sequential(</span>
-<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">512</span>, <span class="dv">1024</span>),</span>
-<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a>    nn.ReLU(),</span>
-<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">1024</span>, <span class="dv">512</span>)</span>
-<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a>).to(rank)</span>
-<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a>parallelize_module(model, mesh, {</span>
-<span id="cb49-18"><a href="#cb49-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;0&quot;</span>: ColwiseParallel(),</span>
-<span id="cb49-19"><a href="#cb49-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;2&quot;</span>: RowwiseParallel(),</span>
-<span id="cb49-20"><a href="#cb49-20" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.distributed.device_mesh <span class="im">import</span> init_device_mesh</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.distributed.tensor.parallel <span class="im">import</span> (</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>    parallelize_module,</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>    ColwiseParallel,</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>    RowwiseParallel,</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>mesh <span class="op">=</span> init_device_mesh(<span class="st">&quot;cuda&quot;</span>, (world_size,))</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> nn.Sequential(</span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">512</span>, <span class="dv">1024</span>),</span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a>    nn.ReLU(),</span>
+<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">1024</span>, <span class="dv">512</span>)</span>
+<span id="cb47-15"><a href="#cb47-15" aria-hidden="true" tabindex="-1"></a>).to(rank)</span>
+<span id="cb47-16"><a href="#cb47-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-17"><a href="#cb47-17" aria-hidden="true" tabindex="-1"></a>parallelize_module(model, mesh, {</span>
+<span id="cb47-18"><a href="#cb47-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;0&quot;</span>: ColwiseParallel(),</span>
+<span id="cb47-19"><a href="#cb47-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;2&quot;</span>: RowwiseParallel(),</span>
+<span id="cb47-20"><a href="#cb47-20" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 </section>
 <section id="tp" class="slide level2">
 <h2>TP</h2>
@@ -1801,34 +1756,34 @@ model, it is split into micro-batches to keep all GPUs utilized.</li>
 </section>
 <section id="minimal-code-1" class="slide level2">
 <h2>Minimal Code</h2>
-<div class="sourceCode" id="cb50"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.distributed <span class="im">as</span> dist</span>
-<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.distributed.pipelining <span class="im">import</span> SplitPoint, pipeline, ScheduleGPipe</span>
-<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> nn.Sequential(</span>
-<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">512</span>, <span class="dv">1024</span>), nn.ReLU(),</span>
-<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">1024</span>, <span class="dv">1024</span>), nn.ReLU(),</span>
-<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">1024</span>, <span class="dv">1024</span>), nn.ReLU(),</span>
-<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">1024</span>, <span class="dv">512</span>),</span>
-<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a>pipe <span class="op">=</span> pipeline(model, mb_args<span class="op">=</span>(torch.randn(<span class="dv">8</span>, <span class="dv">512</span>),), split_spec<span class="op">=</span>{</span>
-<span id="cb50-14"><a href="#cb50-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;2&quot;</span>: SplitPoint.BEGINNING,</span>
-<span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;4&quot;</span>: SplitPoint.BEGINNING,</span>
-<span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;6&quot;</span>: SplitPoint.BEGINNING,</span>
-<span id="cb50-17"><a href="#cb50-17" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb50-18"><a href="#cb50-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-19"><a href="#cb50-19" aria-hidden="true" tabindex="-1"></a>stage <span class="op">=</span> pipe.build_stage(rank, device<span class="op">=</span>torch.device(<span class="st">&quot;cuda&quot;</span>, rank))</span>
-<span id="cb50-20"><a href="#cb50-20" aria-hidden="true" tabindex="-1"></a>schedule <span class="op">=</span> ScheduleGPipe(stage, n_microbatches<span class="op">=</span><span class="dv">4</span>)</span>
-<span id="cb50-21"><a href="#cb50-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-22"><a href="#cb50-22" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> rank <span class="op">==</span> <span class="dv">0</span>:  <span class="co"># first stage gets input</span></span>
-<span id="cb50-23"><a href="#cb50-23" aria-hidden="true" tabindex="-1"></a>    schedule.step(torch.randn(<span class="dv">32</span>, <span class="dv">512</span>, device<span class="op">=</span>torch.device(<span class="st">&quot;cuda&quot;</span>, rank)))</span>
-<span id="cb50-24"><a href="#cb50-24" aria-hidden="true" tabindex="-1"></a><span class="cf">elif</span> rank <span class="op">==</span> dist.get_world_size() <span class="op">-</span> <span class="dv">1</span>:  <span class="co"># last stage gets target (to compute loss)</span></span>
-<span id="cb50-25"><a href="#cb50-25" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> schedule.step(target<span class="op">=</span>torch.randn(<span class="dv">32</span>, <span class="dv">512</span>, device<span class="op">=</span>torch.device(<span class="st">&quot;cuda&quot;</span>, rank)))</span>
-<span id="cb50-26"><a href="#cb50-26" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:  <span class="co"># middle stages: no input / no target</span></span>
-<span id="cb50-27"><a href="#cb50-27" aria-hidden="true" tabindex="-1"></a>    schedule.step()</span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.distributed <span class="im">as</span> dist</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.distributed.pipelining <span class="im">import</span> SplitPoint, pipeline, ScheduleGPipe</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> nn.Sequential(</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">512</span>, <span class="dv">1024</span>), nn.ReLU(),</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">1024</span>, <span class="dv">1024</span>), nn.ReLU(),</span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">1024</span>, <span class="dv">1024</span>), nn.ReLU(),</span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">1024</span>, <span class="dv">512</span>),</span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a>pipe <span class="op">=</span> pipeline(model, mb_args<span class="op">=</span>(torch.randn(<span class="dv">8</span>, <span class="dv">512</span>),), split_spec<span class="op">=</span>{</span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;2&quot;</span>: SplitPoint.BEGINNING,</span>
+<span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;4&quot;</span>: SplitPoint.BEGINNING,</span>
+<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;6&quot;</span>: SplitPoint.BEGINNING,</span>
+<span id="cb48-17"><a href="#cb48-17" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb48-18"><a href="#cb48-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-19"><a href="#cb48-19" aria-hidden="true" tabindex="-1"></a>stage <span class="op">=</span> pipe.build_stage(rank, device<span class="op">=</span>torch.device(<span class="st">&quot;cuda&quot;</span>, rank))</span>
+<span id="cb48-20"><a href="#cb48-20" aria-hidden="true" tabindex="-1"></a>schedule <span class="op">=</span> ScheduleGPipe(stage, n_microbatches<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb48-21"><a href="#cb48-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-22"><a href="#cb48-22" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> rank <span class="op">==</span> <span class="dv">0</span>:  <span class="co"># first stage gets input</span></span>
+<span id="cb48-23"><a href="#cb48-23" aria-hidden="true" tabindex="-1"></a>    schedule.step(torch.randn(<span class="dv">32</span>, <span class="dv">512</span>, device<span class="op">=</span>torch.device(<span class="st">&quot;cuda&quot;</span>, rank)))</span>
+<span id="cb48-24"><a href="#cb48-24" aria-hidden="true" tabindex="-1"></a><span class="cf">elif</span> rank <span class="op">==</span> dist.get_world_size() <span class="op">-</span> <span class="dv">1</span>:  <span class="co"># last stage gets target (to compute loss)</span></span>
+<span id="cb48-25"><a href="#cb48-25" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> schedule.step(target<span class="op">=</span>torch.randn(<span class="dv">32</span>, <span class="dv">512</span>, device<span class="op">=</span>torch.device(<span class="st">&quot;cuda&quot;</span>, rank)))</span>
+<span id="cb48-26"><a href="#cb48-26" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:  <span class="co"># middle stages: no input / no target</span></span>
+<span id="cb48-27"><a href="#cb48-27" aria-hidden="true" tabindex="-1"></a>    schedule.step()</span></code></pre></div>
 </section>
 <section id="gpipe" class="slide level2">
 <h2>GPipe</h2>
@@ -1850,29 +1805,29 @@ class="slide level2">
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>Strategy</th>
 <th>What it does</th>
 <th>Best when</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td><strong>DDP</strong></td>
 <td>Replicates the full model and splits data across GPUs</td>
 <td>The model fits on one GPU</td>
 </tr>
-<tr>
+<tr class="even">
 <td><strong>FSDP</strong></td>
 <td>Shards model states across GPUs</td>
 <td>The model almost fits in memory</td>
 </tr>
-<tr>
+<tr class="odd">
 <td><strong>TP</strong></td>
 <td>Splits large layers across GPUs</td>
 <td>A single layer is too large</td>
 </tr>
-<tr>
+<tr class="even">
 <td><strong>PP</strong></td>
 <td>Splits the model into layer stages across GPUs</td>
 <td>The model is very deep</td>
