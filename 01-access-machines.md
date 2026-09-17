@@ -10,7 +10,8 @@ date: September 21, 2026
 Links for the skill-up
 
 - [JuDOOR project page invitation](https://judoor.fz-juelich.de/login?show=/projects/join/training2638)
-- [Workshop slides](https://sab148.github.io/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC-Original/#/title-slide) UPDATE THIS LINK!!
+- [Workshop slides](
+https://sab148.github.io/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC-Original/) 
 - [Workshop code on GitHub](https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC/tree/scicoco)
 - [Jupyter-JSC](https://jupyter.jsc.fz-juelich.de)
 
@@ -280,7 +281,7 @@ If you click *View > Show Hidden Files*, you should see the cache folders you cr
 # This command fails, as we do not have the correct PyTorch environment.
 python -c "import torch; print(torch.__version__)"
 # Then load the correct modules.
-module load Stages/2026
+module load Stages/2025
 module load GCC OpenMPI Python PyTorch
 # And we run a small test: import PyTorch and ask for its version.
 python -c "import torch; print(torch.__version__)"
@@ -317,8 +318,8 @@ print("The result is:\n", result)
 ### How to run it on the login node
 3. Run it on the login node.
 ```
-module load Stages/2026
-module load GCC OpenMPI Python PyTorch
+module load Stages/2025
+module load GCC OpenMPI Python PyTorch torchvision
 python matrix.py
 ```
 
@@ -373,8 +374,8 @@ Paste the following content into the file:
 #SBATCH --partition=dc-gpu         # Machine partition
 #SBATCH --reservation=scicoco_day1  # Reservation (for today only)
 
-module load Stages/2026
-module load GCC OpenMPI PyTorch # Load the correct modules on the compute node(s)
+module load Stages/2025
+module load GCC OpenMPI PyTorch torchvision # Load the correct modules on the compute node(s)
 
 srun python matrix.py            # srun tells the supercomputer how to run it
 ```
@@ -448,78 +449,68 @@ We will train:
 
 - ResNet-34, a convolutional neural network pretrained on image data, to classify images as cats or dogs
 - Training data: the Oxford-IIIT Pet dataset, containing about 7,400 images of cats and dogs
+- using the fastai library (high level training setup)
 
 ---
 
-### Some preparations
-1. Clone the repository:
+### Some preparations: Set up a virtual environment using uv
+1. Load the modules we want to use:
 
 ```bash
-git clone --branch scicoco https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC.git
-```
-
-2. Go into the directory:
-
-```bash
-cd Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC
-```
-
-3. Load uv:
-
-```bash
+module load Stages/2025
+module load GCC OpenMPI Python PyTorch torchvision
 module load uv
 ```
 
----
-
-### Some preparations
-
-4. Create a virtual environment using the module's Python and expose the module packages.
+2. Create a new virtual environment in your course folder
 ```bash
-uv venv --python "$(which python)" --system-site-packages
-```
-5. Activate the virtual environment.
-```bash
-source .venv/bin/activate
+uv venv --python 3.12 
 ```
 
 ---
 
-### Some preparations
+3. We need to install some additional packages. Create a file `touch requirements.txt` with the following content
+```bash
+accelerate==1.1.1
+datasets==3.6.0
+fastai==2.8.12
+fsspec==2025.2.0
+ipykernel==7.3.0
+lightning==2.6.6
+matplotlib==3.9.2
+numba==0.60.0
+numpy==1.26.4
+pandas==2.2.2
+pyarrow==18.1.0
+scipy==1.13.1
+scikit-learn==1.5.2
+sentencepiece==0.2.0
+tensorboard==2.21.0
+torch==2.8
+torchrun-jsc==0.0.19
+transformers==4.46.3
+wandb==0.30.0
+```
 
-6. Install the required software.
-
+4. Install these by
 ```bash
 uv pip install -r requirements.txt
 ```
 
-7. Activate the virtual environment.
+---
 
+5. Finally, activate the virtual environment:
 ```bash
 source .venv/bin/activate
 ```
 
----
-
-### Some preparations
-
-8. To load the modules and activate the virtual environment automatically, open `$HOME/.bashrc` and paste the following lines below the existing content:
-```{.bash style="font-size: 0.55em;"}
-# Set up modules and venv for interactive terminals
-if [[ $- == *i* ]]; then
-    module load Stages/2026
-    module load GCC OpenMPI PyTorch torchvision uv
-
-    source $PROJECT/dl-on-hpc-workshop/$USER/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC/.venv/bin/activate
-fi
-```
+We will always use this virtual environment from now on!
 
 ---
 
 ## The cat classifier
-1. Create a file back in the project folder:
+1. Create a file in your course folder:
 ```
-cd ~/course/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC
 touch cats.py
 ```
 with the following content:
@@ -569,13 +560,10 @@ touch fastai.sbatch
 #SBATCH --partition=dc-gpu
 #SBATCH --reservation=scicoco_day1  # For today only
 
-cd $HOME/course/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC/
-
-
-module load Stages/2026
+module load Stages/2025
 module load GCC OpenMPI PyTorch torchvision # Load the correct modules on the compute node(s)
 
-source .venv/bin/activate # Activate the virtual environment
+source ~/course/.venv/bin/activate # Activate the virtual environment
 
 srun python cats.py
 ```
@@ -707,22 +695,30 @@ cbs=[SaveModelCallback(), TensorBoardCallback('runs', trace_model=True)]
 ---
 
 ## TensorBoard
-CHANGE THIS PART TO USE NOTEBOOK ON JUPYTER-JSC
-- If you have Python and pip installed on your local machine, you can install TensorBoard using:
-```bash
-python -m pip install tensorboard
-```
-- Right-click the TensorBoard log in Jupyter-JSC to download it.
-- On your local machine:
-```bash
-tensorboard --logdir /path/to/log
-```
+- In the terminal enter:
+  ```bash
+  tensorboard   --logdir=runs   --port=6000   --host=127.0.0.1
+  ```
+
+- Then open a jupyter notebook (File -> New Notebook), select Python 3 (ipykernel) and execute:
+  ```bash
+  import os
+  from IPython.display import IFrame
+
+  url = f"{os.environ['JUPYTERHUB_SERVICE_PREFIX']}proxy/6000/"
+
+  IFrame(url, width="100%", height=800)
+  ```
+
+![](images/notebook.png){}
+
+
 
 ---
 
 ### TensorBoard
 
-![](images/tensorboard-cats.png){height=500px}
+![](images/tensorboard_jupyter.png){height=500px}
 
 ---
 
