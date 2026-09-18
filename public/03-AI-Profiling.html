@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
   <meta name="author" content="Javad Kasravi">
-  <meta name="dcterms.date" content="2026-06-01">
+  <meta name="dcterms.date" content="2026-09-22">
   <title>AI Profiling</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -20,8 +20,11 @@
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    ul.task-list{list-style: none;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
     ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
       width: 0.8em;
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
@@ -29,7 +32,7 @@
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
     pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span { line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
     .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -224,7 +227,7 @@
 <section id="title-slide">
   <h1 class="title">AI Profiling</h1>
   <p class="author">Javad Kasravi</p>
-  <p class="date">June 01, 2026</p>
+  <p class="date">Sep. 22, 2026</p>
 </section>
 
 <section class="slide level2">
@@ -388,38 +391,45 @@ data-src="images/profiling/nsight_flowchart_systemcomputegraphics.png" /></p>
 <div class="sourceCode" id="cb4"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">https://developer.nvidia.com/tools-downloads</span></span></code></pre></div>
 </div>
+<h3 id="nsight-traces">Nsight traces</h3>
+<p>Go to the following link and download the Nsight traces on
+JURECA:</p>
+<div style="font-weight: bold; background-color: #ffcccc;">
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">https://drive.google.com/file/d/1fhYkZ4LkyqbB9-_PKYXcU6dDkpIpwtPB/view</span></span></code></pre></div>
+</div>
 </section>
 <section class="slide level2">
 
 <h3 id="run-profiling">Run Profiling</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>    <span class="ex">srun</span> env <span class="at">-u</span> CUDA_VISIBLE_DEVICES bash <span class="at">-c</span> <span class="st">&#39;torchrun \</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="st">       --nproc-per-node=gpu \</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="st">       --nnodes=&quot;$SLURM_JOB_NUM_NODES&quot; \</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="st">       --rdzv-id=&quot;$SLURM_JOB_ID&quot; \</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="st">       --rdzv-endpoint=&quot;$MASTER_ADDR&quot;:&quot;$MASTER_PORT&quot; \</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="st">       --rdzv-backend=c10d \</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="st">       --rdzv-conf=is_host=&quot;$(if ((SLURM_NODEID)); then echo 0; else echo 1; fi)&quot; \</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="st">       --local-addr=&quot;$(if ((SLURM_NODEID)); then echo $MASTER_ADDR; else hostname; fi)&quot; \</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="st">       --no-python ./run_profile.sh train/ddp_training.py --profile&#39;</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>    <span class="ex">srun</span> env <span class="at">-u</span> CUDA_VISIBLE_DEVICES bash <span class="at">-c</span> <span class="st">&#39;torchrun \</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="st">       --nproc-per-node=gpu \</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="st">       --nnodes=&quot;$SLURM_JOB_NUM_NODES&quot; \</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="st">       --rdzv-id=&quot;$SLURM_JOB_ID&quot; \</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="st">       --rdzv-endpoint=&quot;$MASTER_ADDR&quot;:&quot;$MASTER_PORT&quot; \</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="st">       --rdzv-backend=c10d \</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="st">       --rdzv-conf=is_host=&quot;$(if ((SLURM_NODEID)); then echo 0; else echo 1; fi)&quot; \</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="st">       --local-addr=&quot;$(if ((SLURM_NODEID)); then echo $MASTER_ADDR; else hostname; fi)&quot; \</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="st">       --no-python ./run_profile.sh train/ddp_training.py --profile&#39;</span></span></code></pre></div>
 </div>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nsys</span> profile <span class="dt">\</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">--duration</span><span class="op">=</span>30 <span class="dt">\</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">--delay</span><span class="op">=</span>200 <span class="dt">\</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">--gpu-metrics-device</span><span class="op">=</span>all <span class="dt">\</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">--nic-metrics</span><span class="op">=</span>true <span class="dt">\</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">--stop-on-exit</span><span class="op">=</span>false <span class="dt">\</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">--trace</span><span class="op">=</span>nvtx,cuda,osrt <span class="dt">\</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">--cuda-memory-usage</span><span class="op">=</span>true <span class="dt">\</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">--force-overwrite</span><span class="op">=</span>true <span class="dt">\</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">--python-functions-trace</span><span class="op">=</span>profiler/config/profiling.json <span class="dt">\</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">--output</span><span class="op">=</span>nsys_logs/nsys_logs_rank_<span class="va">${RANK}</span> <span class="dt">\</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">--python-backtrace</span><span class="op">=</span>cuda <span class="dt">\</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">--cudabacktrace</span><span class="op">=</span>all <span class="dt">\</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    python <span class="at">-u</span> <span class="st">&quot;</span><span class="va">$SCRIPT_NAME</span><span class="st">&quot;</span> <span class="st">&quot;</span><span class="va">$@</span><span class="st">&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nsys</span> profile <span class="dt">\</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">--duration</span><span class="op">=</span>30 <span class="dt">\</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">--delay</span><span class="op">=</span>200 <span class="dt">\</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">--gpu-metrics-device</span><span class="op">=</span>all <span class="dt">\</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">--nic-metrics</span><span class="op">=</span>true <span class="dt">\</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">--stop-on-exit</span><span class="op">=</span>false <span class="dt">\</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">--trace</span><span class="op">=</span>nvtx,cuda,osrt <span class="dt">\</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">--cuda-memory-usage</span><span class="op">=</span>true <span class="dt">\</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">--force-overwrite</span><span class="op">=</span>true <span class="dt">\</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">--python-functions-trace</span><span class="op">=</span>profiler/config/profiling.json <span class="dt">\</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">--output</span><span class="op">=</span>nsys_logs/nsys_logs_rank_<span class="va">${RANK}</span> <span class="dt">\</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">--python-backtrace</span><span class="op">=</span>cuda <span class="dt">\</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">--cudabacktrace</span><span class="op">=</span>all <span class="dt">\</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    python <span class="at">-u</span> <span class="st">&quot;</span><span class="va">$SCRIPT_NAME</span><span class="st">&quot;</span> <span class="st">&quot;</span><span class="va">$@</span><span class="st">&quot;</span></span></code></pre></div>
 </div>
 </section>
 <section class="slide level2">
@@ -427,32 +437,32 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="
 <h3 id="run-profiling-1">Run Profiling</h3>
 <p>Inside of <code>profiler/config/profiling.json</code></p>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">{</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;domain&quot;</span><span class="ex">:</span> <span class="st">&quot;PyTorch&quot;</span>,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;color&quot;</span><span class="ex">:</span> <span class="st">&quot;E8B795&quot;</span>,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;module&quot;</span><span class="ex">:</span> <span class="st">&quot;torch.amp&quot;</span>,</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;functions&quot;</span><span class="ex">:</span> [</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;GradScaler.scale&quot;</span><span class="ex">,</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;GradScaler.unscale&quot;</span><span class="ex">,</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;GradScaler.unscale_&quot;</span><span class="ex">,</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;GradScaler.step&quot;</span><span class="ex">,</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;GradScaler.update&quot;</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        <span class="ex">]</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="ex">},</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="ex">...</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;domain&quot;</span><span class="ex">:</span> <span class="st">&quot;PyTorch&quot;</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;color&quot;</span><span class="ex">:</span> <span class="st">&quot;E8B795&quot;</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;module&quot;</span><span class="ex">:</span> <span class="st">&quot;torch.amp&quot;</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;functions&quot;</span><span class="ex">:</span> [</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;GradScaler.scale&quot;</span><span class="ex">,</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;GradScaler.unscale&quot;</span><span class="ex">,</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;GradScaler.unscale_&quot;</span><span class="ex">,</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;GradScaler.step&quot;</span><span class="ex">,</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;GradScaler.update&quot;</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="ex">]</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="ex">},</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="ex">...</span></span></code></pre></div>
 </div>
 <p>We also trace the NVTX trace</p>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step <span class="kw">in</span> range<span class="er">(</span><span class="ex">num_steps</span><span class="kw">)</span><span class="bu">:</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">with</span> ExecutionTimer<span class="er">(</span><span class="st">&quot;data_loading (to Sys. mem)&quot;</span><span class="ex">,</span> profile=True<span class="kw">)</span> <span class="fu">as</span> t:</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="ex">src,</span> tgt = next<span class="er">(</span><span class="ex">train_iter</span><span class="kw">)</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">with</span> ExecutionTimer<span class="er">(</span><span class="st">&quot;data_movement (to GPU mem)&quot;</span><span class="ex">,</span> profile=True<span class="kw">)</span> <span class="fu">as</span> t:</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="ex">src,</span> tgt = src.to<span class="er">(</span><span class="ex">device,</span> non_blocking=False<span class="kw">)</span><span class="ex">,</span> tgt.to<span class="er">(</span><span class="ex">device,</span> non_blocking=False<span class="kw">)</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">with</span> ExecutionTimer<span class="er">(</span><span class="st">&quot;forward_step&quot;</span><span class="ex">,</span> profile=True<span class="kw">)</span> <span class="fu">as</span> t:</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="ex">output</span> = model<span class="er">(</span><span class="ex">src</span><span class="kw">)</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">...</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step <span class="kw">in</span> range<span class="er">(</span><span class="ex">num_steps</span><span class="kw">)</span><span class="bu">:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">with</span> ExecutionTimer<span class="er">(</span><span class="st">&quot;data_loading (to Sys. mem)&quot;</span><span class="ex">,</span> profile=True<span class="kw">)</span> <span class="fu">as</span> t:</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>        <span class="ex">src,</span> tgt = next<span class="er">(</span><span class="ex">train_iter</span><span class="kw">)</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">with</span> ExecutionTimer<span class="er">(</span><span class="st">&quot;data_movement (to GPU mem)&quot;</span><span class="ex">,</span> profile=True<span class="kw">)</span> <span class="fu">as</span> t:</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        <span class="ex">src,</span> tgt = src.to<span class="er">(</span><span class="ex">device,</span> non_blocking=False<span class="kw">)</span><span class="ex">,</span> tgt.to<span class="er">(</span><span class="ex">device,</span> non_blocking=False<span class="kw">)</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">with</span> ExecutionTimer<span class="er">(</span><span class="st">&quot;forward_step&quot;</span><span class="ex">,</span> profile=True<span class="kw">)</span> <span class="fu">as</span> t:</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="ex">output</span> = model<span class="er">(</span><span class="ex">src</span><span class="kw">)</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">...</span></span></code></pre></div>
 </div>
 </section>
 <section class="slide level2">
@@ -467,15 +477,15 @@ style="width: 200%; max-width: 1200px; margin-left: -100px; margin-right: auto;"
 <h3 id="single-gpu-without-dataloader-worker">Single GPU without
 dataloader Worker</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb9"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>train_loader <span class="op">=</span> DataLoader(train_dataset, </span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                        batch_size<span class="op">=</span>args.batch_size, </span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                        num_workers<span class="op">=</span><span class="dv">0</span>,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                        pin_memory<span class="op">=</span><span class="va">False</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>train_loader <span class="op">=</span> DataLoader(train_dataset, </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                        batch_size<span class="op">=</span>args.batch_size, </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                        num_workers<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                        pin_memory<span class="op">=</span><span class="va">False</span>)</span></code></pre></div>
 </div>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training_profiling.sbatch <span class="at">--profile</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training_profiling.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 <p>Only the main process transfers data to system memory.</p>
 </section>
@@ -483,12 +493,6 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href=
 
 <h3 id="single-gpu-without-dataloader-worker-1">Single GPU without
 dataloader Worker</h3>
-Move the trace folder to your local machine by running:
-<div
-style="font-weight: bold; background-color: #ffcccc; font-size: 0.8em; min-width: 1050px">
-<div class="sourceCode" id="cb11"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">scp</span> <span class="at">-r</span> <span class="at">-4</span> <span class="op">&lt;</span>user<span class="op">&gt;</span>@jureca.fz-juelich.de:/p/project1/training2626/AI_profiling/Nsys_trace_update_Jan_2026 .</span></code></pre></div>
-</div>
 <div
 style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 1050px;">
 <div class="sourceCode" id="cb12"><pre
