@@ -1,7 +1,7 @@
 ---
 author: Javad Kasravi
 title: AI Profiling
-date: June 01, 2026
+date: Sep. 22, 2026
 ---
 <style>
 .reveal h3 {
@@ -147,6 +147,16 @@ https://developer.nvidia.com/tools-downloads
 ```
 </div>
 
+
+### Nsight traces
+Go to the following link and download the Nsight traces on JURECA:
+
+<div style="font-weight: bold; background-color: #ffcccc;">
+```bash
+https://drive.google.com/file/d/1fhYkZ4LkyqbB9-_PKYXcU6dDkpIpwtPB/view
+```
+</div>
+
 ---
 
 
@@ -261,12 +271,6 @@ Only the main process transfers data to system memory.
 
 ### Single GPU without dataloader Worker
 
-Move the trace folder to your local machine by running:
-<div style="font-weight: bold; background-color: #ffcccc; font-size: 0.8em; min-width: 1050px">
-```bash
-scp -r -4 <user>@jureca.fz-juelich.de:/p/project1/training2626/AI_profiling/Nsys_trace_update_Jan_2026 .
-```
-</div>
 
 <div style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 1050px;">
 ```bash
