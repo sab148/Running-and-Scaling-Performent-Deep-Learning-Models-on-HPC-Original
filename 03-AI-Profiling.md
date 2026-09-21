@@ -1,7 +1,7 @@
 ---
 author: Javad Kasravi
 title: AI Profiling
-date: June 01, 2026
+date: September 22, 2026
 ---
 <style>
 .reveal h3 {
