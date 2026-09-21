@@ -8,16 +8,13 @@ date: September 22, 2026
 
 | Time          | Title                |
 | ------------- | -----------          |
-| 13:00 - 13:15 | Welcome, questions   |
-| 13:15 - 13:30 | Data loading |
-| 13:30 - 14:15 | Single GPU Training |
-| 14:15 - 14:25 | Coffee Break (flexible) |
-| 14:25 - 15:15 | Data Parallel Training (DDP) |
-| 15:15 - 15:20 | Coffee Break (flexible) |
-| 15:20 - 16:00 | Fully Sharded Data Parallel (FSDP) |
-| 16:00 - 16:05 | Coffee Break (flexible) |
-| 16:05 - 16:40 | Pipeline Parallelism (PP), Tensor Parallelism (TP) & 3D Parallelism  |
-| 16:40 - 17:00 | Questions |
+| 10:15 - 10:20 | Welcome, questions   |
+| 10:20 - 10:30 | Data loading |
+| 10:30 - 11:00 | Single GPU Training |
+| 11:00 - 11:10 | Monitoring (llview, tensorboard, ...) |
+| 11:10 - 11:20 | Data Parallel Training (DDP) |
+| 11:20 - 11:40 | DDP training |
+| 11:40 - 11:45 | Questions |
 
 ---
 
@@ -45,13 +42,13 @@ date: September 22, 2026
 - Always store your code in the project1 folder (**`$PROJECT_projectname`** ). In our case 
 
     ```bash
-    /p/project1/training2626/$USER
+    $PROJECT/dl-on-hpc-workshop/$USER
     ```
 
 - Store data in the scratch directory for faster I/O access (**`$SCRATCH_projectname`**). ⚠️**Files in scratch are deleted after 90 days of inactivity.**
     
     ```bash
-    /p/scratch/training2626/$USER
+    /p/scratch/$PROJECT/$USER
     ```
 
 - Store the data in [`$DATA_dataset`](https://judoor.fz-juelich.de/projects/datasets/) for a more permanent location. 
@@ -96,7 +93,7 @@ date: September 22, 2026
 - If you have not done it already, clone the following repo:
 
     ```bash
-    git clone --depth 1 https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC.git
+    git clone --branch scicoco https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC.git
     ```
 
 ---
@@ -157,7 +154,7 @@ Let's have a look at the files **```train/to_distributed_training.py```** and **
     - Activate your environment:
 
         ```bash
-        source $HOME/course/sc_venv_template/activate.sh
+        source $HOME/course/.venv/bin/activate
         ```
 
     - Run:
@@ -191,7 +188,7 @@ Let's have a look at the files **```train/to_distributed_training.py```** and **
     If you haven’t already, activate your environment: 
 
     ```bash
-    source $HOME/course/sc_venv_template/activate.sh
+    source $HOME/course/.venv/bin/activate
     ````
 
 --- 
@@ -205,10 +202,10 @@ Let's have a look at the files **```train/to_distributed_training.py```** and **
 - TensorBoard
 
     ```bash
-    tensorboard --logdir "./tensorboard_logs/"
+    tensorboard --logdir "./tensorboard_logs/" --port=6000 --host=127.0.0.1
     ```
 
-    Open the link provided by VS Code.
+    Now you can open jupyter notebook (the one that you used yesterday) to check your metrics
 
 - Weights & Biases (wandb)
 
@@ -216,7 +213,6 @@ Let's have a look at the files **```train/to_distributed_training.py```** and **
     export WANDB_ENTITY=your_username
     wandb sync wandb/offline-run-*
     ```
-    Open the link displayed in the terminal.
 
 ---
 

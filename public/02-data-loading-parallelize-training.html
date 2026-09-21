@@ -231,10 +231,6 @@
 
 <h3 id="schedule-for-day-2">Schedule for day 2</h3>
 <table>
-<colgroup>
-<col style="width: 54%" />
-<col style="width: 45%" />
-</colgroup>
 <thead>
 <tr class="header">
 <th>Time</th>
@@ -243,44 +239,31 @@
 </thead>
 <tbody>
 <tr class="odd">
-<td>13:00 - 13:15</td>
+<td>10:15 - 10:20</td>
 <td>Welcome, questions</td>
 </tr>
 <tr class="even">
-<td>13:15 - 13:30</td>
+<td>10:20 - 10:30</td>
 <td>Data loading</td>
 </tr>
 <tr class="odd">
-<td>13:30 - 14:15</td>
+<td>10:30 - 11:00</td>
 <td>Single GPU Training</td>
 </tr>
 <tr class="even">
-<td>14:15 - 14:25</td>
-<td>Coffee Break (flexible)</td>
+<td>11:00 - 11:10</td>
+<td>Monitoring (llview, tensorboard, …)</td>
 </tr>
 <tr class="odd">
-<td>14:25 - 15:15</td>
+<td>11:10 - 11:20</td>
 <td>Data Parallel Training (DDP)</td>
 </tr>
 <tr class="even">
-<td>15:15 - 15:20</td>
-<td>Coffee Break (flexible)</td>
+<td>11:20 - 11:40</td>
+<td>DDP training</td>
 </tr>
 <tr class="odd">
-<td>15:20 - 16:00</td>
-<td>Fully Sharded Data Parallel (FSDP)</td>
-</tr>
-<tr class="even">
-<td>16:00 - 16:05</td>
-<td>Coffee Break (flexible)</td>
-</tr>
-<tr class="odd">
-<td>16:05 - 16:40</td>
-<td>Pipeline Parallelism (PP), Tensor Parallelism (TP) &amp; 3D
-Parallelism</td>
-</tr>
-<tr class="even">
-<td>16:40 - 17:00</td>
+<td>11:40 - 11:45</td>
 <td>Questions</td>
 </tr>
 </tbody>
@@ -316,13 +299,13 @@ alt="JSC Supercomputer Stragegy" /></li>
 <li class="fragment"><p>Always store your code in the project1 folder
 (<strong><code>$PROJECT_projectname</code></strong> ). In our case</p>
 <div class="sourceCode" id="cb1"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/p/project1/training2626/</span><span class="va">$USER</span></span></code></pre></div></li>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="va">$PROJECT</span><span class="ex">/dl-on-hpc-workshop/</span><span class="va">$USER</span></span></code></pre></div></li>
 <li class="fragment"><p>Store data in the scratch directory for faster
 I/O access (<strong><code>$SCRATCH_projectname</code></strong>).
 ⚠️<strong>Files in scratch are deleted after 90 days of
 inactivity.</strong></p>
 <div class="sourceCode" id="cb2"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/p/scratch/training2626/</span><span class="va">$USER</span></span></code></pre></div></li>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/p/scratch/</span><span class="va">$PROJECT</span><span class="ex">/</span><span class="va">$USER</span></span></code></pre></div></li>
 <li class="fragment"><p>Store the data in <a
 href="https://judoor.fz-juelich.de/projects/datasets/"><code>$DATA_dataset</code></a>
 for a more permanent location.</p>
@@ -386,7 +369,7 @@ data-src="images/inodes.png" /></li>
 <li class="fragment"><p>If you have not done it already, clone the
 following repo:</p>
 <div class="sourceCode" id="cb4"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone <span class="at">--depth</span> 1 https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC.git</span></code></pre></div></li>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone <span class="at">--branch</span> scicoco https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC.git</span></code></pre></div></li>
 </ul>
 </section>
 <section id="what-this-code-does" class="slide level2">
@@ -462,7 +445,7 @@ node.</li>
 <strong>to</strong> 153.</p></li>
 <li class="fragment"><p>Activate your environment:</p>
 <div class="sourceCode" id="cb6"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> <span class="va">$HOME</span>/course/sc_venv_template/activate.sh</span></code></pre></div></li>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> <span class="va">$HOME</span>/course/.venv/bin/activate</span></code></pre></div></li>
 <li class="fragment"><p>Run:</p>
 <div class="sourceCode" id="cb7"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">PYTHONPATH</span><span class="op">=</span><span class="st">&quot;</span><span class="va">${PYTHONPATH}</span><span class="st">:</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">&quot;</span></span>
@@ -492,7 +475,7 @@ training</li>
 <li class="fragment"><p>Activate the Environment</p>
 <p>If you haven’t already, activate your environment:</p>
 <div class="sourceCode" id="cb9"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> <span class="va">$HOME</span>/course/sc_venv_template/activate.sh</span></code></pre></div></li>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> <span class="va">$HOME</span>/course/.venv/bin/activate</span></code></pre></div></li>
 </ol>
 </section>
 <section id="tensorboard-and-wandb" class="slide level2">
@@ -505,13 +488,13 @@ options:</p></li>
 <ul>
 <li class="fragment"><p>TensorBoard</p>
 <div class="sourceCode" id="cb10"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tensorboard</span> <span class="at">--logdir</span> <span class="st">&quot;./tensorboard_logs/&quot;</span></span></code></pre></div>
-<p>Open the link provided by VS Code.</p></li>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tensorboard</span> <span class="at">--logdir</span> <span class="st">&quot;./tensorboard_logs/&quot;</span> <span class="at">--port</span><span class="op">=</span>6000 <span class="at">--host</span><span class="op">=</span>127.0.0.1</span></code></pre></div>
+<p>Now you can open jupyter notebook (the one that you used yesterday)
+to check your metrics</p></li>
 <li class="fragment"><p>Weights &amp; Biases (wandb)</p>
 <div class="sourceCode" id="cb11"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">WANDB_ENTITY</span><span class="op">=</span>your_username</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">wandb</span> sync wandb/offline-run-<span class="pp">*</span></span></code></pre></div>
-<p>Open the link displayed in the terminal.</p></li>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">wandb</span> sync wandb/offline-run-<span class="pp">*</span></span></code></pre></div></li>
 </ul>
 </section>
 <section id="llview" class="slide level2">
