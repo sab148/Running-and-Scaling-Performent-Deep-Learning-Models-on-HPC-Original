@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
-  <meta name="author" content="Alexandre Strube // Sabrina Benassou // Ismail Khalfaoui-Hassani // Javad Kasravi">
-  <title>Running and Scaling Performent Deep Learning Models on HPC</title>
+  <meta name="author" content="Sabrina Benassou, Ismael Khalfaoui">
+  <meta name="dcterms.date" content="2026-10-14">
+  <title>Running Deep Learning Models on HPC System</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -14,24 +15,82 @@
     .reveal .sourceCode {  /* see #7635 */
       overflow: visible;
     }
-    /* Default styles provided by pandoc.
-    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
-       override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
+    ul.task-list{list-style: none;}
     ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
       width: 0.8em;
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
   <link rel="stylesheet" href="./dist/theme/simple.css" id="theme">
   <style>
@@ -163,25 +222,1316 @@
     <div class="slides">
 
 <section id="title-slide">
-  <h1 class="title">Running and Scaling Performent Deep Learning Models
-on HPC</h1>
-  <p class="author">Alexandre Strube // Sabrina Benassou // Ismail
-Khalfaoui-Hassani // Javad Kasravi</p>
-  <p class="date">September 08/09/10, 2026</p>
+  <h1 class="title">Running Deep Learning Models on HPC System</h1>
+  <p class="author">Sabrina Benassou, Ismael Khalfaoui</p>
+  <p class="date">October 14, 2026</p>
 </section>
 
-<section id="topics-as-links" class="slide level1">
-<h1>Topics (as links)</h1>
+<section id="important-links" class="slide level2">
+<h2>Important Links</h2>
+<p>Links for the skill-up</p>
 <ul>
-<li class="fragment"><a href="01-access-machines.html">Day 1: Access
-machines, slurm, etc</a>
-<!--    - [Day 1: Recap](day-1-recap.html) --></li>
 <li class="fragment"><a
-href="02-data-loading-parallelize-training.html">Day 2: Data Loading
-&amp; Parallelize training</a></li>
-<li class="fragment"><a href="03-AI-Profiling.html">Day 3: AI
-Profiling</a></li>
+href="https://judoor.fz-juelich.de/projects/join/training2657">JuDOOR
+project page invitation</a></li>
+<li class="fragment"><a
+href="https://sab148.github.io/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC-Original/">Workshop
+slides</a></li>
+<li class="fragment"><a
+href="https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC/tree/inm_retreat_2026">Workshop
+code on GitHub</a></li>
+<li class="fragment"><a
+href="https://jupyter.jsc.fz-juelich.de">Jupyter-JSC</a></li>
 </ul>
+<p>Please open the slides on your device so you can copy and paste from
+the slides.</p>
+<p><img data-src="images/Logo_FZ_Juelich_rgb_Schutzzone_transparent.svg"
+height="180" /></p>
+</section>
+<section id="goals-for-this-course" class="slide level2">
+<h2>Goals for this course</h2>
+<ul>
+<li class="fragment">Access our machines in Jülich using Jupyter-JSC
+👩‍💻</li>
+<li class="fragment">Use the file system efficiently so that the
+supercomputer can access your data quickly 🏃</li>
+<li class="fragment">Distribute your machine learning workload 💪</li>
+</ul>
+<p><img data-src="images/Logo_FZ_Juelich_rgb_Schutzzone_transparent.svg"
+height="180" /></p>
+</section>
+<section id="team" class="slide level2">
+<h2>Team</h2>
+<div class="container">
+<div class="col">
+<figure>
+<img data-src="pics/sabrina.jpg" width="240" alt="Sabrina Benassou" />
+<figcaption aria-hidden="true">Sabrina Benassou</figcaption>
+</figure>
+</div>
+<div class="col">
+<figure>
+<img data-src="pics/ismail.jpeg" width="240" alt="Ismael Khalfaoui" />
+<figcaption aria-hidden="true">Ismael Khalfaoui</figcaption>
+</figure>
+</div>
+</div>
+<p><img data-src="images/Logo_FZ_Juelich_rgb_Schutzzone_transparent.svg"
+height="120" /></p>
+</section>
+<section class="slide level2">
+
+<h3 id="schedule">Schedule</h3>
+<table>
+<colgroup>
+<col style="width: 54%" />
+<col style="width: 45%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Time</th>
+<th>Title</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>11:00 - 11:15</td>
+<td>Introduction and Definitions</td>
+</tr>
+<tr class="even">
+<td>11:15 - 11:30</td>
+<td>Use Jupyter-JSC to connect to the Supercomputer</td>
+</tr>
+<tr class="odd">
+<td>11:30 - 11:45</td>
+<td>How to run code on a compute node</td>
+</tr>
+<tr class="even">
+<td>11:45 - 12:15</td>
+<td>Single GPU training</td>
+</tr>
+<tr class="odd">
+<td>12:15 - 12:45</td>
+<td>Multiple GPU training using Distributed Data Parallel (DDP)</td>
+</tr>
+<tr class="even">
+<td>12:45 - 13:00</td>
+<td>Wrap up and Q&amp;A</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="slide level2">
+
+<h3 id="jülich-supercomputers">Jülich Supercomputers</h3>
+<figure>
+<img data-src="images/machines.png" height="520"
+alt="JSC Supercomputer Strategy" />
+<figcaption aria-hidden="true">JSC Supercomputer Strategy</figcaption>
+</figure>
+</section>
+<section class="slide level2">
+
+<h3 id="what-is-a-supercomputer">What is a supercomputer?</h3>
+<ul>
+<li class="fragment">Compute cluster: Many computers bound together
+locally</li>
+<li class="fragment">Supercomputer: A lot of computers bound together
+locally 😒
+<ul>
+<li class="fragment">with a fancy network 🤯</li>
+</ul></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="anatomy-of-a-supercomputer">Anatomy of a supercomputer</h3>
+<ul>
+<li class="fragment">Login nodes: Normal machines for compilation, data
+transfer, scripting, etc. No GPUs. A limited number of shared CPU
+cores.</li>
+<li class="fragment">Compute nodes: Guess what?
+<ul>
+<li class="fragment">For compute! With GPUs! 🤩</li>
+</ul></li>
+<li class="fragment">High-speed, ultra-low-latency network</li>
+<li class="fragment">Shared networked file systems</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="jureca-dc-compute-nodes">JURECA DC Compute Nodes</h3>
+<ul>
+<li class="fragment">192 accelerated nodes (with GPUs)</li>
+<li class="fragment">2x AMD EPYC Rome 7742 CPUs at 2.25 GHz (128
+cores/node)</li>
+<li class="fragment">512 GiB memory</li>
+<li class="fragment">Network: Mellanox HDR InfiniBand (FAST💨 and
+EXPENSIVE💸)</li>
+<li class="fragment">4x NVIDIA A100 with 40 GB 😻</li>
+<li class="fragment">TL;DR: 24576 cores, 768 GPUs 💪</li>
+<li class="fragment">Way deeper technical info at <a
+href="https://apps.fz-juelich.de/jsc/hps/jureca/configuration.html">JURECA
+DC Overview</a></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<!-- ### JUWELS Booster Compute Nodes
+
+- 936 Nodes
+- 2x AMD EPYC Rome 7402 CPUs at 2.7 GHz (48 cores x 2 threads = 96 virtual cores/node)
+- 512 GiB memory
+- Network: Mellanox HDR InfiniBand (FAST💨 and EXPENSIVE💸)
+- 4x NVIDIA A100 with 40 GB 😻
+- TL;DR: 89856 cores, 3744 GPUs, 468 TB RAM 💪
+- Way deeper technical info at [JUWELS Booster Overview](https://apps.fz-juelich.de/jsc/hps/juwels/booster-overview.html)
+
+--- -->
+<h3 id="you-dont-use-the-whole-supercomputer">You don’t use the whole
+supercomputer</h3>
+<h4 id="you-submit-jobs-to-a-queue-asking-for-resources">You submit jobs
+to a queue asking for resources</h4>
+<p><img data-src="images/supercomputer-queue.svg" height="350" /></p>
+<div class="container">
+<div class="col">
+<ul>
+<li class="fragment">Your job(s) enter the queue and wait for their
+turn</li>
+<li class="fragment">When there are enough resources for that job, it
+runs</li>
+</ul>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="you-dont-use-the-whole-supercomputer-1">You don’t use the whole
+supercomputer</h3>
+<h4 id="and-get-results-back">And get results back</h4>
+<p><img data-src="images/queue-finished.svg" height="500" /></p>
+</section>
+<section class="slide level2">
+
+<h3 id="supercomputer-usage-model">Supercomputer Usage Model</h3>
+<ul>
+<li class="fragment">Using the supercomputer means submitting a job to a
+batch system.</li>
+<li class="fragment">No node-sharing. The smallest allocation for jobs
+is one compute node (4 GPUs).</li>
+<li class="fragment">Maximum runtime of a job: 24 h.</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="recap">Recap</h3>
+<ul>
+<li class="fragment">Login nodes are for submitting jobs, downloading
+and moving files, compiling code, etc.</li>
+<li class="fragment">NOT FOR TRAINING DEEP LEARNING MODELS!</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h4 id="compute-time">Compute time</h4>
+<ul>
+<li class="fragment">Compute time allocation is based on compute
+projects. For every compute job, a compute project pays.</li>
+<li class="fragment">Time is measured in core-hours. One hour of JURECA
+DC is 128 core-hours.</li>
+<li class="fragment">Example: A job runs for 8 hours on 64 nodes of
+JURECA DC: 8 * 64 * 128 = 65536 core-h!</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="connecting-to-jureca-dc">Connecting to JURECA DC</h3>
+<h4
+id="recall-that-you-should-have-completed-the-following-preparations-already">Recall
+that you should have completed the following preparations already:</h4>
+<ul>
+<li class="fragment">Go to the course project on JuDOOR: <a
+href="https://judoor.fz-juelich.de/projects/join/training2657">training2657</a>.</li>
+<li class="fragment">Join the workshop’s compute project
+<code>training2657</code>.</li>
+<li class="fragment">Sign the Usage Agreements (<a
+href="https://drive.google.com/file/d/1mEN1GmWyGFp75uMIi4d6Tpek2NC_X8eY/view">video</a>).</li>
+</ul>
+</section>
+<section id="connecting-to-jureca-dc-via-jupyter-jsc"
+class="slide level2">
+<h2>Connecting to JURECA DC via Jupyter-JSC</h2>
+<p>Go to https://jupyter.jsc.fz-juelich.de/hub/login and choose
+<strong>Sign in with JSC account</strong>.</p>
+<p><img data-src="images/login_02.png" height="350" /></p>
+</section>
+<section id="connecting-to-jureca-dc-via-jupyter-jsc-1"
+class="slide level2">
+<h2>Connecting to JURECA DC via Jupyter-JSC</h2>
+<p>Log in with your JuDOOR account.</p>
+<p><img data-src="images/login_03.png" width="800" /></p>
+<ul>
+<li class="fragment">Confirm that you allow the JSC Login service to use
+the information provided by the identity provider.</li>
+</ul>
+</section>
+<section id="create-a-new-jupyterlab" class="slide level2">
+<h2>Create a new JupyterLab</h2>
+<p><img data-src="images/jupyter_01.png" width="1100" /></p>
+</section>
+<section id="create-a-new-jupyterlab-1" class="slide level2">
+<h2>Create a new JupyterLab</h2>
+<p>Please choose the following configuration. In particular, it is
+<strong>important</strong> that you choose the <strong>login
+node</strong>!</p>
+<p><img data-src="images/jupyter_02.png" height="380" /></p>
+<p>Click <strong>Open</strong> once it is ready.</p>
+</section>
+<section id="open-a-terminal-on-the-login-node" class="slide level2">
+<h2>Open a terminal on the login node</h2>
+<p><img data-src="images/jupyter_03.png" height="450" /></p>
+</section>
+<section id="open-a-terminal-on-the-login-node-1" class="slide level2">
+<h2>Open a terminal on the login node</h2>
+<p><img data-src="images/jupyter_04.png" width="1050" /></p>
+</section>
+<section class="slide level2">
+
+<h3 id="exercise-create-folders-for-the-workshop">Exercise: Create
+folders for the workshop</h3>
+<p>Use the terminal in Jupyter-JSC for the following steps:</p>
+<ol type="1">
+<li class="fragment"><p>Create your course folder.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mkdir</span> <span class="va">$PROJECT</span>/<span class="va">$USER</span></span></code></pre></div></li>
+</ol>
+<ul>
+<li class="fragment">If you click on <code>$PROJECT</code> on the left,
+you should see a folder with your name.</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="exercise-create-folders-for-the-workshop-1">Exercise: Create
+folders for the workshop</h3>
+<ol start="2" type="1">
+<li class="fragment"><p>Create a shortcut (link) to your course folder
+in your home folder.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-rf</span> ~/course</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> ~/course</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-s</span> <span class="va">$PROJECT</span>/<span class="va">$USER</span> ~/course</span></code></pre></div></li>
+<li class="fragment"><p>Enter your course folder.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/course</span></code></pre></div></li>
+</ol>
+</section>
+<section class="slide level2">
+
+<h3 id="exercise-create-folders-for-the-workshop-2">Exercise: Create
+folders for the workshop</h3>
+<ol start="4" type="1">
+<li class="fragment"><p>Link certain cache directories to the course
+folder. They should not be in <code>$HOME</code>, as it has limited
+space.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> ~/course/.cache</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> ~/course/.config</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> ~/course/.fastai</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> ~/course/.local</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-rf</span> <span class="va">$HOME</span>/.cache</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-s</span> ~/course/.cache <span class="va">$HOME</span>/</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-rf</span> <span class="va">$HOME</span>/.config</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-s</span> ~/course/.config <span class="va">$HOME</span>/</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-rf</span> <span class="va">$HOME</span>/.fastai</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-s</span> ~/course/.fastai <span class="va">$HOME</span>/</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-rf</span> <span class="va">$HOME</span>/.local</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-s</span> ~/course/.local <span class="va">$HOME</span>/</span></code></pre></div></li>
+</ol>
+<ul>
+<li class="fragment">If you click <em>View &gt; Show Hidden Files</em>,
+you should see the cache folders you created.</li>
+</ul>
+</section>
+<section id="working-with-the-supercomputers-software"
+class="slide level2">
+<h2>Working with the supercomputer’s software</h2>
+<ul>
+<li class="fragment">We have literally thousands of software packages,
+compiled specifically for the supercomputer.</li>
+<li class="fragment"><a
+href="https://www.fz-juelich.de/en/ias/jsc/services/user-support/using-systems/software">Full
+list</a></li>
+<li class="fragment"><a
+href="https://apps.fz-juelich.de/jsc/hps/jureca/software-modules.html">Detailed
+documentation</a></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="example-pytorch">Example: PyTorch</h3>
+<ol type="1">
+<li class="fragment"><p>Copy and paste these lines:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This command fails, as we do not have the correct PyTorch environment.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-c</span> <span class="st">&quot;import torch; print(torch.__version__)&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Then load the correct modules.</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load Stages/2025</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load GCC OpenMPI Python </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># And we run a small test: import PyTorch and ask for its version.</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-c</span> <span class="st">&quot;import torch; print(torch.__version__)&quot;</span></span></code></pre></div></li>
+</ol>
+</section>
+<section class="slide level2">
+
+<h3 id="demo-code">Demo code</h3>
+<ol start="2" type="1">
+<li class="fragment"><p>Create a new Python file in your course
+folder.</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> matrix.py</span></code></pre></div></li>
+</ol>
+<ul>
+<li class="fragment"><p>Open it in the editor and paste this into the
+file:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>matrix1 <span class="op">=</span> torch.randn(<span class="dv">3</span>,<span class="dv">3</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;The first matrix is:</span><span class="ch">\n</span><span class="st">&quot;</span>, matrix1)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>matrix2 <span class="op">=</span> torch.randn(<span class="dv">3</span>,<span class="dv">3</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;The second matrix is:</span><span class="ch">\n</span><span class="st">&quot;</span>, matrix2)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> torch.matmul(matrix1,matrix2)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;The result is:</span><span class="ch">\n</span><span class="st">&quot;</span>, result)</span></code></pre></div></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="how-to-run-it-on-the-login-node">How to run it on the login
+node</h3>
+<ol start="3" type="1">
+<li class="fragment"><p>Run it on the login node.</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>  <span class="ex">module</span> load Stages/2025</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">module</span> load GCC OpenMPI Python PyTorch torchvision</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">python</span> matrix.py</span></code></pre></div></li>
+</ol>
+</section>
+<section class="slide level2">
+
+<h3 id="but-thats-not-what-we-want">But that’s not what we want… 😒</h3>
+</section>
+<section class="slide level2">
+
+<h3 id="so-we-send-it-to-the-queue">So we send it to the queue!</h3>
+</section>
+<section id="how" class="slide level2">
+<h2>HOW?🤔</h2>
+</section>
+<section class="slide level2">
+
+<h3 id="slurm">Slurm 🤯</h3>
+<p><img data-src="images/slurm.jpg" height="480" /></p>
+<p>Simple Linux Utility for Resource Management</p>
+</section>
+<section class="slide level2">
+
+<h3 id="slurm-submission-file">Slurm submission file</h3>
+<ul>
+<li class="fragment">A simple text file that describes what we want, how
+much of it we need, how long we need it, and what to do with the
+results</li>
+</ul>
+<ol start="4" type="1">
+<li class="fragment"><p>Create a new file:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> jureca-matrix.sbatch</span></code></pre></div></li>
+</ol>
+</section>
+<section class="slide level2">
+
+<h3 id="slurm-submission-file-example">Slurm submission file
+example</h3>
+<ul>
+<li class="fragment"><p>Paste the following content into the file:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>  <span class="co">#!/bin/bash</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">#SBATCH --account=training2657          # Who pays?</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#SBATCH --nodes=1                        # How many compute nodes</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">#SBATCH --job-name=matrix-multiplication</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">#SBATCH --ntasks-per-node=1              # How many MPI processes per node</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">#SBATCH --cpus-per-task=1                # How many CPUs per MPI process</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#SBATCH --output=output.%j        # Where to write results</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">#SBATCH --error=error.%j</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#SBATCH --time=00:01:00          # For how long can it run?</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">#SBATCH --partition=dc-gpu         # Machine partition</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="ex">module</span> load Stages/2025</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="ex">module</span> load GCC OpenMPI PyTorch torchvision <span class="co"># Load the correct modules on the compute node(s)</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="ex">srun</span> python matrix.py            <span class="co"># srun tells the supercomputer how to run it</span></span></code></pre></div></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="submitting-a-job-sbatch">Submitting a job:
+<code>sbatch</code></h3>
+<ol start="5" type="1">
+<li class="fragment"><p>Submit the Slurm job.</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>  <span class="ex">sbatch</span> jureca-matrix.sbatch</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">Submitted</span> batch job 412169</span></code></pre></div></li>
+</ol>
+</section>
+<section class="slide level2">
+
+<h3 id="are-we-there-yet">Are we there yet?</h3>
+<p><img data-src="images/are-we-there-yet.gif" height="500" /></p>
+</section>
+<section class="slide level2">
+
+<h3 id="are-we-there-yet-1">Are we there yet? 🐴</h3>
+<ol start="6" type="1">
+<li class="fragment"><p>Check the status of the job using the following
+command:</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">watch</span> squeue <span class="at">--me</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">JOBID</span>  PARTITION    NAME      USER    ST       TIME  NODES NODELIST<span class="er">(</span><span class="ex">REASON</span><span class="kw">)</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">412169</span> gpus         matrix-m  benassou1 CF       0:02      1 jrc0203</span></code></pre></div></li>
+</ol>
+<ul>
+<li class="fragment"><p>Close it with <strong>Ctrl+C</strong>.</p>
+<p><code>ST</code> is the status:</p>
+<ul>
+<li class="fragment">PD (pending)</li>
+<li class="fragment">CF (configuring)</li>
+<li class="fragment">R (running)</li>
+<li class="fragment">CG (completing)</li>
+</ul></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="the-job-is-wrong-and-needs-to-be-cancelled">The job is wrong and
+needs to be cancelled</h3>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>  <span class="ex">scancel</span> <span class="op">&lt;</span>JOBID<span class="op">&gt;</span></span></code></pre></div>
+</section>
+<section class="slide level2">
+
+<h3 id="check-logs">Check logs</h3>
+<ol start="7" type="1">
+<li class="fragment"><p>By now, you should have output and error log
+files in your directory. Check them! For example:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">output.412169</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">error.412169</span></span></code></pre></div></li>
+</ol>
+<ul>
+<li class="fragment">Here, 412169 is the job ID. You can open the files
+in the editor.</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="lets-train-a-classifier">Let’s train a 🐈 classifier!</h3>
+<p>This is a minimal demo to show some quirks of the supercomputer.</p>
+<p>We will train:</p>
+<ul>
+<li class="fragment">ResNet-34, a convolutional neural network
+pretrained on image data, to classify images as cats or dogs</li>
+<li class="fragment">Training data: the Oxford-IIIT Pet dataset,
+containing about 7,400 images of cats and dogs</li>
+<li class="fragment">using the fastai library (high level training
+setup)</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="some-preparations-set-up-a-virtual-environment-using-uv">Some
+preparations: Set up a virtual environment using uv</h3>
+<ol type="1">
+<li class="fragment"><p>Load the modules we want to use:</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load Stages/2025</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load GCC OpenMPI Python PyTorch torchvision</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load uv</span></code></pre></div></li>
+<li class="fragment"><p>Create a new virtual environment in your course
+folder</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> venv ~/course/.venv <span class="at">--python</span> 3.12 </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> ~/course/.venv/bin/activate</span></code></pre></div></li>
+</ol>
+</section>
+<section class="slide level2">
+
+<ol start="3" type="1">
+<li class="fragment"><p>We need to install some additional packages.
+Create a file <code>touch requirements.txt</code> with the following
+content</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>  <span class="va">accelerate</span><span class="op">=</span>=1.1.1</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="va">datasets</span><span class="op">=</span>=3.6.0</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">fastai</span><span class="op">=</span>=2.8.12</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="va">fsspec</span><span class="op">=</span>=2025.2.0</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="va">ipykernel</span><span class="op">=</span>=7.3.0</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="va">lightning</span><span class="op">=</span>=2.6.6</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="va">matplotlib</span><span class="op">=</span>=3.9.2</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="va">numba</span><span class="op">=</span>=0.60.0</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="va">numpy</span><span class="op">=</span>=1.26.4</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="va">pandas</span><span class="op">=</span>=2.2.2</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="va">pyarrow</span><span class="op">=</span>=18.1.0</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="va">scipy</span><span class="op">=</span>=1.13.1</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="ex">scikit-learn==1.5.2</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="va">sentencepiece</span><span class="op">=</span>=0.2.0</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="va">tensorboard</span><span class="op">=</span>=2.21.0</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="va">torch</span><span class="op">=</span>=2.8</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  <span class="ex">torchrun-jsc==0.0.19</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="va">transformers</span><span class="op">=</span>=4.46.3</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  <span class="va">wandb</span><span class="op">=</span>=0.30.0</span></code></pre></div></li>
+<li class="fragment"><p>Install these by</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>  <span class="ex">uv</span> pip install <span class="at">-r</span> requirements.txt</span></code></pre></div></li>
+</ol>
+</section>
+<section class="slide level2">
+
+<ol start="5" type="1">
+<li class="fragment"><p>Finally, activate the virtual environment:</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>  <span class="bu">source</span> ~/course/.venv/bin/activate</span></code></pre></div></li>
+</ol>
+<ul>
+<li class="fragment">We will always use this virtual environment from
+now on!</li>
+</ul>
+</section>
+<section id="the-cat-classifier" class="slide level2">
+<h2>The cat classifier</h2>
+<ol type="1">
+<li class="fragment"><p>Create a file in your course folder:</p>
+<pre><code>  touch cats.py</code></pre>
+<p>with the following content:</p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>  <span class="im">from</span> fastai.vision.<span class="bu">all</span> <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="im">from</span> fastai.callback.tensorboard <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">&quot;Downloading dataset...&quot;</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  path <span class="op">=</span> untar_data(URLs.PETS)<span class="op">/</span><span class="st">&#39;images&#39;</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">&quot;Finished downloading dataset&quot;</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> is_cat(x): <span class="cf">return</span> x[<span class="dv">0</span>].isupper()</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create the data loaders and resize the images</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  dls <span class="op">=</span> ImageDataLoaders.from_name_func(</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>      path, get_image_files(path), valid_pct<span class="op">=</span><span class="fl">0.2</span>, seed<span class="op">=</span><span class="dv">42</span>,</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>      label_func<span class="op">=</span>is_cat, item_tfms<span class="op">=</span>Resize(<span class="dv">224</span>))</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">&quot;On the login node, this will download ResNet-34&quot;</span>)</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  learn <span class="op">=</span> vision_learner(dls, resnet34, metrics<span class="op">=</span>accuracy)</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  cbs<span class="op">=</span>[SaveModelCallback(), TensorBoardCallback(<span class="st">&#39;runs&#39;</span>, trace_model<span class="op">=</span><span class="va">True</span>)]</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Trains the model for 6 epochs with this dataset</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  learn.unfreeze()</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  learn.fit_one_cycle(<span class="dv">6</span>, cbs<span class="op">=</span>cbs)</span></code></pre></div></li>
+</ol>
+</section>
+<section class="slide level2">
+
+<h3 id="submission-file-for-the-classifier">Submission file for the
+classifier</h3>
+<ol start="2" type="1">
+<li class="fragment"><p>Create a Slurm file.</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">touch</span> fastai.sbatch</span></code></pre></div>
+<div class="sourceCode" id="cb23" style="font-size: 0.85em;"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --account=training2657</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mail-user=MYUSER@fz-juelich.de</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mail-type=ALL</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --nodes=1</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --job-name=cat-classifier</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --ntasks-per-node=1</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --cpus-per-task=128</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --output=output.%j</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --error=error.%j</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --time=00:20:00</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --partition=dc-gpu</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --reservation=inm_res  # For today only</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load Stages/2025</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load GCC OpenMPI PyTorch torchvision <span class="co"># Load the correct modules on the compute node(s)</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> ~/course/.venv/bin/activate <span class="co"># Activate the virtual environment</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="ex">srun</span> python cats.py</span></code></pre></div></li>
+</ol>
+</section>
+<section class="slide level2">
+
+<h3 id="submit-it">Submit it</h3>
+<ol start="3" type="1">
+<li class="fragment"><p>Run the cat classifier.</p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>  <span class="ex">sbatch</span> fastai.sbatch</span></code></pre></div></li>
+</ol>
+</section>
+<section class="slide level2">
+
+<h3 id="submission-time">Submission time</h3>
+<ol start="4" type="1">
+<li class="fragment">Check the error and output logs and the queue.</li>
+</ol>
+</section>
+<section class="slide level2">
+
+<p>Check the <code>error.${JOBID}</code> file</p>
+<p>You will get an error. Why?</p>
+</section>
+<section id="section" class="slide level2">
+<h2>🤔…</h2>
+</section>
+<section class="slide level2">
+
+<h3 id="what-is-it-doing">What is it doing?</h3>
+<ul>
+<li class="fragment"><p>This downloads the dataset:</p>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>  path <span class="op">=</span> untar_data(URLs.PETS)<span class="op">/</span><span class="st">&#39;images&#39;</span></span></code></pre></div></li>
+<li class="fragment"><p>This line downloads the pre-trained weights:</p>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>  learn <span class="op">=</span> vision_learner(dls, resnet34, metrics<span class="op">=</span>accuracy)</span></code></pre></div></li>
+</ul>
+</section>
+<section id="compute-nodes-have-no-internet-connection"
+class="slide level2">
+<h2>Compute nodes have no internet connection!</h2>
+<ul>
+<li class="fragment">But the login nodes do!</li>
+<li class="fragment">So we download our dataset beforehand…
+<ul>
+<li class="fragment">On the login nodes!</li>
+</ul></li>
+</ul>
+</section>
+<section id="on-the-login-node" class="slide level2">
+<h2>On the login node</h2>
+<ol start="5" type="1">
+<li class="fragment"><p>Comment out the line that performs the AI
+training:</p>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>  <span class="co"># learn.fit_one_cycle(6, cbs=cbs)</span></span></code></pre></div>
+<p>Run the code on the login node!</p>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>  <span class="bu">source</span> .venv/bin/activate <span class="co"># So that we have the fastai library</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">python</span> cats.py</span></code></pre></div></li>
+</ol>
+</section>
+<section id="run-the-downloader-on-the-login-node" class="slide level2">
+<h2>Run the downloader on the login node</h2>
+<div class="sourceCode" id="cb29" style="font-size: 0.55em;"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> source .venv/bin/activate</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> python cats.py</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Downloading</span> dataset...</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a> <span class="kw">|</span><span class="ex">████████-------------------------------</span><span class="kw">|</span> <span class="ex">23.50%</span> [190750720/811706944 00:08<span class="op">&lt;</span>00:26]</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a> <span class="ex">Downloading:</span> <span class="st">&quot;https://download.pytorch.org/models/resnet34-b627a593.pth&quot;</span> to /p/project/ccstao/cstao05/.cache/torch/hub/checkpoints/resnet34-b627a593.pth</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="ex">100%</span><span class="kw">|</span><span class="ex">█████████████████████████████████████</span><span class="kw">|</span> <span class="ex">83.3M/83.3M</span> [00:00<span class="op">&lt;</span>00:00, 266MB/s]</span></code></pre></div>
+</section>
+<section id="run-it-again-on-the-compute-nodes" class="slide level2">
+<h2>Run it again on the compute nodes!</h2>
+<ol start="6" type="1">
+<li class="fragment"><p>Uncomment the line that performs the
+training:</p>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>  learn.fit_one_cycle(<span class="dv">6</span>, cbs<span class="op">=</span>cbs)</span></code></pre></div>
+<p>Submit the job again!</p>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>  <span class="ex">sbatch</span> fastai.sbatch</span></code></pre></div></li>
+</ol>
+</section>
+<section id="check-output-files" class="slide level2">
+<h2>7. Check output files</h2>
+<div class="sourceCode" id="cb32" style="font-size: 0.9em;"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">The</span> activation script must be sourced, otherwise the virtual environment will not work.</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Setting</span> vars</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Downloading</span> dataset...</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Finished</span> downloading dataset</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="ex">epoch</span>     train_loss  valid_loss  error_rate  time    </span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Epoch</span> 1/1 : <span class="kw">|</span><span class="ex">-----------------------------------</span><span class="kw">|</span> <span class="ex">0.00%</span> [0/92 00:00<span class="op">&lt;</span><span class="pp">?</span>]</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Epoch</span> 1/1 : <span class="kw">|</span><span class="ex">-----------------------------------</span><span class="kw">|</span> <span class="ex">2.17%</span> [2/92 00:14<span class="op">&lt;</span>10:35 1.7452]</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Epoch</span> 1/1 : <span class="kw">|</span><span class="ex">█----------------------------------</span><span class="kw">|</span> <span class="ex">3.26%</span> [3/92 00:14<span class="op">&lt;</span>07:01 1.6413]</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="ex">Epoch</span> 1/1 : <span class="kw">|</span><span class="ex">██---------------------------------</span><span class="kw">|</span> <span class="ex">5.43%</span> [5/92 00:15<span class="op">&lt;</span>04:36 1.6057]</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="ex">....</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="ex">Epoch</span> 1/1 :</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a><span class="ex">epoch</span>     train_loss  valid_loss  error_rate  time    </span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a><span class="ex">0</span>         0.049855    0.021369    0.007442    00:42     </span></code></pre></div>
+<ul>
+<li class="fragment">🎉</li>
+<li class="fragment">🥳</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="tools-for-results-analysis">Tools for results analysis</h3>
+<ul>
+<li class="fragment"><p>We already ran the code and have
+results.</p></li>
+<li class="fragment"><p>To analyze them, there is a useful tool called
+TensorBoard.</p></li>
+<li class="fragment"><p>We already have the code for it in our
+example!</p>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>  cbs<span class="op">=</span>[SaveModelCallback(), TensorBoardCallback(<span class="st">&#39;runs&#39;</span>, trace_model<span class="op">=</span><span class="va">True</span>)]</span></code></pre></div></li>
+</ul>
+</section>
+<section id="tensorboard" class="slide level2">
+<h2>TensorBoard</h2>
+<ul>
+<li class="fragment"><p>In the terminal enter:</p>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>  <span class="ex">tensorboard</span>   <span class="at">--logdir</span><span class="op">=</span>runs   <span class="at">--port</span><span class="op">=</span>6000   <span class="at">--host</span><span class="op">=</span>127.0.0.1</span></code></pre></div></li>
+<li class="fragment"><p>Then open a jupyter notebook (File -&gt; New
+Notebook), select Python 3 (ipykernel) and execute:</p>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>  <span class="ex">import</span> os</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">from</span> IPython.display import IFrame</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">url</span> = f<span class="st">&quot;{os.environ[&#39;JUPYTERHUB_SERVICE_PREFIX&#39;]}proxy/6000/&quot;</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">IFrame</span><span class="er">(</span><span class="ex">url,</span> width=<span class="st">&quot;100%&quot;</span>, height=800<span class="kw">)</span></span></code></pre></div></li>
+</ul>
+<p><img data-src="images/notebook.png" /></p>
+</section>
+<section class="slide level2">
+
+<h3 id="tensorboard-1">TensorBoard</h3>
+<p><img data-src="images/tensorboard_jupyter.png" height="500" /></p>
+</section>
+<section id="now-lets-talk-about-data" class="slide level2">
+<h2>Now, Let’s talk about DATA</h2>
+<p><img data-src="images/data.jpeg" /></p>
+</section>
+<section id="io-is-separate-and-shared" class="slide level2">
+<h2>I/O is separate and shared</h2>
+<ul>
+<li class="fragment">All compute nodes of all supercomputers see the
+same files</li>
+<li class="fragment">Performance tradeoff between shared accessibility
+and speed</li>
+<li class="fragment">Our I/O server is almost a supercomputer by itself
+<img data-src="images/machines.png" style="height:4.86111in"
+alt="JSC Supercomputer Stragegy" /></li>
+</ul>
+</section>
+<section id="where-do-i-keep-my-files" class="slide level2">
+<h2>Where do I keep my files?</h2>
+<ul>
+<li class="fragment"><p>Always store your code in the project1 folder
+(<strong><code>$PROJECT_projectname</code></strong> ). In our case</p>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/p/project1/training2657/</span><span class="va">$USER</span></span></code></pre></div></li>
+<li class="fragment"><p>Store data in the scratch directory for faster
+I/O access (<strong><code>$SCRATCH_projectname</code></strong>).
+⚠️<strong>Files in scratch are deleted after 90 days of
+inactivity.</strong></p>
+<div class="sourceCode" id="cb37"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/p/scratch/training2657/</span><span class="va">$USER</span></span></code></pre></div></li>
+<li class="fragment"><p>Store the data in <a
+href="https://judoor.fz-juelich.de/projects/datasets/"><code>$DATA_dataset</code></a>
+for a more permanent location.</p>
+<div class="sourceCode" id="cb38"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/p/data1/datasets</span></span></code></pre></div></li>
+</ul>
+</section>
+<section id="now-lets-talk-about-parallelization-technique"
+class="slide level2">
+<h2>Now lets talk about Parallelization technique</h2>
+</section>
+<section id="before-starting" class="slide level2">
+<h2>Before Starting</h2>
+<ul>
+<li class="fragment"><p>If you have not done it already, clone the
+following repo:</p>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone <span class="at">--branch</span> inm_retreat_2026 https://github.com/sab148/Running-and-Scaling-Performent-Deep-Learning-Models-on-HPC.git</span></code></pre></div></li>
+</ul>
+</section>
+<section id="what-this-code-does" class="slide level2">
+<h2>What this code does</h2>
+<ul>
+<li class="fragment">It trains a <a
+href="https://arxiv.org/pdf/1706.03762">Transformer</a> language model
+on <a
+href="https://huggingface.co/datasets/mindchain/wikitext2">WikiText-2</a>
+dataset to predict the next word in a sequence.</li>
+<li class="fragment"><strong>Transformers</strong> is a deep learning
+model architecture that uses self-attention to process sequences in
+parallel.</li>
+<li class="fragment"><strong>WikiText-2</strong> is a word-level
+language modeling dataset consisting of over 2 million tokens extracted
+from high-quality Wikipedia articles.</li>
+</ul>
+</section>
+<section id="what-this-code-does-1" class="slide level2">
+<h2>What this code does</h2>
+<ul>
+<li class="fragment"><p>Again, this is not a deep learning
+course.</p></li>
+<li class="fragment"><p>If you are not familiar with the model and the
+dataset, just imagine it as a black box: you provide it with text, and
+it generates another text.</p>
+<p><img data-src="images/black_box.svg" /></p></li>
+</ul>
+</section>
+<section id="libraries" class="slide level2">
+<h2>Libraries</h2>
+<ul>
+<li class="fragment">You already downloaded the libraries that we will
+use today:
+<ul>
+<li class="fragment"><strong>PyTorch:</strong> A deep learning framework
+for building and training models.</li>
+<li class="fragment"><strong>datasets</strong> A library from Hugging
+Face used to access, load, process, and share large datasets.</li>
+</ul></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<p>Let’s have a look at the files
+<strong><code>train/Lit_training.py</code></strong> and
+<strong><code>Lit_training.sbatch</code></strong> in the repo.</p>
+<p><img data-src="images/look.jpg" /></p>
+</section>
+<section id="run-the-training-script" class="slide level2">
+<h2>Run the Training Script</h2>
+<ul>
+<li class="fragment"><p>There are TODOs in these two files. <strong>Do
+not modify the TODOs for now</strong>. The code is already working, so
+you don’t need to make any changes at this point.</p></li>
+<li class="fragment"><p>Now run:</p>
+<div class="sourceCode" id="cb40"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> Lit_training.sbatch</span></code></pre></div></li>
+<li class="fragment"><p>Spoiler alert 🚨</p></li>
+<li class="fragment"><p>The code won’t work.</p></li>
+<li class="fragment"><p>Check the output and error files</p></li>
+</ul>
+</section>
+<section id="what-is-the-problem" class="slide level2">
+<h2>What is the problem?</h2>
+<ul>
+<li class="fragment">Remember, there is no internet on the compute
+node.</li>
+<li class="fragment">Therefore, you should:
+<ul>
+<li class="fragment"><p><strong>Comment out</strong> lines 22
+<strong>to</strong> 60.</p></li>
+<li class="fragment"><p>Activate your environment:</p>
+<div class="sourceCode" id="cb41"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load Stages/2025</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load GCC uv</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> <span class="va">$HOME</span>/course/.venv/bin/activate</span></code></pre></div></li>
+<li class="fragment"><p>Run:</p>
+<div class="sourceCode" id="cb42"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">PYTHONPATH</span><span class="op">=</span><span class="st">&quot;</span><span class="va">${PYTHONPATH}</span><span class="st">:</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">&quot;</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> train/Lit_training.py</span></code></pre></div></li>
+<li class="fragment"><p><strong>Uncomment back</strong> lines
+22-60.</p></li>
+<li class="fragment"><p>Finally, run your job again 🚀:</p>
+<div class="sourceCode" id="cb43"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> Lit_training.sbatch</span></code></pre></div></li>
+</ul></li>
+</ul>
+</section>
+<section id="job-running" class="slide level2">
+<h2>JOB Running</h2>
+<ul>
+<li class="fragment">Congrats, you are training a DL model on the
+supercomputer using one GPU 🎉</li>
+</ul>
+</section>
+<section id="llview" class="slide level2">
+<h2>llview</h2>
+<ul>
+<li class="fragment">You can monitor your training using <a
+href="https://go.fzj.de/llview-jureca">llview</a>.</li>
+<li class="fragment">Use your Judoor credentials to connect.</li>
+<li class="fragment">Check the job number that you are intrested in.
+<img data-src="images/llview_job.png" height="400" /></li>
+</ul>
+</section>
+<section id="llview-1" class="slide level2">
+<h2>llview</h2>
+<ul>
+<li class="fragment">Go to the right to open the PDF document.
+<strong>It may take some time to load the job information, so please
+wait until the icon turns blue</strong>. <img
+data-src="images/llview.png" height="450" /></li>
+</ul>
+</section>
+<section id="llview-2" class="slide level2">
+<h2>llview</h2>
+<ul>
+<li class="fragment">You have many information about your job once you
+open the PDF file. <img data-src="images/llview_info.png" /></li>
+</ul>
+</section>
+<section id="gpu-utilization" class="slide level2">
+<h2>GPU utilization</h2>
+<ul>
+<li class="fragment"><p>You can see that in fact we are using <strong>1
+GPU</strong></p>
+<p><img data-src="images/llview_gpu_1.png" /></p></li>
+</ul>
+</section>
+<section id="gpu-utilization-1" class="slide level2">
+<h2>GPU utilization</h2>
+<ul>
+<li class="fragment"><p>It is a waste of resources.</p></li>
+<li class="fragment"><p>The training takes time (1h32m according to
+llview).</p></li>
+<li class="fragment"><p>Then, can we run our model on multiple GPUs
+?</p></li>
+</ul>
+</section>
+<section id="llview-3" class="slide level2">
+<h2>llview</h2>
+<ul>
+<li class="fragment">We are still using <strong>1 GPU</strong></li>
+</ul>
+<p><img data-src="images/llview_gpu_2.png" /></p>
+</section>
+<section id="we-need-communication" class="slide level2">
+<h2>We need communication</h2>
+<ul>
+<li class="fragment"><p>Without correct setup, the GPUs might not be
+utilized.</p></li>
+<li class="fragment"><p>Furthermore, we don’t have an established
+communication between the GPUs</p>
+<p><img data-src="images/dist/no_comm.svg" height="400" /></p></li>
+</ul>
+</section>
+<section id="we-need-communication-1" class="slide level2">
+<h2>We need communication</h2>
+<p><img data-src="images/dist/comm1.svg" height="500" /></p>
+</section>
+<section id="we-need-communication-2" class="slide level2">
+<h2>We need communication</h2>
+<p><img data-src="images/dist/comm2.svg" height="500" /></p>
+</section>
+<section id="collective-operations" class="slide level2">
+<h2>collective operations</h2>
+<ul>
+<li class="fragment">The GPUs use collective operations to communicate
+and share data in parallel computing</li>
+<li class="fragment">The most common collective operations are: All
+Reduce, All Gather, and Reduce Scatter</li>
+</ul>
+</section>
+<section id="all-reduce" class="slide level2">
+<h2>All Reduce</h2>
+<p><img data-src="images/dist/all_reduce.svg" /></p>
+<ul>
+<li class="fragment">Other operations, such as <strong>min</strong>,
+<strong>max</strong>, and <strong>avg</strong>, can also be performed
+using All-Reduce.</li>
+</ul>
+</section>
+<section id="all-gather" class="slide level2">
+<h2>All Gather</h2>
+<p><img data-src="images/dist/all_gather.svg" /></p>
+</section>
+<section id="reduce-scatter" class="slide level2">
+<h2>Reduce Scatter</h2>
+<p><img data-src="images/dist/reduce_scatter.svg" /></p>
+</section>
+<section id="terminologies" class="slide level2">
+<h2>Terminologies</h2>
+<ul>
+<li class="fragment">Before going further, we need to learn some
+terminologies</li>
+</ul>
+</section>
+<section id="world-size" class="slide level2">
+<h2>World Size</h2>
+<p><img data-src="images/dist/gpus.svg" height="550" /></p>
+</section>
+<section id="rank" class="slide level2">
+<h2>Rank</h2>
+<p><img data-src="images/dist/rank.svg" height="550" /></p>
+</section>
+<section id="local_rank" class="slide level2">
+<h2>local_rank</h2>
+<p><img data-src="images/dist/local_rank.svg" height="550" /></p>
+</section>
+<section id="now" class="slide level2">
+<h2>Now</h2>
+<p>That we have understood how the devices communicate and the
+terminologies used in parallel computing, we can move on to distributed
+training (training on multiple GPUs).</p>
+</section>
+<section id="distributed-training" class="slide level2">
+<h2>Distributed Training</h2>
+<ul>
+<li class="fragment">Parallelize the training across multiple
+nodes,</li>
+<li class="fragment">Significantly enhancing training speed and model
+accuracy.</li>
+<li class="fragment">It is particularly beneficial for large models and
+computationally intensive tasks, such as deep learning.<a
+href="https://pytorch.org/tutorials/distributed/home.html">[1]</a></li>
+</ul>
+</section>
+<section id="distributed-data-parallel-ddp" class="slide level2">
+<h2>Distributed Data Parallel (DDP)</h2>
+<p><a
+href="https://pytorch.org/tutorials/intermediate/ddp_tutorial.html">DDP</a>
+is a method in parallel computing used to train deep learning models
+across multiple GPUs or nodes efficiently.</p>
+<p><img data-src="images/ddp/ddp-2.svg" height="400" /></p>
+</section>
+<section id="ddp" class="slide level2">
+<h2>DDP</h2>
+<p><img data-src="images/ddp/ddp-3.svg" height="500" /></p>
+</section>
+<section id="ddp-1" class="slide level2">
+<h2>DDP</h2>
+<p><img data-src="images/ddp/ddp-4.svg" height="500" /></p>
+</section>
+<section id="ddp-2" class="slide level2">
+<h2>DDP</h2>
+<p><img data-src="images/ddp/ddp-5.svg" height="500" /></p>
+</section>
+<section id="ddp-3" class="slide level2">
+<h2>DDP</h2>
+<p><img data-src="images/ddp/ddp-6.svg" height="500" /></p>
+</section>
+<section id="ddp-4" class="slide level2">
+<h2>DDP</h2>
+<p><img data-src="images/ddp/ddp-7.svg" height="500" /></p>
+</section>
+<section id="ddp-5" class="slide level2">
+<h2>DDP</h2>
+<p><img data-src="images/ddp/ddp-8.svg" height="500" /></p>
+</section>
+<section id="ddp-6" class="slide level2">
+<h2>DDP</h2>
+<p><img data-src="images/ddp/ddp-9.svg" height="500" /></p>
+</section>
+<section id="ddp-7" class="slide level2">
+<h2>DDP</h2>
+<p>If you’re scaling DDP to use multiple nodes, the underlying principle
+remains the same as single-node multi-GPU training.</p>
+</section>
+<section id="ddp-8" class="slide level2">
+<h2>DDP</h2>
+<p><img data-src="images/ddp/multi_node.svg" height="500" /></p>
+</section>
+<section id="ddp-recap" class="slide level2">
+<h2>DDP recap</h2>
+<ul>
+<li class="fragment">Each GPU on each node gets its own process.</li>
+<li class="fragment">Each GPU has a copy of the model.</li>
+<li class="fragment">Each GPU has visibility into a subset of the
+overall dataset and will only see that subset.</li>
+<li class="fragment">Each process performs a full forward and backward
+pass in parallel and calculates its gradients.</li>
+<li class="fragment">The gradients are synchronized and averaged across
+all processes.</li>
+<li class="fragment">Each process updates its optimizer.</li>
+</ul>
+</section>
+<section id="lets-start-coding" class="slide level2">
+<h2>Let’s start coding!</h2>
+<ul>
+<li class="fragment"><p>Whenever you see <strong>TODOs</strong>💻📝,
+follow the instructions to either copy-paste the code at the specified
+line numbers or type it yourself.</p></li>
+<li class="fragment"><p>Depending on how you copy and paste, the line
+numbers may vary, but always refer to the TODO numbers in the code and
+slides.</p></li>
+</ul>
+</section>
+<section id="pass-the-number-of-nodes" class="slide level2">
+<h2>Pass the number of nodes</h2>
+<p><strong>TODO 1</strong>💻📝: At line 55 pass to num_nodes the number
+of nodes</p>
+<div class="sourceCode" id="cb44"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>  num_nodes<span class="op">=</span><span class="bu">int</span>(os.getenv(<span class="st">&quot;SLURM_NNODES&quot;</span>, <span class="st">&quot;1&quot;</span>))</span></code></pre></div>
+</section>
+<section id="we-are-almost-there" class="slide level2">
+<h2>We are almost there</h2>
+<ul>
+<li class="fragment">Before launching our job, we need to add some lines
+to <strong>Lit_training.sbatch</strong> file</li>
+</ul>
+</section>
+<section id="setup-communication" class="slide level2">
+<h2>Setup communication</h2>
+<p>In <strong><code>Lit_training.sbatch</code></strong> file:</p>
+<ul>
+<li class="fragment"><strong>TODOs 2</strong>💻📝:
+<ul>
+<li class="fragment"><p>At line 3, increase the number of GPUs to 4:</p>
+<div class="sourceCode" id="cb45"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --gres=gpu:4</span></span></code></pre></div></li>
+</ul></li>
+<li class="fragment"><strong>TODOs 3</strong>💻📝:
+<ul>
+<li class="fragment"><p>At line 4, set the number of tasks per node to
+4.</p>
+<div class="sourceCode" id="cb46"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>  <span class="co">#SBATCH --ntasks-per-node=4</span></span></code></pre></div></li>
+</ul></li>
+<li class="fragment"><strong>TODOs 4</strong>💻📝:
+<ul>
+<li class="fragment"><p>At line 20, pass the correct number of
+devices.</p>
+<div class="sourceCode" id="cb47"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set up four visible GPUs that the job can use </span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">CUDA_VISIBLE_DEVICES</span><span class="op">=</span>0,1,2,3</span></code></pre></div></li>
+</ul></li>
+</ul>
+</section>
+<section id="setup-communication-1" class="slide level2">
+<h2>Setup communication</h2>
+<p>Stay in <strong><code>Lit_training.sbatch</code></strong> file:</p>
+<ul>
+<li class="fragment"><p><strong>TODO 5</strong>💻📝: we need to setup
+<strong>MASTER_ADDR</strong> and <strong>MASTER_PORT</strong> to allow
+communication over the system.</p>
+<ul>
+<li class="fragment"><p>At line 22, add the following:</p>
+<div class="sourceCode" id="cb48"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extracts the first hostname from the list of allocated nodes to use as the master address.</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">export</span> <span class="va">MASTER_ADDR</span><span class="op">=</span><span class="st">&quot;</span><span class="va">$(</span><span class="ex">scontrol</span> show hostnames <span class="st">&quot;</span><span class="va">$SLURM_JOB_NODELIST</span><span class="st">&quot;</span> <span class="kw">|</span> <span class="fu">head</span> <span class="at">-n</span> 1<span class="va">)</span><span class="st">&quot;</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Modifies the master address to allow communication over InfiniBand cells.</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="bu">[</span> <span class="st">&quot;</span><span class="va">$SYSTEMNAME</span><span class="st">&quot;</span> <span class="ot">=</span> juwelsbooster <span class="bu">]</span> <span class="dt">\</span></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">||</span> <span class="bu">[</span> <span class="st">&quot;</span><span class="va">$SYSTEMNAME</span><span class="st">&quot;</span> <span class="ot">=</span> juwels <span class="bu">]</span> <span class="dt">\</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">||</span> <span class="bu">[</span> <span class="st">&quot;</span><span class="va">$SYSTEMNAME</span><span class="st">&quot;</span> <span class="ot">=</span> jurecadc <span class="bu">]</span> <span class="dt">\</span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">||</span> <span class="bu">[</span> <span class="st">&quot;</span><span class="va">$SYSTEMNAME</span><span class="st">&quot;</span> <span class="ot">=</span> jusuf <span class="bu">]</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Allow communication over InfiniBand cells on JSC machines.</span></span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>      <span class="va">MASTER_ADDR</span><span class="op">=</span><span class="st">&quot;</span><span class="va">$MASTER_ADDR</span><span class="st">&quot;</span>i</span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">fi</span></span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a>  <span class="bu">export</span> <span class="va">MASTER_PORT</span><span class="op">=</span>7010</span></code></pre></div></li>
+</ul></li>
+</ul>
+</section>
+<section id="done" class="slide level2">
+<h2>done ✅</h2>
+<ul>
+<li class="fragment"><p>You can finally run:</p>
+<div class="sourceCode" id="cb49"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> Lit_training.sbatch</span></code></pre></div></li>
+</ul>
+</section>
+<section id="llview-4" class="slide level2">
+<h2>llview</h2>
+<ul>
+<li class="fragment"><p>Let’s have a look at our job using <a
+href="https://go.fzj.de/llview-jureca">llview</a> again.</p></li>
+<li class="fragment"><p>You can see that now, we are using all the GPUs
+of the node</p></li>
+<li class="fragment"><p><img
+data-src="images/llview_gpu_4.png" /></p></li>
+</ul>
+</section>
+<section id="llview-5" class="slide level2">
+<h2>llview</h2>
+<ul>
+<li class="fragment"><p>And that our job took less time to finish
+training (25m vs 1h32m with one GPU)</p></li>
+<li class="fragment"><p>But what about using more nodes ?</p></li>
+</ul>
+</section>
+<section id="what-about-using-more-nodes" class="slide level2">
+<h2>What about using more nodes ?</h2>
+</section>
+<section id="multi-node-training" class="slide level2">
+<h2>Multi-node training</h2>
+<ul>
+<li class="fragment"><p><strong>TODO 6</strong>💻📝: in
+<strong><code>Lit_training.sbatch</code></strong> at line 2, you can
+increase the number of nodes to 2:</p>
+<div class="sourceCode" id="cb50"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --nodes=2</span></span></code></pre></div></li>
+<li class="fragment"><p>Hence, you will use 8 GPUs for
+training.</p></li>
+<li class="fragment"><p>Run again:</p>
+<div class="sourceCode" id="cb51"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> Lit_training.sbatch</span></code></pre></div></li>
+</ul>
+</section>
+<section id="llview-6" class="slide level2">
+<h2>llview</h2>
+<ul>
+<li class="fragment"><p>Open <a
+href="https://go.fzj.de/llview-jureca">llview</a> again.</p></li>
+<li class="fragment"><p>You can see that now, we are using 2 nodes and 8
+GPUs.</p></li>
+<li class="fragment"><p><img
+data-src="images/llview_gpu_8.png" /></p></li>
+<li class="fragment"><p>And the training took less time (14m)</p></li>
+</ul>
+</section>
+<section id="amazing" class="slide level2">
+<h2>Amazing ✨</h2>
+</section>
+<section id="recap-1" class="slide level2">
+<h2>RECAP</h2>
+<p>By now, I expect you have managed to:</p>
+<ul>
+<li class="fragment">Stay awake for the most part of this tutorial
+😴</li>
+<li class="fragment">Connect to JURECA using Jupyter-JSC</li>
+<li class="fragment">Edit files, submit jobs and read results on
+JURECA</li>
+<li class="fragment">You know where to store your code and your data.
+🗂️📄</li>
+<li class="fragment">You know what distributed training is. 🧑‍💻</li>
+<li class="fragment">You can submit training jobs on a single GPU,
+multiple GPUs, or across multiple nodes. 🎮💻</li>
+<li class="fragment">You know how to monitor your training using llview.
+📊👀</li>
+</ul>
+</section>
+<section id="find-out-more" class="slide level2">
+<h2>Find Out More</h2>
+<ul>
+<li class="fragment"><p>Here are some useful:</p>
+<ul>
+<li class="fragment">Tutorials:
+<ul>
+<li class="fragment"><a
+href="https://sdlaml.pages.jsc.fz-juelich.de/ai/recipes/pytorch_at_jsc/">PyTorch
+at JSC</a></li>
+<li class="fragment"><a
+href="https://github.com/pytorch/tutorials/tree/main">PyTorch tutorials
+GitHub</a></li>
+<li class="fragment"><a
+href="https://pytorch.org/tutorials/distributed/home.html">PyTorch
+documentation</a></li>
+</ul></li>
+<li class="fragment">Links
+<ul>
+<li class="fragment"><a
+href="https://sdlaml.pages.jsc.fz-juelich.de/ai/">AI Landing
+Page</a></li>
+<li class="fragment"><a
+href="https://www.fz-juelich.de/en/ias/jsc/education/training-courses">Other
+courses at JSC</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</section>
+<section id="any-questions" class="slide level2">
+<h2>ANY QUESTIONS??</h2>
+<h4 id="feedback-is-more-than-welcome">Feedback is more than
+welcome!</h4>
 </section>
     </div>
   </div>
