@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 700" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fbff"/>
+      <stop offset="100%" stop-color="#eef4fa"/>
+    </linearGradient>
+    <filter id="soft" x="-2%" y="-2%" width="104%" height="110%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-opacity="0.13"/>
+    </filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#5b6b7c"/>
+    </marker>
+  </defs>
+
+  <rect width="1280" height="700" fill="url(#bg)"/>
+
+  <!-- Yes/No pill helper: drawn inline where needed -->
+
+  <!-- Start at bottleneck question -->
+  <rect x="400" y="18" width="480" height="40" rx="20" fill="#ffecb3" stroke="#f0d965" stroke-width="2.5" filter="url(#soft)"/>
+  <text x="640" y="44" text-anchor="middle" fill="#6d4c00" font-size="16" font-weight="700">Which bottleneck dominates?</text>
+
+  <!-- branch connectors -->
+  <path d="M640 58 L640 72 L168 72 L168 92" fill="none" stroke="#7cb342" stroke-width="2.4" marker-end="url(#arr)"/>
+  <path d="M640 58 L640 72 L488 72 L488 92" fill="none" stroke="#ef6c00" stroke-width="2.4" marker-end="url(#arr)"/>
+  <path d="M640 58 L640 72 L792 72 L792 92" fill="none" stroke="#6d4c41" stroke-width="2.4" marker-end="url(#arr)"/>
+  <path d="M640 58 L640 72 L1112 72 L1112 92" fill="none" stroke="#1e88e5" stroke-width="2.4" marker-end="url(#arr)"/>
+
+  <!-- ========== 1 DATA LOADING ========== -->
+  <rect x="28" y="94" width="280" height="580" rx="14" fill="#ffffff" stroke="#7cb342" stroke-width="2.5" filter="url(#soft)"/>
+  <rect x="28" y="94" width="280" height="48" rx="14" fill="#7cb342"/>
+  <rect x="28" y="126" width="280" height="16" fill="#7cb342"/>
+  <text x="168" y="128" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">1  DATA LOADING</text>
+
+  <rect x="46" y="164" width="244" height="60" rx="10" fill="#e8f5e9" stroke="#7cb342" stroke-width="1.5"/>
+  <text x="168" y="190" text-anchor="middle" fill="#1b5e20" font-size="13" font-weight="700">Long :data_loading on CPU?</text>
+  <text x="168" y="210" text-anchor="middle" fill="#2e7d32" font-size="12">little / no CUDA HW under it</text>
+
+  <!-- Yes on arrow -->
+  <line x1="168" y1="230" x2="168" y2="274" stroke="#5b6b7c" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="178" y="242" width="36" height="18" rx="9" fill="#ffffff" stroke="#7cb342" stroke-width="1.2"/>
+  <text x="196" y="255" text-anchor="middle" fill="#2e7d32" font-size="10" font-weight="700">Yes</text>
+
+  <rect x="46" y="276" width="244" height="56" rx="10" fill="#c8e6c9"/>
+  <text x="168" y="300" text-anchor="middle" fill="#1b5e20" font-size="13" font-weight="700">Increase num_workers</text>
+  <text x="168" y="320" text-anchor="middle" fill="#2e7d32" font-size="12">gradually (0 ? 2 ? 4 …)</text>
+
+  <line x1="168" y1="332" x2="168" y2="354" stroke="#5b6b7c" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <rect x="46" y="356" width="244" height="48" rx="10" fill="#fff8ea" stroke="#e2b45d" stroke-width="1.5"/>
+  <text x="168" y="386" text-anchor="middle" fill="#8a5a00" font-size="13" font-weight="700">Did step time improve?</text>
+
+  <!-- Yes / No on arrows -->
+  <line x1="100" y1="404" x2="100" y2="430" stroke="#5b6b7c" stroke-width="1.6" marker-end="url(#arr)"/>
+  <line x1="236" y1="404" x2="236" y2="430" stroke="#5b6b7c" stroke-width="1.6" marker-end="url(#arr)"/>
+  <rect x="110" y="408" width="34" height="16" rx="8" fill="#ffffff" stroke="#7cb342" stroke-width="1.1"/>
+  <text x="127" y="420" text-anchor="middle" fill="#2e7d32" font-size="9" font-weight="700">Yes</text>
+  <rect x="246" y="408" width="30" height="16" rx="8" fill="#ffffff" stroke="#ef6c00" stroke-width="1.1"/>
+  <text x="261" y="420" text-anchor="middle" fill="#e65100" font-size="9" font-weight="700">No</text>
+
+  <rect x="46" y="432" width="108" height="80" rx="10" fill="#a5d6a7"/>
+  <text x="100" y="466" text-anchor="middle" fill="#1b5e20" font-size="12" font-weight="700">Keep best</text>
+  <text x="100" y="488" text-anchor="middle" fill="#1b5e20" font-size="12">worker count</text>
+
+  <rect x="182" y="432" width="108" height="80" rx="10" fill="#fff3e0" stroke="#ef6c00" stroke-width="1.5"/>
+  <text x="236" y="458" text-anchor="middle" fill="#e65100" font-size="11" font-weight="700">Check I/O</text>
+  <text x="236" y="476" text-anchor="middle" fill="#e65100" font-size="11" font-weight="700">and CPU</text>
+  <text x="236" y="494" text-anchor="middle" fill="#e65100" font-size="11" font-weight="700">compute</text>
+
+  <rect x="46" y="536" width="244" height="110" rx="10" fill="#f1f8e9"/>
+  <text x="168" y="578" text-anchor="middle" fill="#33691e" font-size="13" font-weight="700">Look at: CPU NVTX</text>
+  <text x="168" y="602" text-anchor="middle" fill="#558b2f" font-size="12">:data_loading / DataLoader</text>
+
+  <!-- ========== 2 DATA MOVEMENT ========== -->
+  <rect x="328" y="94" width="320" height="580" rx="14" fill="#ffffff" stroke="#ef6c00" stroke-width="2.5" filter="url(#soft)"/>
+  <rect x="328" y="94" width="320" height="48" rx="14" fill="#ef6c00"/>
+  <rect x="328" y="126" width="320" height="16" fill="#ef6c00"/>
+  <text x="488" y="128" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">2  DATA MOVEMENT</text>
+
+  <rect x="346" y="164" width="284" height="60" rx="10" fill="#fff3e0" stroke="#ef6c00" stroke-width="1.5"/>
+  <text x="488" y="190" text-anchor="middle" fill="#e65100" font-size="13" font-weight="700">Long CPU :data_movement?</text>
+  <text x="488" y="210" text-anchor="middle" fill="#ef6c00" font-size="12">short CUDA Memcpy under it</text>
+
+  <line x1="488" y1="230" x2="488" y2="274" stroke="#5b6b7c" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="498" y="242" width="36" height="18" rx="9" fill="#ffffff" stroke="#ef6c00" stroke-width="1.2"/>
+  <text x="516" y="255" text-anchor="middle" fill="#e65100" font-size="10" font-weight="700">Yes</text>
+
+  <rect x="346" y="276" width="284" height="56" rx="10" fill="#ffe0b2"/>
+  <text x="488" y="300" text-anchor="middle" fill="#e65100" font-size="13" font-weight="700">Remove extra syncs;</text>
+  <text x="488" y="320" text-anchor="middle" fill="#ef6c00" font-size="12">cut repeated Host?Device copies</text>
+
+  <line x1="488" y1="332" x2="488" y2="354" stroke="#5b6b7c" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <rect x="346" y="356" width="284" height="48" rx="10" fill="#fff8ea" stroke="#e2b45d" stroke-width="1.5"/>
+  <text x="488" y="386" text-anchor="middle" fill="#8a5a00" font-size="13" font-weight="700">Enough RAM for pinned buffers?</text>
+
+  <line x1="410" y1="404" x2="410" y2="430" stroke="#5b6b7c" stroke-width="1.6" marker-end="url(#arr)"/>
+  <line x1="566" y1="404" x2="566" y2="430" stroke="#5b6b7c" stroke-width="1.6" marker-end="url(#arr)"/>
+  <rect x="420" y="408" width="34" height="16" rx="8" fill="#ffffff" stroke="#7cb342" stroke-width="1.1"/>
+  <text x="437" y="420" text-anchor="middle" fill="#2e7d32" font-size="9" font-weight="700">Yes</text>
+  <rect x="576" y="408" width="30" height="16" rx="8" fill="#ffffff" stroke="#ef6c00" stroke-width="1.1"/>
+  <text x="591" y="420" text-anchor="middle" fill="#e65100" font-size="9" font-weight="700">No</text>
+
+  <rect x="346" y="432" width="128" height="80" rx="10" fill="#ffcc80"/>
+  <text x="410" y="466" text-anchor="middle" fill="#e65100" font-size="12" font-weight="700">pin_memory</text>
+  <text x="410" y="488" text-anchor="middle" fill="#e65100" font-size="12">+ non_blocking</text>
+
+  <rect x="502" y="432" width="128" height="80" rx="10" fill="#eceff1" stroke="#90a4ae" stroke-width="1.5"/>
+  <text x="566" y="466" text-anchor="middle" fill="#455a64" font-size="12" font-weight="700">Shrink</text>
+  <text x="566" y="488" text-anchor="middle" fill="#546e7a" font-size="12">transfers</text>
+
+  <rect x="346" y="536" width="284" height="110" rx="10" fill="#fff8e1"/>
+  <text x="488" y="578" text-anchor="middle" fill="#e65100" font-size="13" font-weight="700">Look at: CPU Tensor.to</text>
+  <text x="488" y="602" text-anchor="middle" fill="#ef6c00" font-size="12">vs CUDA HW Memcpy</text>
+
+  <!-- ========== 3 NCCL ========== -->
+  <rect x="668" y="94" width="320" height="580" rx="14" fill="#ffffff" stroke="#6d4c41" stroke-width="2.5" filter="url(#soft)"/>
+  <rect x="668" y="94" width="320" height="48" rx="14" fill="#6d4c41"/>
+  <rect x="668" y="126" width="320" height="16" fill="#6d4c41"/>
+  <text x="828" y="128" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">3  NCCL / DISTRIBUTED</text>
+
+  <rect x="686" y="164" width="284" height="60" rx="10" fill="#efebe9" stroke="#8d6e63" stroke-width="1.5"/>
+  <text x="828" y="190" text-anchor="middle" fill="#4e342e" font-size="13" font-weight="700">ncclAllReduce dominates?</text>
+  <text x="828" y="210" text-anchor="middle" fill="#6d4c41" font-size="12">check NCCL tab</text>
+
+  <line x1="828" y1="230" x2="828" y2="274" stroke="#5b6b7c" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="838" y="242" width="36" height="18" rx="9" fill="#ffffff" stroke="#6d4c41" stroke-width="1.2"/>
+  <text x="856" y="255" text-anchor="middle" fill="#4e342e" font-size="10" font-weight="700">Yes</text>
+
+  <rect x="686" y="276" width="284" height="56" rx="10" fill="#d7ccc8"/>
+  <text x="828" y="300" text-anchor="middle" fill="#4e342e" font-size="13" font-weight="700">Align with NVLink spikes</text>
+  <text x="828" y="320" text-anchor="middle" fill="#5d4037" font-size="12">and NIC IB pulses</text>
+
+  <line x1="828" y1="332" x2="828" y2="354" stroke="#5b6b7c" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <rect x="686" y="356" width="284" height="48" rx="10" fill="#fff8ea" stroke="#e2b45d" stroke-width="1.5"/>
+  <text x="828" y="386" text-anchor="middle" fill="#8a5a00" font-size="13" font-weight="700">Poor overlap with compute?</text>
+
+  <line x1="750" y1="404" x2="750" y2="430" stroke="#5b6b7c" stroke-width="1.6" marker-end="url(#arr)"/>
+  <line x1="906" y1="404" x2="906" y2="430" stroke="#5b6b7c" stroke-width="1.6" marker-end="url(#arr)"/>
+  <rect x="760" y="408" width="34" height="16" rx="8" fill="#ffffff" stroke="#7cb342" stroke-width="1.1"/>
+  <text x="777" y="420" text-anchor="middle" fill="#2e7d32" font-size="9" font-weight="700">Yes</text>
+  <rect x="916" y="408" width="30" height="16" rx="8" fill="#ffffff" stroke="#ef6c00" stroke-width="1.1"/>
+  <text x="931" y="420" text-anchor="middle" fill="#e65100" font-size="9" font-weight="700">No</text>
+
+  <rect x="686" y="432" width="128" height="80" rx="10" fill="#bcaaa4"/>
+  <text x="750" y="466" text-anchor="middle" fill="#3e2723" font-size="12" font-weight="700">Overlap</text>
+  <text x="750" y="488" text-anchor="middle" fill="#4e342e" font-size="12">+ tune buckets</text>
+
+  <rect x="842" y="432" width="128" height="80" rx="10" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="906" y="466" text-anchor="middle" fill="#0d47a1" font-size="12" font-weight="700">Topology</text>
+  <text x="906" y="488" text-anchor="middle" fill="#1565c0" font-size="12">NVLink / IB</text>
+
+  <rect x="686" y="536" width="284" height="110" rx="10" fill="#efebe9"/>
+  <text x="828" y="578" text-anchor="middle" fill="#4e342e" font-size="13" font-weight="700">Look at: NCCL + NIC IB</text>
+  <text x="828" y="602" text-anchor="middle" fill="#6d4c41" font-size="12">(+ NVLink on-node)</text>
+
+  <!-- ========== 4 COMPUTE ========== -->
+  <rect x="1008" y="94" width="244" height="580" rx="14" fill="#ffffff" stroke="#1e88e5" stroke-width="2.5" filter="url(#soft)"/>
+  <rect x="1008" y="94" width="244" height="48" rx="14" fill="#1e88e5"/>
+  <rect x="1008" y="126" width="244" height="16" fill="#1e88e5"/>
+  <text x="1130" y="128" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">4  COMPUTE</text>
+
+  <rect x="1024" y="164" width="212" height="60" rx="10" fill="#e3f2fd" stroke="#1e88e5" stroke-width="1.5"/>
+  <text x="1130" y="190" text-anchor="middle" fill="#0d47a1" font-size="12" font-weight="700">Kernels dominate</text>
+  <text x="1130" y="210" text-anchor="middle" fill="#1565c0" font-size="12">CUDA HW?</text>
+
+  <line x1="1130" y1="230" x2="1130" y2="274" stroke="#5b6b7c" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="1140" y="242" width="36" height="18" rx="9" fill="#ffffff" stroke="#1e88e5" stroke-width="1.2"/>
+  <text x="1158" y="255" text-anchor="middle" fill="#0d47a1" font-size="10" font-weight="700">Yes</text>
+
+  <rect x="1024" y="276" width="212" height="70" rx="10" fill="#90caf9"/>
+  <text x="1130" y="306" text-anchor="middle" fill="#0d47a1" font-size="13" font-weight="700">Tune model path</text>
+  <text x="1130" y="328" text-anchor="middle" fill="#1565c0" font-size="12">precision · fusion · batch</text>
+
+  <line x1="1130" y1="346" x2="1130" y2="368" stroke="#5b6b7c" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <rect x="1024" y="370" width="212" height="70" rx="10" fill="#ce93d8" stroke="#8e24aa" stroke-width="1.5"/>
+  <text x="1130" y="400" text-anchor="middle" fill="#4a148c" font-size="12" font-weight="700">CPU label ? GPU time</text>
+  <text x="1130" y="422" text-anchor="middle" fill="#6a1b9a" font-size="11">host launches, GPU runs</text>
+
+  <line x1="1130" y1="440" x2="1130" y2="462" stroke="#5b6b7c" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <rect x="1024" y="464" width="212" height="70" rx="10" fill="#bbdefb"/>
+  <text x="1130" y="494" text-anchor="middle" fill="#0d47a1" font-size="12" font-weight="700">SMs Active / DRAM BW</text>
+  <text x="1130" y="516" text-anchor="middle" fill="#1565c0" font-size="11">GPU metrics (top)</text>
+
+  <rect x="1024" y="556" width="212" height="90" rx="10" fill="#e8eaf6"/>
+  <text x="1130" y="592" text-anchor="middle" fill="#283593" font-size="12" font-weight="700">Look at: Kernels</text>
+  <text x="1130" y="616" text-anchor="middle" fill="#3949ab" font-size="12">under :forward / :backward</text>
+</svg>
