@@ -238,24 +238,43 @@ for step in range(num_steps):
 
 ---
 
-### Single GPU without dataloader Worker
+### How to read an Nsight trace (before the exercise)
 
-<div style="font-weight: bold; background-color: #ffcccc;">
-```python
-train_loader = DataLoader(train_dataset, 
-                        batch_size=args.batch_size, 
-                        num_workers=0,
-                        pin_memory=False)
-```
+Open the `.nsys-rep` and stay on the **Timeline**.  
+Below is what information each part of the Timeline contains.
+
+---
+
+### Timeline parts — what information is inside?
+
+<img src="images/profiling/nsight_timeline_parts.png" alt="Nsight Timeline parts" style="width: 96%; max-width: 1180px; background: #fff;"/>
+
+<div style="font-size: 0.34em; margin-top: 0.1em;">
+Shared time axis: <b>GPU metrics</b> · <b>NVLink</b> (spikes at each allreduce) · <b>PCIe</b> (flat) · <b>NCCL</b> · <b>NIC</b> row
 </div>
 
-<div style="font-weight: bold; background-color: #ffcccc;">
-```bash
-sbatch --disable-dcgm single_gpu_training_profiling.sbatch --profile
-```
+---
+
+### What information each training label gives you
+
+<div style="font-size: 0.45em; text-align: left; max-width: 1150px; margin: 0 auto;">
+
+| NVTX label (CPU) | Information on the CPU row | Information to read on CUDA HW |
+|---|---|---|
+| `:data_loading` | Time to load the batch into system memory | Usually little/no GPU activity |
+| `:data_movement` | Time the host spends in `tensor.to(device)` (can include waiting) | Length of H2D **memcpy** (often much shorter than the CPU bar) |
+| `:forward_step` | Time Python stays in the forward phase | Forward **kernels** (GPU compute; may be longer than the CPU bar) |
+| `:calculating_loss` | Short host-side loss phase | Loss / softmax **kernels** (often async) |
+| `:backward_step` | Autograd on the host (graph walk + launches) | Gradient **kernels** on the GPU |
+| `:optimizer_step` | Time in the optimizer step on the host | Optimizer **kernels** on the GPU |
+
 </div>
 
-Only the main process transfers data to system memory.
+---
+
+### From the Timeline to an optimization choice
+
+<img src="images/profiling/optimization_decision_tree.png" alt="Optimization decision tree" style="width: 100%; max-width: 1280px; max-height: 720px; object-fit: contain; background: #fff; margin: 0;"/>
 
 ---
 
@@ -284,16 +303,17 @@ Go to this link to answer the questions:
   </a>
 </div>
 
-<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
-<div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Exercise</div>
-<ul style="margin: 5px 0 0 20px;">
-<li>Find the Python process with CUDA HW </li>
-<li>Find the Python thread inside the above process</li>
-<li>How long does it take until one iteration is finished (data transfers, forward, backward, ...)?</li>
-<li>Which part of training takes the most time: data loading, data movement, the forward pass, or the backward pass?</li>
-<li>How long does it take until one data loading step is finished?</li>
-<li>Explore CUDA HW thread and what is the GPU peak memory?</li>
-</ul>
+<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.40em;">
+<div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Guided exploration (then answer the form)</div>
+<ol style="margin: 5px 0 0 20px;">
+<li><b>Orient:</b> Find the Python process with a <b>CUDA HW</b> row. Expand it. Zoom (+) to a steady middle iteration (skip startup).</li>
+<li><b>Labels vs hardware:</b> On the CPU/Python thread, find <code>:data_loading</code>, <code>:data_movement</code>, <code>:forward_step</code>, <code>:backward_step</code>. Note: these NVTX labels sit on the <b>CPU</b> timeline. Then look at the <b>same time windows</b> on CUDA HW — busy kernels, short <code>memcpy</code>, or mostly idle?</li>
+<li><b>One iteration time (form Q1):</b> Mark the start of one <code>:data_loading</code> (or the first stage you see) and the end of that step’s <code>:backward_step</code>/<code>:optimizer_step</code>. Use the ruler / timestamps. What is the CPU wall-clock duration of one full iteration?</li>
+<li><b>GPU peak memory (form Q2):</b> On CUDA HW / memory views in Nsight, find the GPU memory peak for this process. Which value matches what you read?</li>
+<li><b>Longest CPU stage (form Q3):</b> Compare the CPU NVTX bar lengths for data loading, data movement, forward, and backward in one iteration. Which is longest? (Hint: longest CPU bar ≠ necessarily longest GPU work.)</li>
+<li><b>Data-loading duration (form Q4):</b> Select one <code>:data_loading</code> range and read its duration. Which form option matches?</li>
+<li><b>Sanity check before submitting:</b> Under the longest CPU stage, does CUDA HW show heavy compute or something else? Write one sentence: what is limiting this run?</li>
+</ol>
 </div>
 
 ---
