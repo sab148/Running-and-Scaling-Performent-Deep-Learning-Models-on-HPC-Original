@@ -52,17 +52,29 @@ section {
     font-family: "Arial", "sans-serif";
     text-transform: Uppercase;
     color: #023d6b;
+    line-height: 1.2;
+    text-wrap: balance;
+    overflow-wrap: break-word;
 }
 
-.reveal h1 {
+/* Title slide */
+.reveal #title-slide h1,
+.reveal h1.title {
     color: #023d6b;
-    font-size: 250%;
+    font-size: 2.4em;
+    margin-bottom: 0.35em;
 }
 
+/* Keep ## and ### slide titles the same visual size */
+.reveal .slides section > h2,
+.reveal .slides section > h3 {
+    font-size: 1.55em;
+    margin: 0 0 0.5em 0;
+}
 
 .reveal h2 + h3 {
-    text-transform: Unset;
-    font-size: 80%;
+    text-transform: Uppercase;
+    font-size: 1.55em;
 }
 
 .controls {
