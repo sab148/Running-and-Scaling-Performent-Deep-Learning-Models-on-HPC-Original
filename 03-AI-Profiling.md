@@ -1,13 +1,9 @@
 ---
 author: Javad Kasravi
 title: AI Profiling
-date: Sep. 10, 2026
+date: Nov. 18, 2026
 ---
 <style>
-.reveal h3 {
-  font-size: 40px;
-}
-
 .reveal ul li {
   margin-bottom: 20px;  /* adjust as needed */
 }
@@ -512,8 +508,6 @@ Use <b>+</b> / <b>&minus;</b> and pick a steady middle iteration.
 
 ### DDP — single node (4 GPUs)
 
-Reproduce this trace:
-
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```bash
 sbatch --disable-dcgm --nodes 1 ddp_training.sbatch --profile
@@ -552,8 +546,6 @@ Use <b>+</b> / <b>&minus;</b> and pick a steady middle iteration (skip startup /
 
 
 ### DDP — multi-node with GPUDirect RDMA (8 GPUs)
-
-Reproduce this trace:
 
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```bash
@@ -594,8 +586,6 @@ Use <b>+</b> / <b>&minus;</b> and pick a steady middle iteration (skip startup /
 
 ### DDP — multi-node without GPUDirect RDMA (`NCCL_P2P_LEVEL=LOC`)
 
-Reproduce this trace:
-
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```bash
 NCCL_P2P_LEVEL=LOC sbatch --disable-dcgm --nodes 2 ddp_training.sbatch --profile
@@ -634,8 +624,6 @@ Use <b>+</b> / <b>&minus;</b> and pick a steady middle iteration (skip startup /
 
 
 ### DDP — multi-node without InfiniBand (`NCCL_IB_DISABLE=1`)
-
-Reproduce this trace:
 
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```bash

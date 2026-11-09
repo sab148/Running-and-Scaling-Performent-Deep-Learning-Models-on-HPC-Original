@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
   <meta name="author" content="Javad Kasravi">
-  <meta name="dcterms.date" content="2026-09-10">
+  <meta name="dcterms.date" content="2026-11-18">
   <title>AI Profiling</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -147,17 +147,29 @@
       font-family: "Arial", "sans-serif";
       text-transform: Uppercase;
       color: #023d6b;
+      line-height: 1.2;
+      text-wrap: balance;
+      overflow-wrap: break-word;
   }
 
-  .reveal h1 {
+  /* Title slide */
+  .reveal #title-slide h1,
+  .reveal h1.title {
       color: #023d6b;
-      font-size: 250%;
+      font-size: 2.4em;
+      margin-bottom: 0.35em;
   }
 
+  /* Keep ## and ### slide titles the same visual size */
+  .reveal .slides section > h2,
+  .reveal .slides section > h3 {
+      font-size: 1.55em;
+      margin: 0 0 0.5em 0;
+  }
 
   .reveal h2 + h3 {
-      text-transform: Unset;
-      font-size: 80%;
+      text-transform: Uppercase;
+      font-size: 1.55em;
   }
 
   .controls {
@@ -224,16 +236,12 @@
 <section id="title-slide">
   <h1 class="title">AI Profiling</h1>
   <p class="author">Javad Kasravi</p>
-  <p class="date">Sep. 10, 2026</p>
+  <p class="date">Nov. 18, 2026</p>
 </section>
 
 <section class="slide level2">
 
 <style>
-.reveal h3 {
-  font-size: 40px;
-}
-
 .reveal ul li {
   margin-bottom: 20px;  /* adjust as needed */
 }
@@ -843,7 +851,6 @@ Is there any CUDA synchronization in the trace?
 <section class="slide level2">
 
 <h3 id="ddp-single-node-4-gpus">DDP — single node (4 GPUs)</h3>
-<p>Reproduce this trace:</p>
 <div style="font-weight: bold; background-color: #ffcccc;">
 <div class="sourceCode" id="cb15"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 1 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
@@ -906,7 +913,6 @@ time as AllReduce, or only before/after?
 
 <h3 id="ddp-multi-node-with-gpudirect-rdma-8-gpus">DDP — multi-node with
 GPUDirect RDMA (8 GPUs)</h3>
-<p>Reproduce this trace:</p>
 <div style="font-weight: bold; background-color: #ffcccc;">
 <div class="sourceCode" id="cb17"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
@@ -971,7 +977,6 @@ before.
 <h3
 id="ddp-multi-node-without-gpudirect-rdma-ncclp2plevelloc">DDP —
 multi-node without GPUDirect RDMA (<code>NCCL_P2P_LEVEL=LOC</code>)</h3>
-<p>Reproduce this trace:</p>
 <div style="font-weight: bold; background-color: #ffcccc;">
 <div class="sourceCode" id="cb19"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="va">NCCL_P2P_LEVEL</span><span class="op">=</span>LOC <span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
@@ -1032,7 +1037,6 @@ AllReduce? Use the same overlap options as before.
 <h3
 id="ddp-multi-node-without-infiniband-ncclibdisable1">DDP — multi-node
 without InfiniBand (<code>NCCL_IB_DISABLE=1</code>)</h3>
-<p>Reproduce this trace:</p>
 <div style="font-weight: bold; background-color: #ffcccc;">
 <div class="sourceCode" id="cb21"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="va">NCCL_IB_DISABLE</span><span class="op">=</span>1 <span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
