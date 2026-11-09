@@ -244,14 +244,7 @@ for step in range(num_steps):
 
 ---
 
-### How to read an Nsight trace (before the exercise)
-
-Open the `.nsys-rep` and stay on the **Timeline**.  
-Below is what information each part of the Timeline contains.
-
----
-
-### Timeline parts — what information is inside?
+### what information is inside?
 
 <img src="images/profiling/nsight_timeline_parts.png" alt="Nsight Timeline parts" style="width: 96%; max-width: 1180px; background: #fff;"/>
 
@@ -270,7 +263,6 @@ Shared time axis: <b>GPU metrics</b> · <b>NVLink</b> (spikes at each allreduce)
 | `:data_loading` | Time to load the batch into system memory | Usually little/no GPU activity |
 | `:data_movement` | Time the host spends in `tensor.to(device)` (can include waiting) | Length of H2D **memcpy** (often much shorter than the CPU bar) |
 | `:forward_step` | Time Python stays in the forward phase | Forward **kernels** (GPU compute; may be longer than the CPU bar) |
-| `:calculating_loss` | Short host-side loss phase | Loss / softmax **kernels** (often async) |
 | `:backward_step` | Autograd on the host (graph walk + launches) | Gradient **kernels** on the GPU |
 | `:optimizer_step` | Time in the optimizer step on the host | Optimizer **kernels** on the GPU |
 
@@ -518,7 +510,9 @@ Use <b>+</b> / <b>&minus;</b> and pick a steady middle iteration.
 
 ---
 
-### DDP
+### DDP — single node (4 GPUs)
+
+Reproduce this trace:
 
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```bash
@@ -526,44 +520,30 @@ sbatch --disable-dcgm --nodes 1 ddp_training.sbatch --profile
 ```
 </div>
 
-
-
-
-<div style="padding: 15px 15px 15px 25px; background-color: #fff9c4; border-left: 5px solid #fbc02d; margin: 10px 0; font-size: 0.7em;">
-<div style="font-weight: bold; margin-bottom: 8px; margin-left: -800px;"> Trace Path:</div>
-<ul style="margin: 5px 0 0 20px; font-size: 0.8em">
-Multi_GPUs/DDP/Single_node/Report_03_DDP_one_node/nsys_logs
+<div style="max-width:1100px;margin:0 auto;text-align:left;font-size:0.48em;">
+<div style="background:#ffcccc;border-radius:10px;padding:10px 14px;margin-bottom:12px;">
+<div style="font-size:0.85em;color:#8a0000;font-weight:700;margin-bottom:4px;">Open this trace</div>
+<code style="font-size:0.92em;">Multi_GPUs/DDP/Single_node/Report_03_DDP_one_node/nsys_logs/nsys_logs_rank_2.nsys-rep</code>
+</div>
+<div style="display:flex;gap:12px;margin-bottom:12px;">
+<div style="flex:1;background:#fff8ea;border:2px solid #f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">Zoom</div>
+Use <b>+</b> / <b>&minus;</b> and pick a steady middle iteration (skip startup / NCCL init).
+</div>
+<div style="flex:1;background:#f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">Answer the form</div>
+<a href="https://forms.gle/z6VoTiQ1gZjwZTRDA" target="_blank" style="color:#023d6b;font-weight:700;">DDP (4 GPUs)</a>
+</div>
+</div>
+<div style="padding:12px 16px;background:#e8f5e9;border-left:5px solid #4caf50;border-radius:0 10px 10px 0;">
+<div style="font-weight:700;color:#1b5e20;margin-bottom:8px;">Guided exploration</div>
+<ul style="margin:0 0 0 1.1em;padding:0;color:#2e7d32;">
+<li>On <b>GPU metrics</b>, compare <b>NVLink</b> vs <b>PCIe</b> during training — which spikes with collectives?</li>
+<li>On <b>CUDA HW</b>, find NCCL kernels (e.g. <code>ncclDevKernel_AllReduce_...</code>) / the NCCL row.</li>
+<li>Count how many times <b>AllReduce</b> runs in this report (NCCL / CUDA HW).</li>
+<li>In a steady window: do non-NCCL <b>compute kernels</b> run at the same time as AllReduce, or only before/after?</li>
 </ul>
 </div>
-
-
-
-<div style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 800px;">
-```bash
-File -> Open -> select all .nsys-rep files --> create a multi-view report -> select all reports
-```
-</div>
-
-Go to this link to answer the questions:
-
-<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
-  <a href="https://forms.gle/z6VoTiQ1gZjwZTRDA" target="_blank">
-    DDP (4 GPUs)
-  </a>
-</div>
-
-
-
-
-<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
-<div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Exercise</div>
-<ul style="margin: 5px 0 0 20px;">
-<li>Which intra-node communication is active (PCIe or NVLink)?</li>
-<li>Check NIC metrics (Why is there some traffic on one node?) </li>
-<li>Check the NCCL trace inside of CUDA HW </li>
-<li>How many times is the all-reduce operation called (check NCCL trace inside of CUDA HW)?  </li>
-<li>Do the compute kernels overlap with the NCCL all-reduce operation? </li>
-</ul>
 </div>
 
 
@@ -571,7 +551,9 @@ Go to this link to answer the questions:
 ---
 
 
-### DDP
+### DDP — multi-node with GPUDirect RDMA (8 GPUs)
+
+Reproduce this trace:
 
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```bash
@@ -579,45 +561,30 @@ sbatch --disable-dcgm --nodes 2 ddp_training.sbatch --profile
 ```
 </div>
 
-
-
-
-<div style="padding: 15px 15px 15px 25px; background-color: #fff9c4; border-left: 5px solid #fbc02d; margin: 10px 0; font-size: 0.7em;">
-<div style="font-weight: bold; margin-bottom: 8px; margin-left: -800px;"> Trace Path:</div>
-<ul style="margin: 5px 0 0 20px; font-size: 0.8em">
-Multi_GPUs/DDP/Multi_nodes/Report_03_DDP_multi_nodes/GPU_Direct_RDMA_enable/nsys_logs
+<div style="max-width:1100px;margin:0 auto;text-align:left;font-size:0.48em;">
+<div style="background:#ffcccc;border-radius:10px;padding:10px 14px;margin-bottom:12px;">
+<div style="font-size:0.85em;color:#8a0000;font-weight:700;margin-bottom:4px;">Open this trace</div>
+<code style="font-size:0.92em;">Multi_GPUs/DDP/Multi_nodes/Report_03_DDP_multi_nodes/GPU_Direct_RDMA_enable/nsys_logs/nsys_logs_rank_1.nsys-rep</code>
+</div>
+<div style="display:flex;gap:12px;margin-bottom:12px;">
+<div style="flex:1;background:#fff8ea;border:2px solid #f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">Zoom</div>
+Use <b>+</b> / <b>&minus;</b> and pick a steady middle iteration (skip startup / NCCL init).
+</div>
+<div style="flex:1;background:#f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">Answer the form</div>
+<a href="https://forms.gle/KvvPEqvEnVLhVNrL8" target="_blank" style="color:#023d6b;font-weight:700;">DDP (8 GPUs)</a>
+</div>
+</div>
+<div style="padding:12px 16px;background:#e8f5e9;border-left:5px solid #4caf50;border-radius:0 10px 10px 0;">
+<div style="font-weight:700;color:#1b5e20;margin-bottom:8px;">Guided exploration</div>
+<ul style="margin:0 0 0 1.1em;padding:0;color:#2e7d32;">
+<li>On <b>GPU metrics</b>, compare <b>NVLink</b> vs <b>PCIe</b> — which path carries <i>intra-node</i> collectives?</li>
+<li>Also glance at <b>NIC / InfiniBand</b> metrics — multi-node traffic should appear here (GPUDirect RDMA).</li>
+<li>On <b>CUDA HW</b>, find <code>ncclDevKernel_AllReduce_...</code>; note how long AllReduce bars are vs the single-node case.</li>
+<li>In a steady window: do non-NCCL <b>compute kernels</b> overlap AllReduce, or only run before/after? Use the same overlap options as before.</li>
 </ul>
 </div>
-
-
-
-<div style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 800px;">
-```bash
-File -> Open -> select all .nsys-rep files --> create a multi-view report -> select all reports
-```
-</div>
-
-
-
-Go to this link to answer the questions:
-
-<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
-  <a href="https://forms.gle/KvvPEqvEnVLhVNrL8" target="_blank">
-    DDP (8 GPUs)
-  </a>
-</div>
-
-
-
-
-<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
-<div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Exercise</div>
-<ul style="margin: 5px 0 0 20px;">
-<li>Which intra-node communication is active (PCIe or NVLink)?</li>
-<li>Check the NCCL trace inside of CUDA HW </li>
-<li>Do the compute kernels overlap with the NCCL all-reduce operation? </li>
-<li>Do you think the training will be scalable?</li>
-</ul>
 </div>
 
 
@@ -625,7 +592,9 @@ Go to this link to answer the questions:
 ---
 
 
-### DDP
+### DDP — multi-node without GPUDirect RDMA (`NCCL_P2P_LEVEL=LOC`)
+
+Reproduce this trace:
 
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```bash
@@ -633,44 +602,29 @@ NCCL_P2P_LEVEL=LOC sbatch --disable-dcgm --nodes 2 ddp_training.sbatch --profile
 ```
 </div>
 
-
-
-
-<div style="padding: 15px 15px 15px 25px; background-color: #fff9c4; border-left: 5px solid #fbc02d; margin: 10px 0; font-size: 0.7em;">
-<div style="font-weight: bold; margin-bottom: 8px; margin-left: -800px;"> Trace Path:</div>
-<ul style="margin: 5px 0 0 20px; font-size: 0.8em">
-Multi_GPUs/DDP/Multi_nodes/Report_03_DDP_multi_nodes/GPU_Direct_RDMA_disable/nsys_logs
+<div style="max-width:1100px;margin:0 auto;text-align:left;font-size:0.48em;">
+<div style="background:#ffcccc;border-radius:10px;padding:10px 14px;margin-bottom:12px;">
+<div style="font-size:0.85em;color:#8a0000;font-weight:700;margin-bottom:4px;">Open this trace</div>
+<code style="font-size:0.92em;">Multi_GPUs/DDP/Multi_nodes/Report_03_DDP_multi_nodes/GPU_Direct_RDMA_disable/nsys_logs/nsys_logs_rank_2.nsys-rep</code>
+</div>
+<div style="display:flex;gap:12px;margin-bottom:12px;">
+<div style="flex:1;background:#fff8ea;border:2px solid #f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">Zoom</div>
+Use <b>+</b> / <b>&minus;</b> and pick a steady middle iteration (skip startup / NCCL init).
+</div>
+<div style="flex:1;background:#f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">Answer the form</div>
+<a href="https://forms.gle/XXF5EHMLQkRaM88k8" target="_blank" style="color:#023d6b;font-weight:700;">DDP (8 GPUs without GPU_Direct_RDMA)</a>
+</div>
+</div>
+<div style="padding:12px 16px;background:#e8f5e9;border-left:5px solid #4caf50;border-radius:0 10px 10px 0;">
+<div style="font-weight:700;color:#1b5e20;margin-bottom:8px;">Guided exploration</div>
+<ul style="margin:0 0 0 1.1em;padding:0;color:#2e7d32;">
+<li><code>NCCL_P2P_LEVEL=LOC</code> restricts GPU P2P to PCIe locality — compare <b>NVLink</b> vs <b>PCIe</b> on GPU metrics vs the previous RDMA-enable slide.</li>
+<li>On <b>CUDA HW</b>, find <code>ncclDevKernel_AllReduce_...</code>; are AllReduce bars longer than with GPUDirect RDMA?</li>
+<li>In a steady window: do non-NCCL <b>compute kernels</b> overlap AllReduce? Use the same overlap options as before.</li>
 </ul>
 </div>
-
-
-
-<div style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 800px;">
-```bash
-File -> Open -> select all .nsys-rep files --> create a multi-view report -> select all reports
-```
-</div>
-
-
-
-Go to this link to answer the questions:
-
-<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
-  <a href="https://forms.gle/XXF5EHMLQkRaM88k8" target="_blank">
-    DDP (8 GPUs without GPU_Direct_RDMA)
-  </a>
-</div>
-
-
-
-
-<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
-<div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Exercise</div>
-<ul style="margin: 5px 0 0 20px;">
-<li>Check the NCCL trace inside of CUDA HW </li>
-<li>Do the compute kernels overlap with the NCCL all-reduce operation? </li>
-<li>Do you think the training will be scalable?</li>
-</ul>
 </div>
 
 
@@ -679,7 +633,9 @@ Go to this link to answer the questions:
 
 
 
-### DDP
+### DDP — multi-node without InfiniBand (`NCCL_IB_DISABLE=1`)
+
+Reproduce this trace:
 
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```bash
@@ -687,41 +643,30 @@ NCCL_IB_DISABLE=1 sbatch --disable-dcgm --nodes 2 ddp_training.sbatch --profile
 ```
 </div>
 
-
-
-
-<div style="padding: 15px 15px 15px 25px; background-color: #fff9c4; border-left: 5px solid #fbc02d; margin: 10px 0; font-size: 0.7em;">
-<div style="font-weight: bold; margin-bottom: 8px; margin-left: -800px;"> Trace Path:</div>
-<ul style="margin: 5px 0 0 20px; font-size: 0.8em">
-Multi_GPUs/DDP/Multi_nodes/Report_03_DDP_multi_nodes/NOT_IB_USAGE
+<div style="max-width:1100px;margin:0 auto;text-align:left;font-size:0.48em;">
+<div style="background:#ffcccc;border-radius:10px;padding:10px 14px;margin-bottom:12px;">
+<div style="font-size:0.85em;color:#8a0000;font-weight:700;margin-bottom:4px;">Open this trace</div>
+<code style="font-size:0.92em;">Multi_GPUs/DDP/Multi_nodes/Report_03_DDP_multi_nodes/NOT_IB_USAGE/nsys_logs/nsys_logs_rank_0.nsys-rep</code>
+</div>
+<div style="display:flex;gap:12px;margin-bottom:12px;">
+<div style="flex:1;background:#fff8ea;border:2px solid #f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">Zoom</div>
+Use <b>+</b> / <b>&minus;</b> and pick a steady middle iteration (skip startup / NCCL init).
+</div>
+<div style="flex:1;background:#f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">Answer the form</div>
+<a href="https://forms.gle/zn58hSUSLZZWPzLX8" target="_blank" style="color:#023d6b;font-weight:700;">DDP (8 GPUs without Infiniband usage)</a>
+</div>
+</div>
+<div style="padding:12px 16px;background:#e8f5e9;border-left:5px solid #4caf50;border-radius:0 10px 10px 0;">
+<div style="font-weight:700;color:#1b5e20;margin-bottom:8px;">Guided exploration</div>
+<ul style="margin:0 0 0 1.1em;padding:0;color:#2e7d32;">
+<li><code>NCCL_IB_DISABLE=1</code> forces NCCL off InfiniBand — check <b>NIC</b> metrics (Ethernet / sockets vs IB) vs the RDMA-enable slide.</li>
+<li>On <b>CUDA HW</b>, find <code>ncclDevKernel_AllReduce_...</code>; how long are the bars vs previous multi-node runs?</li>
+<li>Look at <b>SMs Active</b> / compute during AllReduce — is the GPU busy or mostly waiting on communication?</li>
+<li>Use the same overlap options as before; then decide if this setup looks scalable.</li>
 </ul>
 </div>
-
-
-
-<div style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 800px;">
-```bash
-File -> Open -> select all .nsys-rep files --> create a multi-view report -> select all reports
-```
-</div>
-
-Go to this link to answer the questions:
-
-<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
-  <a href="https://forms.gle/zn58hSUSLZZWPzLX8" target="_blank">
-    DDP (8 GPUs without Infiniband usage)
-  </a>
-</div>
-
-
-
-
-<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
-<div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Exercise</div>
-<ul style="margin: 5px 0 0 20px;">
-<li>Do the compute kernels overlap with the NCCL all-reduce operation? </li>
-<li>Do you think the training will be scalable?</li>
-</ul>
 </div>
 
 
