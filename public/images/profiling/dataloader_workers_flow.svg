@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 700" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f7fafc"/>
+      <stop offset="100%" stop-color="#eef4fa"/>
+    </linearGradient>
+    <linearGradient id="mainG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1565c0"/>
+      <stop offset="100%" stop-color="#0d47a1"/>
+    </linearGradient>
+    <linearGradient id="workerG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7cb342"/>
+      <stop offset="100%" stop-color="#558b2f"/>
+    </linearGradient>
+    <linearGradient id="queueG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffecb3"/>
+      <stop offset="100%" stop-color="#f0d965"/>
+    </linearGradient>
+    <filter id="soft" x="-3%" y="-3%" width="106%" height="112%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.14"/>
+    </filter>
+    <marker id="arrB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#1565c0"/>
+    </marker>
+    <marker id="arrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#558b2f"/>
+    </marker>
+    <marker id="arrO" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#ef6c00"/>
+    </marker>
+  </defs>
+
+  <rect width="1280" height="700" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="640" y="42" text-anchor="middle" fill="#023d6b" font-size="28" font-weight="700">PyTorch DataLoader with num_workers &gt; 0</text>
+  <text x="640" y="70" text-anchor="middle" fill="#546e7a" font-size="16">Main process keeps training - workers prepare the next batches in parallel</text>
+
+  <!-- Legend -->
+  <rect x="40" y="90" width="18" height="18" rx="4" fill="#1565c0"/>
+  <text x="66" y="105" fill="#37474f" font-size="14">Main process</text>
+  <rect x="200" y="90" width="18" height="18" rx="4" fill="#7cb342"/>
+  <text x="226" y="105" fill="#37474f" font-size="14">Worker processes</text>
+  <rect x="400" y="90" width="18" height="18" rx="4" fill="#f0d965"/>
+  <text x="426" y="105" fill="#37474f" font-size="14">Queues</text>
+  <rect x="520" y="90" width="18" height="18" rx="4" fill="#ef6c00"/>
+  <text x="546" y="105" fill="#37474f" font-size="14">Batches / tensors</text>
+
+  <!-- ========== MAIN LEFT ========== -->
+  <rect x="40" y="140" width="220" height="480" rx="16" fill="#e3f2fd" stroke="#1565c0" stroke-width="2.5" filter="url(#soft)"/>
+  <rect x="40" y="140" width="220" height="52" rx="16" fill="url(#mainG)"/>
+  <rect x="40" y="176" width="220" height="16" fill="#0d47a1"/>
+  <text x="150" y="174" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">Main process</text>
+
+  <rect x="60" y="220" width="180" height="70" rx="12" fill="url(#mainG)" filter="url(#soft)"/>
+  <text x="150" y="250" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Sampler</text>
+  <text x="150" y="274" text-anchor="middle" fill="#bbdefb" font-size="13">sample indices</text>
+
+  <rect x="60" y="320" width="180" height="90" rx="12" fill="#fff" stroke="#1565c0" stroke-width="2"/>
+  <text x="150" y="352" text-anchor="middle" fill="#0d47a1" font-size="15" font-weight="700">Training loop</text>
+  <text x="150" y="376" text-anchor="middle" fill="#1565c0" font-size="13">for batch in loader:</text>
+  <text x="150" y="396" text-anchor="middle" fill="#1565c0" font-size="13">forward / backward</text>
+
+  <rect x="60" y="440" width="180" height="70" rx="12" fill="#fff" stroke="#1565c0" stroke-width="2"/>
+  <text x="150" y="470" text-anchor="middle" fill="#0d47a1" font-size="15" font-weight="700">next(batch)</text>
+  <text x="150" y="494" text-anchor="middle" fill="#1565c0" font-size="13">pull ready batch</text>
+
+  <text x="150" y="560" text-anchor="middle" fill="#0d47a1" font-size="13" font-weight="700">GPU stays busy</text>
+  <text x="150" y="582" text-anchor="middle" fill="#546e7a" font-size="12">while workers prefetch</text>
+
+  <!-- arrows main -> index queues -->
+  <path d="M260 255 L310 255 L310 210 L360 210" fill="none" stroke="#1565c0" stroke-width="2.5" marker-end="url(#arrB)"/>
+  <path d="M310 255 L310 350 L360 350" fill="none" stroke="#1565c0" stroke-width="2.5" marker-end="url(#arrB)"/>
+  <path d="M310 255 L310 490 L360 490" fill="none" stroke="#1565c0" stroke-width="2.5" marker-end="url(#arrB)"/>
+  <text x="300" y="190" text-anchor="middle" fill="#1565c0" font-size="12" font-weight="700">push index</text>
+
+  <!-- ========== INDEX QUEUES ========== -->
+  <rect x="360" y="170" width="150" height="80" rx="12" fill="url(#queueG)" stroke="#f0d965" stroke-width="2" filter="url(#soft)"/>
+  <text x="435" y="205" text-anchor="middle" fill="#6d4c00" font-size="15" font-weight="700">Index Q</text>
+  <text x="435" y="228" text-anchor="middle" fill="#8a5a00" font-size="13">idx 0, 3, 6...</text>
+
+  <rect x="360" y="310" width="150" height="80" rx="12" fill="url(#queueG)" stroke="#f0d965" stroke-width="2" filter="url(#soft)"/>
+  <text x="435" y="345" text-anchor="middle" fill="#6d4c00" font-size="15" font-weight="700">Index Q</text>
+  <text x="435" y="368" text-anchor="middle" fill="#8a5a00" font-size="13">idx 1, 4, 7...</text>
+
+  <rect x="360" y="450" width="150" height="80" rx="12" fill="url(#queueG)" stroke="#f0d965" stroke-width="2" filter="url(#soft)"/>
+  <text x="435" y="485" text-anchor="middle" fill="#6d4c00" font-size="15" font-weight="700">Index Q</text>
+  <text x="435" y="508" text-anchor="middle" fill="#8a5a00" font-size="13">idx 2, 5, 8...</text>
+
+  <!-- arrows index -> workers -->
+  <line x1="510" y1="210" x2="560" y2="210" stroke="#558b2f" stroke-width="2.5" marker-end="url(#arrG)"/>
+  <line x1="510" y1="350" x2="560" y2="350" stroke="#558b2f" stroke-width="2.5" marker-end="url(#arrG)"/>
+  <line x1="510" y1="490" x2="560" y2="490" stroke="#558b2f" stroke-width="2.5" marker-end="url(#arrG)"/>
+  <text x="535" y="198" text-anchor="middle" fill="#558b2f" font-size="12" font-weight="700">pull</text>
+
+  <!-- ========== WORKERS ========== -->
+  <rect x="560" y="150" width="200" height="120" rx="14" fill="url(#workerG)" filter="url(#soft)"/>
+  <text x="660" y="190" text-anchor="middle" fill="#fff" font-size="20" font-weight="700">Worker 1</text>
+  <text x="660" y="218" text-anchor="middle" fill="#e8f5e9" font-size="14">Dataset[idx]</text>
+  <text x="660" y="242" text-anchor="middle" fill="#e8f5e9" font-size="14">+ transforms</text>
+
+  <rect x="560" y="290" width="200" height="120" rx="14" fill="url(#workerG)" filter="url(#soft)"/>
+  <text x="660" y="330" text-anchor="middle" fill="#fff" font-size="20" font-weight="700">Worker 2</text>
+  <text x="660" y="358" text-anchor="middle" fill="#e8f5e9" font-size="14">Dataset[idx]</text>
+  <text x="660" y="382" text-anchor="middle" fill="#e8f5e9" font-size="14">+ transforms</text>
+
+  <rect x="560" y="430" width="200" height="120" rx="14" fill="url(#workerG)" filter="url(#soft)"/>
+  <text x="660" y="470" text-anchor="middle" fill="#fff" font-size="20" font-weight="700">Worker 3</text>
+  <text x="660" y="498" text-anchor="middle" fill="#e8f5e9" font-size="14">Dataset[idx]</text>
+  <text x="660" y="522" text-anchor="middle" fill="#e8f5e9" font-size="14">+ transforms</text>
+
+  <!-- arrows workers -> data queue -->
+  <path d="M760 210 L820 210 L820 350 L870 350" fill="none" stroke="#ef6c00" stroke-width="2.5" marker-end="url(#arrO)"/>
+  <path d="M760 350 L870 350" fill="none" stroke="#ef6c00" stroke-width="2.5" marker-end="url(#arrO)"/>
+  <path d="M760 490 L820 490 L820 350 L870 350" fill="none" stroke="#ef6c00" stroke-width="2.5" marker-end="url(#arrO)"/>
+  <text x="800" y="250" text-anchor="middle" fill="#ef6c00" font-size="12" font-weight="700">push batch</text>
+
+  <!-- ========== DATA QUEUE ========== -->
+  <rect x="870" y="280" width="160" height="140" rx="14" fill="#fff3e0" stroke="#ef6c00" stroke-width="2.5" filter="url(#soft)"/>
+  <text x="950" y="330" text-anchor="middle" fill="#e65100" font-size="17" font-weight="700">Data Queue</text>
+  <text x="950" y="358" text-anchor="middle" fill="#ef6c00" font-size="14">ready batches</text>
+  <text x="950" y="386" text-anchor="middle" fill="#bf360c" font-size="13">batch 0 | batch 1</text>
+
+  <!-- arrow data queue -> main pull -->
+  <path d="M950 420 L950 475 L230 475 L230 510" fill="none" stroke="#ef6c00" stroke-width="2.5" marker-end="url(#arrO)" stroke-dasharray="6 4"/>
+  <text x="560" y="460" text-anchor="middle" fill="#ef6c00" font-size="13" font-weight="700">main pulls batch when ready</text>
+
+  <!-- bottom note -->
+  <rect x="40" y="640" width="1200" height="40" rx="10" fill="#e8f5e9" stroke="#7cb342" stroke-width="1.5"/>
+  <text x="640" y="666" text-anchor="middle" fill="#1b5e20" font-size="15" font-weight="700">Look for pt_data_worker rows in Nsight - one process per worker</text>
+</svg>

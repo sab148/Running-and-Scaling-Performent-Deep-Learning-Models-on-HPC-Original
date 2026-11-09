@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 700" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f7fafc"/>
+      <stop offset="100%" stop-color="#eef4fa"/>
+    </linearGradient>
+    <filter id="soft2" x="-2%" y="-2%" width="104%" height="110%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="700" fill="url(#bg2)"/>
+
+  <text x="640" y="44" text-anchor="middle" fill="#023d6b" font-size="28" font-weight="700">Why num_workers helps</text>
+  <text x="640" y="72" text-anchor="middle" fill="#546e7a" font-size="16">Overlap data preparation with GPU compute</text>
+
+  <!-- LEFT: zero workers -->
+  <rect x="40" y="100" width="580" height="560" rx="16" fill="#ffffff" stroke="#c62828" stroke-width="2.5" filter="url(#soft2)"/>
+  <rect x="40" y="100" width="580" height="52" rx="16" fill="#c62828"/>
+  <rect x="40" y="136" width="580" height="16" fill="#c62828"/>
+  <text x="330" y="134" text-anchor="middle" fill="#fff" font-size="20" font-weight="700">num_workers = 0  (serial)</text>
+
+  <text x="70" y="190" fill="#37474f" font-size="15" font-weight="700">Main process timeline</text>
+
+  <!-- serial bars -->
+  <rect x="70" y="210" width="160" height="44" rx="8" fill="#7cb342"/>
+  <text x="150" y="238" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">load</text>
+  <rect x="230" y="210" width="100" height="44" rx="8" fill="#ef6c00"/>
+  <text x="280" y="238" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">H2D</text>
+  <rect x="330" y="210" width="220" height="44" rx="8" fill="#1565c0"/>
+  <text x="440" y="238" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">GPU train</text>
+
+  <rect x="70" y="270" width="160" height="44" rx="8" fill="#7cb342"/>
+  <text x="150" y="298" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">load</text>
+  <rect x="230" y="270" width="100" height="44" rx="8" fill="#ef6c00"/>
+  <text x="280" y="298" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">H2D</text>
+  <rect x="330" y="270" width="220" height="44" rx="8" fill="#1565c0"/>
+  <text x="440" y="298" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">GPU train</text>
+
+  <text x="70" y="360" fill="#c62828" font-size="16" font-weight="700">Problem</text>
+  <text x="70" y="390" fill="#5b6b7c" font-size="15">GPU waits while main process loads the next batch.</text>
+  <text x="70" y="416" fill="#5b6b7c" font-size="15">Loading and training never overlap.</text>
+
+  <rect x="70" y="450" width="500" height="160" rx="12" fill="#ffebee" stroke="#ef9a9a" stroke-width="1.5"/>
+  <text x="320" y="490" text-anchor="middle" fill="#b71c1c" font-size="16" font-weight="700">One process does everything</text>
+  <text x="320" y="522" text-anchor="middle" fill="#c62828" font-size="15">Dataset[...]  -&gt;  collate  -&gt;  .to(device)  -&gt;  train</text>
+  <text x="320" y="554" text-anchor="middle" fill="#c62828" font-size="15">step by step on the main process only</text>
+  <text x="320" y="586" text-anchor="middle" fill="#8d6e63" font-size="14">In Nsight: no pt_data_worker rows</text>
+
+  <!-- RIGHT: multi workers -->
+  <rect x="660" y="100" width="580" height="560" rx="16" fill="#ffffff" stroke="#7cb342" stroke-width="2.5" filter="url(#soft2)"/>
+  <rect x="660" y="100" width="580" height="52" rx="16" fill="#7cb342"/>
+  <rect x="660" y="136" width="580" height="16" fill="#7cb342"/>
+  <text x="950" y="134" text-anchor="middle" fill="#fff" font-size="20" font-weight="700">num_workers = 4  (parallel)</text>
+
+  <text x="690" y="190" fill="#37474f" font-size="15" font-weight="700">Main + workers (same wall time)</text>
+
+  <!-- main train continuous-ish -->
+  <text x="690" y="222" fill="#1565c0" font-size="13" font-weight="700">Main / GPU</text>
+  <rect x="780" y="200" width="90" height="36" rx="7" fill="#ef6c00"/>
+  <text x="825" y="224" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">H2D</text>
+  <rect x="870" y="200" width="300" height="36" rx="7" fill="#1565c0"/>
+  <text x="1020" y="224" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">GPU train step</text>
+
+  <text x="690" y="270" fill="#558b2f" font-size="13" font-weight="700">Workers</text>
+  <rect x="780" y="250" width="140" height="30" rx="6" fill="#7cb342"/>
+  <text x="850" y="271" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">load batch n+1</text>
+  <rect x="930" y="250" width="140" height="30" rx="6" fill="#aed581"/>
+  <text x="1000" y="271" text-anchor="middle" fill="#1b5e20" font-size="12" font-weight="700">load batch n+2</text>
+  <rect x="1080" y="250" width="100" height="30" rx="6" fill="#c5e1a5"/>
+  <text x="1130" y="271" text-anchor="middle" fill="#1b5e20" font-size="12" font-weight="700">n+3...</text>
+
+  <text x="690" y="330" fill="#2e7d32" font-size="16" font-weight="700">Benefit</text>
+  <text x="690" y="360" fill="#5b6b7c" font-size="15">Workers prepare the next batches while the GPU</text>
+  <text x="690" y="386" fill="#5b6b7c" font-size="15">trains on the current one.</text>
+
+  <rect x="690" y="420" width="520" height="190" rx="12" fill="#e8f5e9" stroke="#aed581" stroke-width="1.5"/>
+  <text x="950" y="460" text-anchor="middle" fill="#1b5e20" font-size="16" font-weight="700">Round-robin index handoff</text>
+  <text x="950" y="495" text-anchor="middle" fill="#2e7d32" font-size="15">index 0 -&gt; Worker 1</text>
+  <text x="950" y="522" text-anchor="middle" fill="#2e7d32" font-size="15">index 1 -&gt; Worker 2</text>
+  <text x="950" y="549" text-anchor="middle" fill="#2e7d32" font-size="15">index 2 -&gt; Worker 3</text>
+  <text x="950" y="576" text-anchor="middle" fill="#2e7d32" font-size="15">index 3 -&gt; Worker 1  (again)</text>
+</svg>
