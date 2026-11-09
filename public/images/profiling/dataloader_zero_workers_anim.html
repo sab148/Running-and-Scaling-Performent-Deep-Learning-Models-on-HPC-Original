@@ -7,6 +7,11 @@
 <style>
   :root {
     --blue: #1565c0;
+    --green: #558b2f;
+    --orange: #ef6c00;
+    --yellow: #f0d965;
+    --disk: #5d4037;
+    --purple: #6a1b9a;
     --ink: #023d6b;
     --muted: #607d8b;
   }
@@ -42,7 +47,7 @@
     position: absolute;
     left: 3%; right: 3%; top: 46%;
     height: 5px;
-    background: linear-gradient(90deg, #bcaaa4 0%, #90a4ae 28%, #f0d965 52%, #1565c0 76%, #8e24aa 100%);
+    background: linear-gradient(90deg, #bcaaa4 0%, #90a4ae 28%, #cfd8dc 52%, #1565c0 76%, #8e24aa 100%);
     border-radius: 4px;
     opacity: 0.32;
     z-index: 0;
@@ -81,54 +86,52 @@
   }
 
   .fs {
-    left: 2%; top: 16%; width: 15%; height: 58%;
+    left: 2%; top: 16%; width: 13%; height: 58%;
     background: #efebe9; border-color: #8d6e63; color: #3e2723;
   }
   .fs .badge { background: #6d4c41; }
 
-  .noworkers {
-    left: 19%; top: 16%; width: 14%; height: 58%;
+  .worker {
+    width: 13%; height: 24%;
     background: #fafafa; border: 2.5px dashed #b0bec5; color: #607d8b;
   }
-  .noworkers .badge { background: #90a4ae; }
-  .noworkers .x {
-    margin-top: 6px; font-size: 26px; font-weight: 900; color: #c62828; line-height: 1;
+  .worker .badge { background: #90a4ae; }
+  .worker .x {
+    margin-top: 2px; font-size: 20px; font-weight: 900; color: #c62828; line-height: 1;
   }
+  #w1 { left: 18%; top: 14%; }
+  #w2 { left: 18%; top: 50%; }
 
-  .prefetch {
-    left: 35%; top: 10%; width: 14%; height: 32%;
+  .queue {
+    left: 35%; top: 10%; width: 18%; height: 70%;
     background: #fafafa; border: 2.5px dashed #b0bec5; color: #607d8b;
+    justify-content: flex-start; padding-top: 10px;
   }
-  .prefetch .badge { background: #90a4ae; }
-  .prefetch .x {
-    margin-top: 4px; font-size: 22px; font-weight: 900; color: #c62828; line-height: 1;
+  .queue .label { font-size: 16px; }
+  .queue .cap {
+    font-size: 12px; font-weight: 700; color: #78909c; margin: 3px 0 8px;
   }
-
-  .ram {
-    left: 35%; top: 46%; width: 14%; height: 34%;
-    background: #fff8ea; border-color: #f0d965; color: #6d4c00;
+  .slots {
+    width: 86%; flex: 1;
+    display: flex; flex-direction: column-reverse;
+    gap: 6px;
   }
-  .ram .badge { background: #ef6c00; }
-  .ram .slot {
-    margin-top: 8px;
-    width: 72%; height: 28px; line-height: 26px;
-    border-radius: 8px;
-    border: 2px dashed #e2b45d;
+  .slot {
+    height: 17%; border-radius: 10px;
+    border: 2.5px dashed #cfd8dc;
     background: #fff;
-    font-size: 13px; font-weight: 800; color: #8a5a00;
-  }
-  .ram .slot.filled {
-    background: #ef6c00; border: 2px solid #e65100; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: #90a4ae;
   }
 
   .main {
-    left: 52%; top: 16%; width: 22%; height: 58%;
+    left: 57%; top: 16%; width: 18%; height: 58%;
     background: #e3f2fd; border-color: #1565c0; color: #0d47a1;
   }
   .main .badge { background: #1565c0; }
 
   .gpu {
-    right: 2%; top: 20%; width: 20%; height: 50%;
+    right: 2%; top: 20%; width: 19%; height: 50%;
     background: #f3e5f5; border-color: #8e24aa; color: #4a148c;
   }
   .gpu .badge { background: #6a1b9a; }
@@ -152,11 +155,11 @@
   .status {
     position: absolute; left: 50%; bottom: 8px;
     transform: translateX(-50%);
-    width: auto; max-width: 92%;
+    width: auto; max-width: 86%;
     height: 32px; line-height: 30px;
     background: #fff; border: 1.5px solid #cfd8dc;
     border-radius: 10px; padding: 0 14px;
-    font-size: 12.5px; font-weight: 700; color: var(--ink);
+    font-size: 13px; font-weight: 700; color: var(--ink);
     text-align: center; z-index: 30;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
@@ -184,7 +187,7 @@
   }
 
   .legend {
-    display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;
+    display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;
     padding-top: 7px; font-size: 12px; color: var(--muted); font-weight: 650;
     flex: 0 0 auto;
   }
@@ -195,7 +198,6 @@
   .i-fs { background: #6d4c41; }
   .i-main { background: #1565c0; }
   .i-none { background: #90a4ae; }
-  .i-ram { background: #f0d965; }
   .i-g { background: #6a1b9a; }
 </style>
 </head>
@@ -209,10 +211,10 @@
     <div class="pipe" aria-hidden="true"></div>
 
     <div class="step-pills">
-      <div class="pill warn" id="p1">1 next() blocks</div>
-      <div class="pill" id="p2">2 FS → CPU RAM</div>
-      <div class="pill" id="p3">3 collate in RAM</div>
-      <div class="pill" id="p4">4 .to(GPU)</div>
+      <div class="pill warn" id="p1">1 Index (main)</div>
+      <div class="pill" id="p2">2 FS read (main)</div>
+      <div class="pill" id="p3">3 Collate (main)</div>
+      <div class="pill" id="p4">4 Main→GPU</div>
     </div>
 
     <div class="node fs" id="fs">
@@ -221,32 +223,35 @@
       <div class="hint" id="fsHint">dataset files</div>
     </div>
 
-    <div class="node noworkers" id="noworkers">
-      <div class="badge">W</div>
-      <div class="label">Workers</div>
+    <div class="node worker dim" id="w1">
+      <div class="badge">W1</div>
+      <div class="label">Worker 1</div>
       <div class="x">✕</div>
-      <div class="hint">num_workers = 0</div>
+      <div class="hint">num_workers=0</div>
+    </div>
+    <div class="node worker dim" id="w2">
+      <div class="badge">W2</div>
+      <div class="label">Worker 2</div>
+      <div class="x">✕</div>
+      <div class="hint">not started</div>
     </div>
 
-    <div class="node prefetch" id="prefetch">
-      <div class="badge">P</div>
-      <div class="label">Worker prefetch</div>
-      <div class="x">✕</div>
-      <div class="hint">prefetch_factor=None</div>
-    </div>
-
-    <div class="node ram" id="ram">
-      <div class="badge">RAM</div>
-      <div class="label">CPU memory</div>
-      <div class="hint" id="ramHint">current batch only</div>
-      <div class="slot" id="ramSlot"></div>
+    <div class="node queue dim" id="queue">
+      <div class="label">RAM queue</div>
+      <div class="cap" id="qHint">prefetch_factor=None</div>
+      <div class="slots">
+        <div class="slot">—</div>
+        <div class="slot">—</div>
+        <div class="slot">—</div>
+        <div class="slot">—</div>
+      </div>
     </div>
 
     <div class="node main" id="main">
       <div class="badge">M</div>
       <div class="label">Main process</div>
-      <div class="sub">loads in this process<br/>then training loop</div>
-      <div class="hint" id="mainHint">sync load</div>
+      <div class="sub">loads in this process<br/>= next(loader)</div>
+      <div class="hint" id="mainHint">waiting</div>
     </div>
 
     <div class="node gpu" id="gpu">
@@ -255,33 +260,32 @@
       <div class="hint" id="gpuHint">waiting</div>
     </div>
 
-    <div class="status" id="status">Starting…</div>
+    <div class="status" id="status">Starting...</div>
   </div>
 
   <div class="legend">
     <span><i class="i-fs"></i>Filesystem</span>
-    <span><i class="i-none"></i>No workers / no prefetch buffer</span>
-    <span><i class="i-ram"></i>Batch in CPU RAM</span>
-    <span><i class="i-main"></i>Main process</span>
-    <span><i class="i-g"></i>GPU via .to()</span>
+    <span><i class="i-none"></i>No workers / no prefetch queue</span>
+    <span><i class="i-main"></i>Main (= next + .to)</span>
+    <span><i class="i-g"></i>GPU</span>
   </div>
 </div>
 <script>
 (function () {
-  // From PyTorch docs / source (torch.utils.data.DataLoader):
-  // - num_workers=0: data loaded in the main process; may block computing
-  // - prefetch_factor: only for multiprocessing workers. With num_workers=0 it
-  //   must be None (ValueError otherwise). That means NO ahead-of-time buffer
-  //   of *future* batches — not that the current batch skips RAM.
-  // - _SingleProcessDataLoaderIter._next_data():
-  //     index → dataset fetch/collate → optional pin_memory → return data
-  // - Returned tensors live in CPU memory (pageable or pinned). DataLoader
-  //   does NOT copy to GPU; your code must call batch.to(device).
-  const T_MOVE = 1400;
-  const T_READ = 1100;
-  const T_PAUSE = 700;
-  const T_TRAIN = 1400;
-  const T_BOOT = 1500;
+  // Aligned with PyTorch docs / torch.utils.data.DataLoader source:
+  // - num_workers=0: data loaded in the main process (synchronous).
+  // - Uses _SingleProcessDataLoaderIter._next_data():
+  //     index = sampler → dataset_fetcher.fetch (getitem + collate)
+  //     → optional pin_memory → return host tensors
+  // - prefetch_factor must be None when num_workers=0 (ValueError otherwise).
+  //   No worker processes ⇒ no prefetch / RAM result queue.
+  // - No overlap: training waits until next() returns.
+  // - DataLoader does not copy to GPU; user code calls batch.to(device).
+  const T_MOVE = 2200;
+  const T_READ = 1600;
+  const T_PAUSE = 1200;
+  const T_TRAIN = 2000;
+  const T_BOOT = 2000;
 
   const statusEl = document.getElementById('status');
   const fs = document.getElementById('fs');
@@ -290,9 +294,7 @@
   const gpuHint = document.getElementById('gpuHint');
   const mainHint = document.getElementById('mainHint');
   const main = document.getElementById('main');
-  const ram = document.getElementById('ram');
-  const ramHint = document.getElementById('ramHint');
-  const ramSlot = document.getElementById('ramSlot');
+  const queueEl = document.getElementById('queue');
   const stage = document.getElementById('stage');
   const pills = [1,2,3,4].map(n => document.getElementById('p' + n));
 
@@ -303,9 +305,11 @@
     statusEl.textContent = text;
     statusEl.className = 'status' + (cls ? ' ' + cls : '');
   }
+
   function setPill(n) {
     pills.forEach((p, i) => p.classList.toggle('on', i === n - 1));
   }
+
   function centerOf(el) {
     const sr = stage.getBoundingClientRect();
     const r = el.getBoundingClientRect();
@@ -314,6 +318,7 @@
       y: Math.round(r.top - sr.top + r.height / 2)
     };
   }
+
   function moveToken(kind, text, fromEl, toEl, duration) {
     return new Promise((resolve) => {
       const token = document.createElement('div');
@@ -329,78 +334,81 @@
       token.offsetHeight;
       token.classList.add('show');
       requestAnimationFrame(() => {
-        token.style.transition = 'left ' + dur + 'ms linear, top ' + dur + 'ms linear, opacity 0.15s linear';
+        token.style.transition = 'left ' + dur + 'ms linear, top ' + dur + 'ms linear, opacity 0.2s linear';
         token.style.left = (to.x - 39) + 'px';
         token.style.top = (to.y - 17) + 'px';
       });
       setTimeout(() => {
         token.classList.remove('show');
-        setTimeout(() => { token.remove(); resolve(); }, 160);
-      }, dur + 40);
+        setTimeout(() => { token.remove(); resolve(); }, 200);
+      }, dur + 60);
     });
   }
+
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-  function setActive(el, on) { el.classList.toggle('active', !!on); }
+
+  function setActive(el, on) {
+    el.classList.toggle('active', !!on);
+  }
+
   function setGpuIdle(on) {
     gpu.classList.toggle('idle-gpu', !!on);
     gpu.classList.toggle('dim', !!on);
-  }
-  function clearRam() {
-    ramSlot.classList.remove('filled');
-    ramSlot.textContent = '';
-    ramHint.textContent = 'current batch only';
-  }
-  function fillRam(bid) {
-    ramSlot.classList.add('filled');
-    ramSlot.textContent = 'B' + bid;
-    ramHint.textContent = 'B' + bid + ' in host RAM';
   }
 
   async function loadOneOnMain() {
     const idx = nextIdx++;
     const bid = nextBatch++;
 
+    // GPU / training cannot overlap: main is busy inside next()
     setGpuIdle(true);
-    gpuHint.textContent = 'idle (blocked)';
-    clearRam();
+    gpuHint.textContent = 'idle (waiting)';
 
     setPill(1);
-    setStatus('next(loader) is synchronous — no worker can prefetch the next batch', 'warn');
-    mainHint.textContent = 'blocked in next()';
-    setActive(main, true);
-    await sleep(T_PAUSE);
-
-    setStatus('Main sampler picks index ' + idx, 'info');
+    setStatus('Step 1 — next(loader) in main: sampler picks index ' + idx + ' (not sent to any worker)', 'warn');
     mainHint.textContent = 'sampler → idx ' + idx;
-    await sleep(T_PAUSE * 0.8);
+    setActive(main, true);
+    // Show index token on main only — with num_workers=0 it never leaves this process
+    {
+      const token = document.createElement('div');
+      token.className = 'token index show';
+      token.textContent = 'idx ' + idx;
+      stage.appendChild(token);
+      const c = centerOf(main);
+      token.style.left = (c.x - 39) + 'px';
+      token.style.top = (c.y - 17) + 'px';
+      await sleep(T_PAUSE);
+      token.classList.remove('show');
+      await sleep(200);
+      token.remove();
+    }
 
     setPill(2);
-    setStatus('Main __getitem__: read file into CPU RAM (not GPU)', 'disk');
+    setStatus('Step 2 — Main __getitem__: read sample ' + idx + ' from the filesystem', 'disk');
     fsHint.textContent = 'read file[' + idx + ']';
     setActive(fs, true);
-    setActive(ram, true);
     mainHint.textContent = '__getitem__(' + idx + ')';
-    await moveToken('data', 'file ' + idx, fs, ram, T_MOVE);
+    await moveToken('data', 'file ' + idx, fs, main, T_MOVE);
     await sleep(T_READ);
     setActive(fs, false);
     fsHint.textContent = 'dataset files';
 
     setPill(3);
-    setStatus('collate_fn builds B' + bid + ' in CPU memory; next() returns host tensors', 'ok');
-    mainHint.textContent = 'collate_fn in RAM';
-    fillRam(bid);
+    setStatus('Step 3 — Main collate_fn builds B' + bid + ' in host memory (RAM queue stays empty)', 'ok');
+    mainHint.textContent = 'collate → B' + bid;
+    setActive(queueEl, true);
     await sleep(T_PAUSE);
+    setActive(queueEl, false);
+    // Batch appears in main — never placed into a worker result queue
+    await sleep(T_PAUSE * 0.5);
 
-    setStatus('Training loop receives B' + bid + ' still on CPU (pin_memory only pins host RAM)', 'info');
-    await moveToken('batch', 'B' + bid, ram, main, T_MOVE);
-    clearRam();
-    setActive(ram, false);
-    mainHint.textContent = 'batch on CPU';
+    setStatus('next() returns host tensors — DataLoader does not copy to GPU', 'info');
+    mainHint.textContent = 'return B' + bid + ' (CPU)';
     await sleep(T_PAUSE);
 
     setPill(4);
     setGpuIdle(false);
-    setStatus('Your code: batch.to(device) copies CPU RAM → GPU, then train', 'gpu');
+    setStatus('Step 4 — Same main process: batch.to(device), then train (still no overlap)', 'gpu');
     setActive(gpu, true);
     gpuHint.textContent = 'train B' + bid;
     mainHint.textContent = '.to(GPU) B' + bid;
@@ -409,18 +417,19 @@
 
     setActive(main, false);
     setActive(gpu, false);
-    gpuHint.textContent = 'done B' + bid;
     mainHint.textContent = 'next() again…';
+    gpuHint.textContent = 'done B' + bid;
   }
 
   async function loop() {
-    setStatus('Why no prefetch_factor? It only fills a worker queue — with 0 workers there is none', 'warn');
-    mainHint.textContent = 'alone';
+    setStatus('num_workers=0 → _SingleProcessDataLoaderIter: load in main, prefetch_factor=None', 'warn');
+    mainHint.textContent = 'alone (sync load)';
+    gpuHint.textContent = 'will wait';
     await sleep(T_BOOT);
 
     while (true) {
       await loadOneOnMain();
-      await sleep(500);
+      await sleep(700);
     }
   }
 
