@@ -278,42 +278,48 @@ Shared time axis: <b>GPU metrics</b> · <b>NVLink</b> (spikes at each allreduce)
 
 ---
 
+## Focus: DATA LOADING
+
+---
+
+### Focus: DATA LOADING — Single_GPU laboratory
+
+<img src="images/profiling/data_loading_focus.png" alt="DATA LOADING focus and Single_GPU experiment ladder" style="width: 100%; max-width: 1800px; max-height: 920px !important; height: auto; object-fit: contain; background: #fff; margin: 0;"/>
+
+---
+
+### How DataLoader works with 0 workers
+
+<iframe src="images/profiling/dataloader_zero_workers_anim.html" title="Animated DataLoader with 0 workers" style="width:100%;max-width:1600px;height:760px;border:0;border-radius:12px;background:#fff;display:block;margin:0 auto;"></iframe>
+
+---
+
 ### Single GPU without dataloader Worker
 
-Move the trace folder to your local machine by running:
-<div style="font-weight: bold; background-color: #ffcccc; font-size: 0.8em; min-width: 1050px">
-```bash
-scp -r -4 <user>@jureca.fz-juelich.de:/p/project1/training2643/AI_profiling/Nsys_trace_update_Jan_2026 .
-```
+<div style="max-width:1100px;margin:0 auto;text-align:left;font-size:0.48em;">
+<div style="background:#ffcccc;border-radius:10px;padding:10px 14px;margin-bottom:12px;">
+<div style="font-size:0.85em;color:#8a0000;font-weight:700;margin-bottom:4px;">Open this trace</div>
+<code style="font-size:0.92em;">Single_GPU/Report_00_zero_woker_unpined_non_blocking_False/nsys_logs/540_WVB_725_nsys_logs_rank.nsys-rep</code>
 </div>
-
-<div style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 1050px;">
-```bash
-File -> Open -> Single_GPU/Report_00_zero_woker_unpined_non_blocking_False/nsys_logs/540_WVB_725_nsys_logs_rank.nsys-rep
-```
+<div style="display:flex;gap:12px;margin-bottom:12px;">
+<div style="flex:1;background:#fff8ea;border:2px solid #f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">Zoom</div>
+Use <b>+</b> / <b>&minus;</b> and pick a steady middle iteration (skip startup).
 </div>
-
-Use + and − keys to zoom in and out
-
-Go to this link to answer the questions:
-
-<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 8px;">
-  <a href="https://forms.gle/LMyJAzm3Q5tfWJqc7" target="_blank">
-    Single GPU without dataloader Worker
-  </a>
+<div style="flex:1;background:#f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">Answer the form</div>
+<a href="https://forms.gle/LMyJAzm3Q5tfWJqc7" target="_blank" style="color:#023d6b;font-weight:700;">Single GPU without dataloader Worker</a>
 </div>
-
-<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.40em;">
-<div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Guided exploration (then answer the form)</div>
-<ol style="margin: 5px 0 0 20px;">
-<li><b>Orient:</b> Find the Python process with a <b>CUDA HW</b> row. Expand it. Zoom (+) to a steady middle iteration (skip startup).</li>
-<li><b>Labels vs hardware:</b> On the CPU/Python thread, find <code>:data_loading</code>, <code>:data_movement</code>, <code>:forward_step</code>, <code>:backward_step</code>. Note: these NVTX labels sit on the <b>CPU</b> timeline. Then look at the <b>same time windows</b> on CUDA HW — busy kernels, short <code>memcpy</code>, or mostly idle?</li>
-<li><b>One iteration time (form Q1):</b> Mark the start of one <code>:data_loading</code> (or the first stage you see) and the end of that step’s <code>:backward_step</code>/<code>:optimizer_step</code>. Use the ruler / timestamps. What is the CPU wall-clock duration of one full iteration?</li>
-<li><b>GPU peak memory (form Q2):</b> On CUDA HW / memory views in Nsight, find the GPU memory peak for this process. Which value matches what you read?</li>
-<li><b>Longest CPU stage (form Q3):</b> Compare the CPU NVTX bar lengths for data loading, data movement, forward, and backward in one iteration. Which is longest? (Hint: longest CPU bar ≠ necessarily longest GPU work.)</li>
-<li><b>Data-loading duration (form Q4):</b> Select one <code>:data_loading</code> range and read its duration. Which form option matches?</li>
-<li><b>Sanity check before submitting:</b> Under the longest CPU stage, does CUDA HW show heavy compute or something else? Write one sentence: what is limiting this run?</li>
-</ol>
+</div>
+<div style="padding:12px 16px;background:#e8f5e9;border-left:5px solid #4caf50;border-radius:0 10px 10px 0;">
+<div style="font-weight:700;color:#1b5e20;margin-bottom:8px;">Guided exploration</div>
+<ul style="margin:0 0 0 1.1em;padding:0;color:#2e7d32;">
+<li>Find the Python process that has a <b>CUDA HW</b> row.</li>
+<li>NVTX labels (<code>:data_loading</code>, ...) live on the <b>CPU</b> timeline &mdash; compare the same window on CUDA HW.</li>
+<li>Measure on the CPU row; use CUDA HW to see if the GPU is busy, copying, or idle.</li>
+<li>Then answer the form from what you observe.</li>
+</ul>
+</div>
 </div>
 
 ---
@@ -322,27 +328,22 @@ Go to this link to answer the questions:
 
 ---
 
-### Single GPU Multiworkers
+### How DataLoader workers work
 
-![](images/profiling/dataloader_workers.webp){style="width: 70%; max-width: 1200px; margin-left: 0; margin-right: auto;"}
-
-Main process send indexes to workers
-
-- index 0 → worker 1  
-- index 1 → worker 2  
-- index 2 → worker 3  
-- index 3 → worker 1  
+<iframe src="images/profiling/dataloader_workers_anim.html" title="Animated DataLoader with 2 workers" style="width:100%;max-width:1600px;height:760px;border:0;border-radius:12px;background:#fff;display:block;margin:0 auto;"></iframe>
 
 ---
 
-### Single GPU Multiworkers
+### Enable workers in code
 
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```python
-train_loader = DataLoader(train_dataset, 
-                        batch_size=args.batch_size, 
-                        num_workers=4,
-                        pin_memory=False)
+train_loader = DataLoader(
+    train_dataset,
+    batch_size=args.batch_size,
+    num_workers=4,
+    pin_memory=False,
+)
 ```
 </div>
 
@@ -352,39 +353,41 @@ sbatch --disable-dcgm single_gpu_training_profiling.sbatch --profile
 ```
 </div>
 
+---
 
-### Single GPU Multiworkers
+### Single GPU Multiworkers — explore the trace
 
-<div style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 1150px;">
-```bash
-File -> Open -> Single_GPU/Single_GPU/Report_01_multi_woker_unpined_non_blocking_False/nsys_logs/647_ATA_566_nsys_logs_rank.nsys-rep
-```
+<div style="max-width:1100px;margin:0 auto;text-align:left;font-size:0.48em;">
+<div style="background:#ffcccc;border-radius:10px;padding:10px 14px;margin-bottom:12px;">
+<div style="font-size:0.85em;color:#8a0000;font-weight:700;margin-bottom:4px;">Open this trace</div>
+<code style="font-size:0.92em;">Single_GPU/Report_01_multi_woker_unpined_non_blocking_False/nsys_logs/647_ATA_566_nsys_logs_rank.nsys-rep</code>
 </div>
-
-Go to this link to answer the questions:
-
-<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
-  <a href="https://forms.gle/oxNaBnjP8cA9kPJw5" target="_blank">
-    Single GPU Multiworkers
-  </a>
+<div style="display:flex;gap:12px;margin-bottom:12px;">
+<div style="flex:1;background:#fff8ea;border:2px solid #f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">Zoom</div>
+Use <b>+</b> / <b>&minus;</b> and pick a steady middle iteration.
 </div>
-
-<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
-<div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Exercise</div>
-<ul style="margin: 5px 0 0 20px;">
-<li>Find `pt_data_worker` processes</li>
-<li>How many pt_data_worker traces are created by Nsys?</li>
-<li>Which part of training takes the most time: data loading, data movement, the forward pass, or the backward pass?</li>
-<li>How long does it take until one data loading step is finished?</li>
+<div style="flex:1;background:#f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">Answer the form</div>
+<a href="https://forms.gle/oxNaBnjP8cA9kPJw5" target="_blank" style="color:#023d6b;font-weight:700;">Single GPU Multiworkers</a>
+</div>
+</div>
+<div style="padding:12px 16px;background:#e8f5e9;border-left:5px solid #4caf50;border-radius:0 10px 10px 0;">
+<div style="font-weight:700;color:#1b5e20;margin-bottom:8px;">Guided exploration</div>
+<ul style="margin:0 0 0 1.1em;padding:0;color:#2e7d32;">
+<li>Find <code>pt_data_worker</code> rows — how many are there? Do they have CUDA HW?</li>
+<li>On the <b>main</b> process, measure <code>data_loading</code> and compare with Report 00.</li>
+<li>Which NVTX stage is still longest? Did the full iteration get much faster?</li>
+<li>Under <code>data_movement</code>, is CUDA HW busy with kernels or only a short H2D copy?</li>
 </ul>
 </div>
-
-
+</div>
 
 ---
 
-### Single GPU Multiworkers
-![](images/profiling/multiworker_vs_zeroworkers.png){style="width: 70%; max-width: 1200px; margin-left: 0; margin-right: auto;"}
+### Multiworkers vs zero workers
+
+<img src="images/profiling/multiworker_vs_zeroworkers.png" alt="Multiworkers vs zero workers" style="width:70%;max-width:1200px;max-height:860px !important;height:auto;object-fit:contain;margin:0 auto;display:block;"/>
 
 
 <!--
@@ -399,43 +402,9 @@ Go to this link to answer the questions:
 
 ## DMA (Direct Memory Access)
 
-
-![](images/profiling/DMA.png){style="width: 45%; max-width: 1200px; margin-left: 0; margin-right: auto;"}
-
-<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
-  <div style="font-weight: bold; margin-bottom: 8px;"></div>
-
-  <ul style="margin: 5px 0 0 20px;">
-    <li class="fragment">DMA allows some hardware to access memory without involving the CPU</li>
-    <li class="fragment"> Copying between CPU & GPU uses DMA</li>
-    <li class="fragment">What is the advatage of data transfer by the DMA?</li>
-    <li class="fragment">What is the problem of data transfer by the DMA?</li>
-  </ul>
-</div>
-
+<iframe src="images/profiling/dma_anim.html" title="CPU transfer vs DMA: stepped comparison" style="width:100%;max-width:1400px;height:620px;border:0;border-radius:12px;background:#fff;display:block;margin:0 auto;"></iframe>
 
 ---
-
-## DMA (Direct Memory Access)
-
-
-<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
-  <ul style="margin: 5px 0 0 20px;">
-    <li class="fragment">
-      DMA accesses memory using physical addresses.
-      <ul>
-        <li class="fragment">Cannot detect if the OS swaps a virtual page with another virtual page at the same physical address.</li>
-      </ul>
-    </li>
-    <li class="fragment">
-      How can we prevent data corruption during DMA transfers?
-      <ul>
-        <li class="fragment"><strong>Pinning Memory!!</strong></li>
-      </ul>
-    </li>
-  </ul>
-</div>
-
 
 ## 
 
@@ -470,25 +439,27 @@ How does `cudaMemcpy` copy data from host to device?
 
 ## Memory pinning
 
-
-![](images/profiling/pageable_pinned.svg){style="width: 110%; max-width: 1200px; margin-left: 0; margin-right: auto;"}
+<iframe src="images/profiling/memory_pinning_anim.html" title="Pageable vs pinned host memory" style="width:100%;max-width:1400px;height:620px;border:0;border-radius:12px;background:#fff;display:block;margin:0 auto;"></iframe>
 
 ---
 
 
 ### Single GPU (Asyn. Transfer)
+
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```python
-train_loader = DataLoader(train_dataset, 
-                        batch_size=args.batch_size, 
-                        num_workers=4,
-                        pin_memory=True)
+train_loader = DataLoader(
+    train_dataset,
+    batch_size=args.batch_size,
+    num_workers=4,
+    pin_memory=True,
+)
 ```
 </div>
 
 <div style="font-weight: bold; background-color: #ffcccc;">
 ```python
-    src, tgt = src.to(device, non_blocking=True), tgt.to(device, non_blocking=True)
+src, tgt = src.to(device, non_blocking=True), tgt.to(device, non_blocking=True)
 ```
 </div>
 
@@ -502,28 +473,29 @@ sbatch --disable-dcgm single_gpu_training_profiling.sbatch --profile
 
 ### Single GPU Multiworkers (Asyn. Transfer)
 
-<div style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 1150px;">
-```bash
-File -> Open -> Single_GPU/Report_02_multiwoker_pined_non_blocking_True/nsys_logs/107_RKN_402_nsys_logs_rank.nsys-rep
-```
+<div style="max-width:1100px;margin:0 auto;text-align:left;font-size:0.48em;">
+<div style="background:#ffcccc;border-radius:10px;padding:10px 14px;margin-bottom:12px;">
+<div style="font-size:0.85em;color:#8a0000;font-weight:700;margin-bottom:4px;">Open this trace</div>
+<code style="font-size:0.92em;">Single_GPU/Report_02_multiwoker_pined_non_blocking_True/nsys_logs/107_RKN_402_nsys_logs_rank.nsys-rep</code>
 </div>
-
-Go to this link to answer the questions:
-
-<div style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
-  <a href="https://forms.gle/Fi1EVARNaVRZcpsR8" target="_blank">
-    Single GPU Multiworkers (Asyn. Transfer)
-  </a>
+<div style="display:flex;gap:12px;margin-bottom:12px;">
+<div style="flex:1;background:#fff8ea;border:2px solid #f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">Zoom</div>
+Use <b>+</b> / <b>&minus;</b> and pick a steady middle iteration.
 </div>
-
-
-<div style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
-<div style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">📘 Exercise</div>
-<ul style="margin: 5px 0 0 20px;">
-<li>Check one iteration of training (PyTorch trace)</li>
-<li>Which part of training takes the most time: data loading, data movement, the forward pass, or the backward pass?</li>
+<div style="flex:1;background:#f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">Answer the form</div>
+<a href="https://forms.gle/Fi1EVARNaVRZcpsR8" target="_blank" style="color:#023d6b;font-weight:700;">Single GPU Multiworkers (Asyn. Transfer)</a>
+</div>
+</div>
+<div style="padding:12px 16px;background:#e8f5e9;border-left:5px solid #4caf50;border-radius:0 10px 10px 0;">
+<div style="font-weight:700;color:#1b5e20;margin-bottom:8px;">Guided exploration</div>
+<ul style="margin:0 0 0 1.1em;padding:0;color:#2e7d32;">
+<li>Check one iteration of training (PyTorch / NVTX stages).</li>
+<li>Which stage is longest: data loading, data movement, forward, or backward?</li>
 <li>Is there any CUDA synchronization in the trace?</li>
 </ul>
+</div>
 </div>
 
 <!--

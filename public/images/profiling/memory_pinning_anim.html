@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Pageable vs pinned host memory</title>
+<style>
+  :root {
+    --ink: #023d6b;
+    --muted: #546e7a;
+    --page: #ef6c00;
+    --pin: #00838f;
+    --cpu: #1565c0;
+    --dma: #6a1b9a;
+    --gpu: #2e7d32;
+    --bad: #c62828;
+    --good: #2e7d32;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, Helvetica, sans-serif;
+    color: var(--ink);
+    background: #f4f7fb;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    padding: 6px 10px 6px;
+    gap: 6px;
+  }
+  .title {
+    margin: 0; text-align: center;
+    font-size: 16px; font-weight: 800;
+  }
+  .title span { font-size: 12px; font-weight: 700; color: var(--muted); margin-left: 8px; }
+
+  .cols {
+    flex: 1; min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .panel {
+    position: relative;
+    display: flex; flex-direction: column;
+    border-radius: 14px;
+    border: 2px solid #d7dee8;
+    background: #fff;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .panel.bad { border-color: #ef9a9a; }
+  .panel.good { border-color: #aed581; }
+
+  .head {
+    flex: 0 0 auto;
+    padding: 8px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px;
+    border-bottom: 1px solid #e8eef4;
+  }
+  .panel.bad .head { background: linear-gradient(180deg, #ffebee, #fff); }
+  .panel.good .head { background: linear-gradient(180deg, #e8f5e9, #fff); }
+  .head h2 {
+    margin: 0; font-size: 14px; font-weight: 800;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .chip {
+    width: 22px; height: 22px; border-radius: 7px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 11px; font-weight: 800;
+  }
+  .panel.bad .chip { background: var(--bad); }
+  .panel.good .chip { background: var(--good); }
+  .tag {
+    font-size: 10px; font-weight: 800;
+    padding: 3px 8px; border-radius: 999px;
+    white-space: nowrap;
+  }
+  .panel.bad .tag {
+    background: #ffebee; color: #b71c1c; border: 1.5px solid #ef9a9a;
+  }
+  .panel.good .tag {
+    background: #e8f5e9; color: #1b5e20; border: 1.5px solid #aed581;
+  }
+
+  .stage {
+    position: relative;
+    flex: 1; min-height: 0;
+    margin: 6px;
+    border-radius: 12px;
+    background: #fafcfe;
+    border: 1px solid #e6edf4;
+    overflow: hidden;
+  }
+
+  .node {
+    position: absolute;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 6px;
+    z-index: 3;
+    transition: box-shadow .2s ease, outline .2s ease, opacity .2s ease;
+  }
+  .node .badge {
+    width: 24px; height: 24px; border-radius: 7px;
+    color: #fff; font-size: 10px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 2px;
+  }
+  .node .label { font-size: 11px; font-weight: 800; line-height: 1.15; }
+  .node .hint {
+    margin-top: 2px; font-size: 10px; font-weight: 700; color: var(--muted);
+    min-height: 12px;
+  }
+  .node.active {
+    outline: 2px solid rgba(2,61,107,.18);
+    outline-offset: 1px;
+    box-shadow: 0 6px 14px rgba(2,61,107,.1);
+  }
+  .node.warn {
+    outline-color: rgba(198,40,40,.35);
+    box-shadow: 0 0 0 2px rgba(198,40,40,.1);
+  }
+  .node.lock {
+    outline-color: rgba(0,131,143,.4);
+    box-shadow: 0 0 0 2px rgba(0,131,143,.12);
+  }
+
+  .n-page .badge { background: var(--page); }
+  .n-page { border-color: #ffb74d; background: #fff3e0; color: #e65100; }
+  .n-pin .badge { background: var(--pin); }
+  .n-pin { border-color: #4dd0e1; background: #e0f7fa; color: #006064; }
+  .n-cpu .badge { background: var(--cpu); }
+  .n-cpu { border-color: #64b5f6; background: #e3f2fd; color: #0d47a1; }
+  .n-dma .badge { background: var(--dma); }
+  .n-dma { border-color: #ce93d8; background: #f3e5f5; color: #4a148c; }
+  .n-gpu .badge { background: var(--gpu); }
+  .n-gpu { border-color: #81c784; background: #e8f5e9; color: #1b5e20; }
+
+  /* Left (pageable): page → CPU → pin staging → DMA → GPU */
+  #p-page { left: 3%; top: 8%; width: 18%; height: 36%; }
+  #p-cpu  { left: 24%; top: 8%; width: 16%; height: 36%; }
+  #p-pin  { left: 43%; top: 8%; width: 18%; height: 36%; }
+  #p-dma  { left: 64%; top: 8%; width: 14%; height: 36%; }
+  #p-gpu  { right: 3%; top: 8%; width: 16%; height: 36%; }
+  #p-os   { left: 8%; top: 56%; width: 40%; height: 30%; }
+
+  /* Right (pinned): pin → DMA → GPU */
+  #q-pin { left: 8%; top: 10%; width: 26%; height: 42%; }
+  #q-dma { left: 40%; top: 10%; width: 22%; height: 42%; }
+  #q-gpu { right: 8%; top: 10%; width: 26%; height: 42%; }
+  #q-lock { left: 18%; top: 62%; width: 64%; height: 26%; }
+
+  .n-os {
+    border-color: #ef9a9a; background: #ffebee; color: #b71c1c;
+  }
+  .n-os .badge { background: var(--bad); }
+  .n-lockbox {
+    border-color: #80cbc4; background: #e0f2f1; color: #00695c;
+  }
+  .n-lockbox .badge { background: #00695c; }
+
+  .wire {
+    position: absolute; z-index: 1; pointer-events: none;
+    background: #cfd8dc; border-radius: 3px; opacity: .4;
+  }
+  .wire.on { opacity: 1; background: #90caf9; box-shadow: 0 0 8px rgba(21,101,192,.22); }
+  .wire.dma { background: #ce93d8; }
+  .wire.dma.on { box-shadow: 0 0 8px rgba(106,27,154,.22); }
+
+  #pw1 { left: 21%; top: 24%; width: 3%; height: 4px; }
+  #pw2 { left: 40%; top: 24%; width: 3%; height: 4px; }
+  #pw3 { left: 61%; top: 24%; width: 3%; height: 4px; }
+  #pw4 { left: 78%; top: 24%; width: 3%; height: 4px; }
+
+  #qw1 { left: 34%; top: 28%; width: 6%; height: 4px; }
+  #qw2 { left: 62%; top: 28%; width: 6%; height: 4px; }
+
+  .packet {
+    position: absolute; z-index: 20;
+    min-width: 36px; height: 22px; padding: 0 6px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; color: #fff;
+    background: var(--page);
+    pointer-events: none;
+    opacity: 0;
+    box-shadow: 0 3px 10px rgba(0,0,0,.18);
+  }
+  .packet.show { opacity: 1; }
+  .packet.cpu { background: var(--cpu); }
+  .packet.dma { background: var(--dma); }
+
+  .foot {
+    flex: 0 0 auto;
+    margin: 0 8px 8px;
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 12px; font-weight: 700; line-height: 1.35;
+  }
+  .panel.bad .foot {
+    background: #ffebee; border: 1.5px solid #ef9a9a; color: #b71c1c;
+  }
+  .panel.good .foot {
+    background: #e8f5e9; border: 1.5px solid #aed581; color: #1b5e20;
+  }
+
+  .status {
+    text-align: center;
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    min-height: 16px;
+  }
+
+  .swap {
+    position: absolute; left: 12%; top: 18%;
+    font-size: 10px; font-weight: 800; color: #b71c1c;
+    background: #fff; border: 1.5px solid #ef9a9a;
+    border-radius: 8px; padding: 2px 7px;
+    opacity: 0; transition: opacity .2s ease;
+    z-index: 6; pointer-events: none;
+  }
+  .swap.on { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="cols">
+    <section class="panel bad">
+      <div class="head">
+        <h2><span class="chip">A</span> Pageable host memory</h2>
+        <span class="tag">OS may move / swap pages</span>
+      </div>
+      <div class="stage" id="stageA">
+        <div class="wire" id="pw1"></div>
+        <div class="wire" id="pw2"></div>
+        <div class="wire dma" id="pw3"></div>
+        <div class="wire dma" id="pw4"></div>
+        <div class="swap" id="swapA">OS moves page!</div>
+
+        <div class="node n-page" id="p-page">
+          <div class="badge">pg</div>
+          <div class="label">Pageable</div>
+          <div class="hint" id="pPageHint">host buffer</div>
+        </div>
+        <div class="node n-cpu" id="p-cpu">
+          <div class="badge">CPU</div>
+          <div class="label">CPU memcpy</div>
+          <div class="hint" id="pCpuHint">staging copy</div>
+        </div>
+        <div class="node n-pin" id="p-pin">
+          <div class="badge">pin</div>
+          <div class="label">Pinned staging</div>
+          <div class="hint" id="pPinHint">driver buffer</div>
+        </div>
+        <div class="node n-dma" id="p-dma">
+          <div class="badge">DMA</div>
+          <div class="label">DMA</div>
+          <div class="hint" id="pDmaHint">to GPU</div>
+        </div>
+        <div class="node n-gpu" id="p-gpu">
+          <div class="badge">GPU</div>
+          <div class="label">GPU mem</div>
+          <div class="hint" id="pGpuHint">device</div>
+        </div>
+        <div class="node n-os" id="p-os">
+          <div class="badge">OS</div>
+          <div class="label">Pages can move</div>
+          <div class="hint">unsafe for direct DMA</div>
+        </div>
+      </div>
+      <div class="foot"><b>Two copies:</b> pageable → pinned staging (CPU) → GPU (DMA). Extra CPU work and latency.</div>
+    </section>
+
+    <section class="panel good">
+      <div class="head">
+        <h2><span class="chip">B</span> Pinned host memory</h2>
+        <span class="tag">pages locked in RAM</span>
+      </div>
+      <div class="stage" id="stageB">
+        <div class="wire dma" id="qw1"></div>
+        <div class="wire dma" id="qw2"></div>
+
+        <div class="node n-pin" id="q-pin">
+          <div class="badge">pin</div>
+          <div class="label">Pinned host</div>
+          <div class="hint" id="qPinHint">fixed PA</div>
+        </div>
+        <div class="node n-dma" id="q-dma">
+          <div class="badge">DMA</div>
+          <div class="label">DMA</div>
+          <div class="hint" id="qDmaHint">direct</div>
+        </div>
+        <div class="node n-gpu" id="q-gpu">
+          <div class="badge">GPU</div>
+          <div class="label">GPU mem</div>
+          <div class="hint" id="qGpuHint">device</div>
+        </div>
+        <div class="node n-lockbox" id="q-lock">
+          <div class="badge">🔒</div>
+          <div class="label">Memory pinning</div>
+          <div class="hint">OS cannot move / swap these pages</div>
+        </div>
+      </div>
+      <div class="foot"><b>One DMA copy:</b> pinned host → GPU. Physical addresses stay valid — safe and faster.</div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  const SPEED = 1.35;
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms * SPEED));
+  const setStatus = () => {};
+
+  const stageA = document.getElementById('stageA');
+  const stageB = document.getElementById('stageB');
+  const swapA = document.getElementById('swapA');
+
+  const pPage = document.getElementById('p-page');
+  const pCpu = document.getElementById('p-cpu');
+  const pPin = document.getElementById('p-pin');
+  const pDma = document.getElementById('p-dma');
+  const pGpu = document.getElementById('p-gpu');
+  const pOs = document.getElementById('p-os');
+  const pPageHint = document.getElementById('pPageHint');
+  const pCpuHint = document.getElementById('pCpuHint');
+  const pPinHint = document.getElementById('pPinHint');
+  const pDmaHint = document.getElementById('pDmaHint');
+  const pGpuHint = document.getElementById('pGpuHint');
+  const pw = [1,2,3,4].map(n => document.getElementById('pw' + n));
+
+  const qPin = document.getElementById('q-pin');
+  const qDma = document.getElementById('q-dma');
+  const qGpu = document.getElementById('q-gpu');
+  const qLock = document.getElementById('q-lock');
+  const qPinHint = document.getElementById('qPinHint');
+  const qDmaHint = document.getElementById('qDmaHint');
+  const qGpuHint = document.getElementById('qGpuHint');
+  const qw = [1,2].map(n => document.getElementById('qw' + n));
+
+  function centerOf(stage, el) {
+    const sr = stage.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    return {
+      x: r.left - sr.left + r.width / 2,
+      y: r.top - sr.top + r.height / 2,
+    };
+  }
+  function makePacket(stage, cls) {
+    const el = document.createElement('div');
+    el.className = 'packet' + (cls ? ' ' + cls : '');
+    stage.appendChild(el);
+    return el;
+  }
+  function movePacket(stage, el, from, to, ms, label) {
+    const dur = ms * SPEED;
+    return new Promise(resolve => {
+      el.textContent = label || 'data';
+      el.classList.add('show');
+      el.style.left = (from.x - 18) + 'px';
+      el.style.top = (from.y - 11) + 'px';
+      const start = performance.now();
+      function frame(t) {
+        const p = Math.min(1, (t - start) / dur);
+        const e = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+        const x = from.x + (to.x - from.x) * e;
+        const y = from.y + (to.y - from.y) * e;
+        el.style.left = (x - el.offsetWidth / 2) + 'px';
+        el.style.top = (y - el.offsetHeight / 2) + 'px';
+        if (p < 1) requestAnimationFrame(frame);
+        else { el.classList.remove('show'); resolve(); }
+      }
+      requestAnimationFrame(frame);
+    });
+  }
+  function clear(stage) {
+    stage.querySelectorAll('.packet').forEach(p => p.remove());
+  }
+  function clearActive(nodes) {
+    nodes.forEach(n => n.classList.remove('active', 'warn', 'lock'));
+  }
+
+  async function runPageableOnce() {
+    clear(stageA);
+    clearActive([pPage, pCpu, pPin, pDma, pGpu, pOs]);
+    pw.forEach(w => w.classList.remove('on'));
+    swapA.classList.remove('on');
+    pPageHint.textContent = 'host buffer';
+    pCpuHint.textContent = 'staging copy';
+    pPinHint.textContent = 'driver buffer';
+    pDmaHint.textContent = 'to GPU';
+    pGpuHint.textContent = 'device';
+
+    // Show risk: OS can move pageable pages
+    pOs.classList.add('active', 'warn');
+    pPage.classList.add('active', 'warn');
+    swapA.classList.add('on');
+    setStatus('Pageable: OS may move pages — unsafe for direct DMA');
+    await sleep(900);
+    swapA.classList.remove('on');
+
+    // Copy 1: pageable → pinned via CPU
+    pPage.classList.add('active');
+    pCpu.classList.add('active');
+    pPin.classList.add('active');
+    pw[0].classList.add('on');
+    pw[1].classList.add('on');
+    pCpuHint.textContent = 'BUSY memcpy';
+    setStatus('Pageable path · copy 1: CPU memcpy into pinned staging');
+
+    for (let i = 1; i <= 2; i++) {
+      const pkt = makePacket(stageA, 'cpu');
+      await movePacket(stageA, pkt, centerOf(stageA, pPage), centerOf(stageA, pCpu), 380, 'B' + i);
+      await movePacket(stageA, pkt, centerOf(stageA, pCpu), centerOf(stageA, pPin), 380, 'B' + i);
+      pkt.remove();
+      pPinHint.textContent = 'has B' + i;
+      await sleep(80);
+    }
+
+    // Copy 2: pinned staging → GPU via DMA
+    pCpu.classList.remove('active');
+    pDma.classList.add('active');
+    pGpu.classList.add('active');
+    pw[0].classList.remove('on');
+    pw[1].classList.remove('on');
+    pw[2].classList.add('on');
+    pw[3].classList.add('on');
+    pDmaHint.textContent = 'DMA copy';
+    setStatus('Pageable path · copy 2: DMA staging → GPU');
+
+    for (let i = 1; i <= 2; i++) {
+      const pkt = makePacket(stageA, 'dma');
+      await movePacket(stageA, pkt, centerOf(stageA, pPin), centerOf(stageA, pGpu), 480, 'B' + i);
+      pkt.remove();
+      pGpuHint.textContent = 'got B' + i;
+      await sleep(60);
+    }
+    pGpuHint.textContent = 'done (2 copies)';
+    await sleep(500);
+  }
+
+  async function runPinnedOnce() {
+    clear(stageB);
+    clearActive([qPin, qDma, qGpu, qLock]);
+    qw.forEach(w => w.classList.remove('on'));
+    qPinHint.textContent = 'fixed PA';
+    qDmaHint.textContent = 'direct';
+    qGpuHint.textContent = 'device';
+
+    qLock.classList.add('active', 'lock');
+    qPin.classList.add('active', 'lock');
+    setStatus('Pinned: pages locked — physical addresses stay valid');
+    await sleep(700);
+
+    qDma.classList.add('active');
+    qGpu.classList.add('active');
+    qw[0].classList.add('on');
+    qw[1].classList.add('on');
+    qDmaHint.textContent = 'DMA only';
+    setStatus('Pinned path: one DMA copy host → GPU');
+
+    for (let i = 1; i <= 3; i++) {
+      const pkt = makePacket(stageB, 'dma');
+      await movePacket(stageB, pkt, centerOf(stageB, qPin), centerOf(stageB, qGpu), 520, 'B' + i);
+      pkt.remove();
+      qGpuHint.textContent = 'got B' + i;
+      await sleep(70);
+    }
+    qGpuHint.textContent = 'done (1 copy)';
+    await sleep(500);
+  }
+
+  async function loop() {
+    while (true) {
+      await Promise.all([runPageableOnce(), runPinnedOnce()]);
+      setStatus('Pageable = 2 copies · Pinned = 1 DMA copy');
+      await sleep(1200);
+    }
+  }
+
+  loop();
+})();
+</script>
+</body>
+</html>

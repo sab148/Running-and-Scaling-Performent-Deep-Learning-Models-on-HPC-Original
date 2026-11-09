@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>DataLoader zero workers animation</title>
+<style>
+  :root {
+    --blue: #1565c0;
+    --ink: #023d6b;
+    --muted: #607d8b;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, Helvetica, sans-serif;
+    color: var(--ink);
+    background: #f4f7fb;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: geometricPrecision;
+  }
+  .wrap {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    padding: 10px 14px 8px;
+  }
+  .header { text-align: center; margin-bottom: 6px; flex: 0 0 auto; }
+  .header h1 {
+    margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.01em;
+  }
+  .stage {
+    position: relative; flex: 1; min-height: 0;
+    border-radius: 14px;
+    background: #fff;
+    border: 1.5px solid #d7dee8;
+    overflow: hidden;
+  }
+
+  .pipe {
+    position: absolute;
+    left: 3%; right: 3%; top: 46%;
+    height: 5px;
+    background: linear-gradient(90deg, #bcaaa4 0%, #90a4ae 28%, #f0d965 52%, #1565c0 76%, #8e24aa 100%);
+    border-radius: 4px;
+    opacity: 0.32;
+    z-index: 0;
+  }
+
+  .node {
+    position: absolute;
+    border-radius: 14px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 8px 10px;
+    border: 2.5px solid transparent;
+    z-index: 1;
+  }
+  .node .badge {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: #fff;
+    margin-bottom: 6px;
+  }
+  .node .label { font-size: 15px; font-weight: 800; line-height: 1.15; }
+  .node .sub {
+    margin-top: 3px; font-size: 11px; font-weight: 700; color: #546e7a; line-height: 1.25;
+  }
+  .node .hint {
+    margin-top: 5px; font-size: 12px; font-weight: 600; opacity: 0.95;
+  }
+  .node.active {
+    outline: 3px solid rgba(2, 61, 107, 0.28);
+    outline-offset: 2px;
+  }
+  .node.dim { opacity: 0.55; }
+  .node.idle-gpu {
+    outline: 2px dashed rgba(198, 40, 40, 0.45);
+    outline-offset: 2px;
+  }
+
+  .fs {
+    left: 2%; top: 16%; width: 15%; height: 58%;
+    background: #efebe9; border-color: #8d6e63; color: #3e2723;
+  }
+  .fs .badge { background: #6d4c41; }
+
+  .noworkers {
+    left: 19%; top: 16%; width: 14%; height: 58%;
+    background: #fafafa; border: 2.5px dashed #b0bec5; color: #607d8b;
+  }
+  .noworkers .badge { background: #90a4ae; }
+  .noworkers .x {
+    margin-top: 6px; font-size: 26px; font-weight: 900; color: #c62828; line-height: 1;
+  }
+
+  .prefetch {
+    left: 35%; top: 10%; width: 14%; height: 32%;
+    background: #fafafa; border: 2.5px dashed #b0bec5; color: #607d8b;
+  }
+  .prefetch .badge { background: #90a4ae; }
+  .prefetch .x {
+    margin-top: 4px; font-size: 22px; font-weight: 900; color: #c62828; line-height: 1;
+  }
+
+  .ram {
+    left: 35%; top: 46%; width: 14%; height: 34%;
+    background: #fff8ea; border-color: #f0d965; color: #6d4c00;
+  }
+  .ram .badge { background: #ef6c00; }
+  .ram .slot {
+    margin-top: 8px;
+    width: 72%; height: 28px; line-height: 26px;
+    border-radius: 8px;
+    border: 2px dashed #e2b45d;
+    background: #fff;
+    font-size: 13px; font-weight: 800; color: #8a5a00;
+  }
+  .ram .slot.filled {
+    background: #ef6c00; border: 2px solid #e65100; color: #fff;
+  }
+
+  .main {
+    left: 52%; top: 16%; width: 22%; height: 58%;
+    background: #e3f2fd; border-color: #1565c0; color: #0d47a1;
+  }
+  .main .badge { background: #1565c0; }
+
+  .gpu {
+    right: 2%; top: 20%; width: 20%; height: 50%;
+    background: #f3e5f5; border-color: #8e24aa; color: #4a148c;
+  }
+  .gpu .badge { background: #6a1b9a; }
+
+  .token {
+    position: absolute; z-index: 20;
+    width: 78px; height: 34px;
+    margin: 0; padding: 0;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: #fff;
+    pointer-events: none;
+    opacity: 0;
+    will-change: left, top, opacity;
+  }
+  .token.index { background: #1565c0; }
+  .token.data  { background: #6d4c41; }
+  .token.batch { background: #ef6c00; }
+  .token.show { opacity: 1; }
+
+  .status {
+    position: absolute; left: 50%; bottom: 8px;
+    transform: translateX(-50%);
+    width: auto; max-width: 92%;
+    height: 32px; line-height: 30px;
+    background: #fff; border: 1.5px solid #cfd8dc;
+    border-radius: 10px; padding: 0 14px;
+    font-size: 12.5px; font-weight: 700; color: var(--ink);
+    text-align: center; z-index: 30;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .status.info { background: #e3f2fd; border-color: #90caf9; color: #0d47a1; }
+  .status.disk { background: #efebe9; border-color: #bcaaa4; color: #4e342e; }
+  .status.warn { background: #ffebee; border-color: #ef9a9a; color: #b71c1c; }
+  .status.ok   { background: #e8f5e9; border-color: #aed581; color: #1b5e20; }
+  .status.gpu  { background: #f3e5f5; border-color: #ce93d8; color: #4a148c; }
+
+  .step-pills {
+    position: absolute; top: 10px; right: 2%;
+    display: flex; flex-direction: column; gap: 5px; z-index: 15;
+  }
+  .pill {
+    font-size: 11px; font-weight: 800;
+    padding: 4px 10px; border-radius: 7px;
+    background: #eceff1; color: #607d8b; border: 1.5px solid #cfd8dc;
+    text-align: left;
+  }
+  .pill.on {
+    background: #e8f5e9; color: #2e7d32; border-color: #aed581;
+  }
+  .pill.warn.on {
+    background: #ffebee; color: #c62828; border-color: #ef9a9a;
+  }
+
+  .legend {
+    display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;
+    padding-top: 7px; font-size: 12px; color: var(--muted); font-weight: 650;
+    flex: 0 0 auto;
+  }
+  .legend i {
+    display: inline-block; width: 11px; height: 11px; border-radius: 3px;
+    margin-right: 5px; vertical-align: -1px;
+  }
+  .i-fs { background: #6d4c41; }
+  .i-main { background: #1565c0; }
+  .i-none { background: #90a4ae; }
+  .i-ram { background: #f0d965; }
+  .i-g { background: #6a1b9a; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>PyTorch DataLoader — 0 workers</h1>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="pipe" aria-hidden="true"></div>
+
+    <div class="step-pills">
+      <div class="pill warn" id="p1">1 next() blocks</div>
+      <div class="pill" id="p2">2 FS → CPU RAM</div>
+      <div class="pill" id="p3">3 collate in RAM</div>
+      <div class="pill" id="p4">4 .to(GPU)</div>
+    </div>
+
+    <div class="node fs" id="fs">
+      <div class="badge">FS</div>
+      <div class="label">Filesystem</div>
+      <div class="hint" id="fsHint">dataset files</div>
+    </div>
+
+    <div class="node noworkers" id="noworkers">
+      <div class="badge">W</div>
+      <div class="label">Workers</div>
+      <div class="x">✕</div>
+      <div class="hint">num_workers = 0</div>
+    </div>
+
+    <div class="node prefetch" id="prefetch">
+      <div class="badge">P</div>
+      <div class="label">Worker prefetch</div>
+      <div class="x">✕</div>
+      <div class="hint">prefetch_factor=None</div>
+    </div>
+
+    <div class="node ram" id="ram">
+      <div class="badge">RAM</div>
+      <div class="label">CPU memory</div>
+      <div class="hint" id="ramHint">current batch only</div>
+      <div class="slot" id="ramSlot"></div>
+    </div>
+
+    <div class="node main" id="main">
+      <div class="badge">M</div>
+      <div class="label">Main process</div>
+      <div class="sub">loads in this process<br/>then training loop</div>
+      <div class="hint" id="mainHint">sync load</div>
+    </div>
+
+    <div class="node gpu" id="gpu">
+      <div class="badge">GPU</div>
+      <div class="label">GPU</div>
+      <div class="hint" id="gpuHint">waiting</div>
+    </div>
+
+    <div class="status" id="status">Starting…</div>
+  </div>
+
+  <div class="legend">
+    <span><i class="i-fs"></i>Filesystem</span>
+    <span><i class="i-none"></i>No workers / no prefetch buffer</span>
+    <span><i class="i-ram"></i>Batch in CPU RAM</span>
+    <span><i class="i-main"></i>Main process</span>
+    <span><i class="i-g"></i>GPU via .to()</span>
+  </div>
+</div>
+<script>
+(function () {
+  // From PyTorch docs / source (torch.utils.data.DataLoader):
+  // - num_workers=0: data loaded in the main process; may block computing
+  // - prefetch_factor: only for multiprocessing workers. With num_workers=0 it
+  //   must be None (ValueError otherwise). That means NO ahead-of-time buffer
+  //   of *future* batches — not that the current batch skips RAM.
+  // - _SingleProcessDataLoaderIter._next_data():
+  //     index → dataset fetch/collate → optional pin_memory → return data
+  // - Returned tensors live in CPU memory (pageable or pinned). DataLoader
+  //   does NOT copy to GPU; your code must call batch.to(device).
+  const T_MOVE = 1400;
+  const T_READ = 1100;
+  const T_PAUSE = 700;
+  const T_TRAIN = 1400;
+  const T_BOOT = 1500;
+
+  const statusEl = document.getElementById('status');
+  const fs = document.getElementById('fs');
+  const fsHint = document.getElementById('fsHint');
+  const gpu = document.getElementById('gpu');
+  const gpuHint = document.getElementById('gpuHint');
+  const mainHint = document.getElementById('mainHint');
+  const main = document.getElementById('main');
+  const ram = document.getElementById('ram');
+  const ramHint = document.getElementById('ramHint');
+  const ramSlot = document.getElementById('ramSlot');
+  const stage = document.getElementById('stage');
+  const pills = [1,2,3,4].map(n => document.getElementById('p' + n));
+
+  let nextIdx = 0;
+  let nextBatch = 1;
+
+  function setStatus(text, cls) {
+    statusEl.textContent = text;
+    statusEl.className = 'status' + (cls ? ' ' + cls : '');
+  }
+  function setPill(n) {
+    pills.forEach((p, i) => p.classList.toggle('on', i === n - 1));
+  }
+  function centerOf(el) {
+    const sr = stage.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    return {
+      x: Math.round(r.left - sr.left + r.width / 2),
+      y: Math.round(r.top - sr.top + r.height / 2)
+    };
+  }
+  function moveToken(kind, text, fromEl, toEl, duration) {
+    return new Promise((resolve) => {
+      const token = document.createElement('div');
+      token.className = 'token ' + kind;
+      token.textContent = text;
+      stage.appendChild(token);
+      const from = centerOf(fromEl);
+      const to = centerOf(toEl);
+      const dur = duration || T_MOVE;
+      token.style.left = (from.x - 39) + 'px';
+      token.style.top = (from.y - 17) + 'px';
+      token.style.transition = 'none';
+      token.offsetHeight;
+      token.classList.add('show');
+      requestAnimationFrame(() => {
+        token.style.transition = 'left ' + dur + 'ms linear, top ' + dur + 'ms linear, opacity 0.15s linear';
+        token.style.left = (to.x - 39) + 'px';
+        token.style.top = (to.y - 17) + 'px';
+      });
+      setTimeout(() => {
+        token.classList.remove('show');
+        setTimeout(() => { token.remove(); resolve(); }, 160);
+      }, dur + 40);
+    });
+  }
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  function setActive(el, on) { el.classList.toggle('active', !!on); }
+  function setGpuIdle(on) {
+    gpu.classList.toggle('idle-gpu', !!on);
+    gpu.classList.toggle('dim', !!on);
+  }
+  function clearRam() {
+    ramSlot.classList.remove('filled');
+    ramSlot.textContent = '';
+    ramHint.textContent = 'current batch only';
+  }
+  function fillRam(bid) {
+    ramSlot.classList.add('filled');
+    ramSlot.textContent = 'B' + bid;
+    ramHint.textContent = 'B' + bid + ' in host RAM';
+  }
+
+  async function loadOneOnMain() {
+    const idx = nextIdx++;
+    const bid = nextBatch++;
+
+    setGpuIdle(true);
+    gpuHint.textContent = 'idle (blocked)';
+    clearRam();
+
+    setPill(1);
+    setStatus('next(loader) is synchronous — no worker can prefetch the next batch', 'warn');
+    mainHint.textContent = 'blocked in next()';
+    setActive(main, true);
+    await sleep(T_PAUSE);
+
+    setStatus('Main sampler picks index ' + idx, 'info');
+    mainHint.textContent = 'sampler → idx ' + idx;
+    await sleep(T_PAUSE * 0.8);
+
+    setPill(2);
+    setStatus('Main __getitem__: read file into CPU RAM (not GPU)', 'disk');
+    fsHint.textContent = 'read file[' + idx + ']';
+    setActive(fs, true);
+    setActive(ram, true);
+    mainHint.textContent = '__getitem__(' + idx + ')';
+    await moveToken('data', 'file ' + idx, fs, ram, T_MOVE);
+    await sleep(T_READ);
+    setActive(fs, false);
+    fsHint.textContent = 'dataset files';
+
+    setPill(3);
+    setStatus('collate_fn builds B' + bid + ' in CPU memory; next() returns host tensors', 'ok');
+    mainHint.textContent = 'collate_fn in RAM';
+    fillRam(bid);
+    await sleep(T_PAUSE);
+
+    setStatus('Training loop receives B' + bid + ' still on CPU (pin_memory only pins host RAM)', 'info');
+    await moveToken('batch', 'B' + bid, ram, main, T_MOVE);
+    clearRam();
+    setActive(ram, false);
+    mainHint.textContent = 'batch on CPU';
+    await sleep(T_PAUSE);
+
+    setPill(4);
+    setGpuIdle(false);
+    setStatus('Your code: batch.to(device) copies CPU RAM → GPU, then train', 'gpu');
+    setActive(gpu, true);
+    gpuHint.textContent = 'train B' + bid;
+    mainHint.textContent = '.to(GPU) B' + bid;
+    await moveToken('batch', 'B' + bid, main, gpu, T_MOVE);
+    await sleep(T_TRAIN);
+
+    setActive(main, false);
+    setActive(gpu, false);
+    gpuHint.textContent = 'done B' + bid;
+    mainHint.textContent = 'next() again…';
+  }
+
+  async function loop() {
+    setStatus('Why no prefetch_factor? It only fills a worker queue — with 0 workers there is none', 'warn');
+    mainHint.textContent = 'alone';
+    await sleep(T_BOOT);
+
+    while (true) {
+      await loadOneOnMain();
+      await sleep(500);
+    }
+  }
+
+  loop();
+})();
+</script>
+</body>
+</html>

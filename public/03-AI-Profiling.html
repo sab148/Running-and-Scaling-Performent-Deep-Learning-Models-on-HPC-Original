@@ -551,6 +551,22 @@ the CPU bar)</td>
 to an optimization choice</h3>
 <p><img src="images/profiling/optimization_decision_tree.png" alt="Optimization decision tree" style="width: 100%; max-width: 1280px; max-height: 720px; object-fit: contain; background: #fff; margin: 0;"/></p>
 </section>
+<section id="focus-data-loading" class="slide level2">
+<h2>Focus: DATA LOADING</h2>
+</section>
+<section class="slide level2">
+
+<h3 id="focus-data-loading-single_gpu-laboratory">Focus: DATA LOADING —
+Single_GPU laboratory</h3>
+<p><img src="images/profiling/data_loading_focus.png" alt="DATA LOADING focus and Single_GPU experiment ladder" style="width: 100%; max-width: 1800px; max-height: 920px !important; height: auto; object-fit: contain; background: #fff; margin: 0;"/></p>
+</section>
+<section class="slide level2">
+
+<h3 id="how-dataloader-works-with-0-workers">How DataLoader works with 0
+workers</h3>
+<iframe src="images/profiling/dataloader_zero_workers_anim.html" title="Animated DataLoader with 0 workers" style="width:100%;max-width:1600px;height:760px;border:0;border-radius:12px;background:#fff;display:block;margin:0 auto;">
+</iframe>
+</section>
 <section class="slide level2">
 
 <h3 id="single-gpu-without-dataloader-worker">Single GPU without
@@ -562,65 +578,55 @@ style="font-weight: bold; background-color: #ffcccc; font-size: 0.8em; min-width
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">scp</span> <span class="at">-r</span> <span class="at">-4</span> <span class="op">&lt;</span>user<span class="op">&gt;</span>@jureca.fz-juelich.de:/p/project1/training2643/AI_profiling/Nsys_trace_update_Jan_2026 .</span></code></pre></div>
 </div>
 <div
-style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 1050px;">
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> Single_GPU/Report_00_zero_woker_unpined_non_blocking_False/nsys_logs/540_WVB_725_nsys_logs_rank.nsys-rep</span></code></pre></div>
-</div>
-<p>Use + and − keys to zoom in and out</p>
-<p>Go to this link to answer the questions:</p>
+style="max-width:1100px;margin:0 auto;text-align:left;font-size:0.48em;">
 <div
-style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 8px;">
-<p><a href="https://forms.gle/LMyJAzm3Q5tfWJqc7" target="_blank"> Single
-GPU without dataloader Worker </a></p>
+style="background:#ffcccc;border-radius:10px;padding:10px 14px;margin-bottom:12px;">
+<div
+style="font-size:0.85em;color:#8a0000;font-weight:700;margin-bottom:4px;">
+Open this trace
+</div>
+<p><code style="font-size:0.92em;">Single_GPU/Report_00_zero_woker_unpined_non_blocking_False/nsys_logs/540_WVB_725_nsys_logs_rank.nsys-rep</code></p>
+</div>
+<div style="display:flex;gap:12px;margin-bottom:12px;">
+<div
+style="flex:1;background:#fff8ea;border:2px solid #f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">
+Zoom
+</div>
+<p>Use <b>+</b> / <b>−</b> and pick a steady middle iteration (skip
+startup).</p>
 </div>
 <div
-style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.40em;">
-<div
-style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">
-📘 Guided exploration (then answer the form)
+style="flex:1;background:#f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">
+Answer the form
 </div>
-<ol style="margin: 5px 0 0 20px;">
+<p><a href="https://forms.gle/LMyJAzm3Q5tfWJqc7" target="_blank" style="color:#023d6b;font-weight:700;">Single
+GPU without dataloader Worker</a></p>
+</div>
+</div>
+<div
+style="padding:12px 16px;background:#e8f5e9;border-left:5px solid #4caf50;border-radius:0 10px 10px 0;">
+<div style="font-weight:700;color:#1b5e20;margin-bottom:8px;">
+Guided exploration
+</div>
+<ul style="margin:0 0 0 1.1em;padding:0;color:#2e7d32;">
 <li>
-<b>Orient:</b> Find the Python process with a <b>CUDA HW</b> row. Expand
-it. Zoom (+) to a steady middle iteration (skip startup).
+Find the Python process that has a <b>CUDA HW</b> row.
 </li>
 <li>
-<b>Labels vs hardware:</b> On the CPU/Python thread, find
-<code>:data_loading</code>, <code>:data_movement</code>,
-<code>:forward_step</code>, <code>:backward_step</code>. Note: these
-NVTX labels sit on the <b>CPU</b> timeline. Then look at the <b>same
-time windows</b> on CUDA HW — busy kernels, short <code>memcpy</code>,
-or mostly idle?
+NVTX labels (<code>:data_loading</code>, …) live on the <b>CPU</b>
+timeline — compare the same window on CUDA HW.
 </li>
 <li>
-<b>One iteration time (form Q1):</b> Mark the start of one
-<code>:data_loading</code> (or the first stage you see) and the end of
-that step’s <code>:backward_step</code>/<code>:optimizer_step</code>.
-Use the ruler / timestamps. What is the CPU wall-clock duration of one
-full iteration?
+Measure on the CPU row; use CUDA HW to see if the GPU is busy, copying,
+or idle.
 </li>
 <li>
-<b>GPU peak memory (form Q2):</b> On CUDA HW / memory views in Nsight,
-find the GPU memory peak for this process. Which value matches what you
-read?
+Then answer the form from what you observe.
 </li>
-<li>
-<b>Longest CPU stage (form Q3):</b> Compare the CPU NVTX bar lengths for
-data loading, data movement, forward, and backward in one iteration.
-Which is longest? (Hint: longest CPU bar ≠ necessarily longest GPU
-work.)
-</li>
-<li>
-<b>Data-loading duration (form Q4):</b> Select one
-<code>:data_loading</code> range and read its duration. Which form
-option matches?
-</li>
-<li>
-<b>Sanity check before submitting:</b> Under the longest CPU stage, does
-CUDA HW show heavy compute or something else? Write one sentence: what
-is limiting this run?
-</li>
-</ol>
+</ul>
+</div>
 </div>
 </section>
 <section id="single-gpu-multiworkers" class="slide level2">
@@ -628,74 +634,88 @@ is limiting this run?
 </section>
 <section class="slide level2">
 
-<h3 id="single-gpu-multiworkers-1">Single GPU Multiworkers</h3>
-<p><img data-src="images/profiling/dataloader_workers.webp"
-style="width: 70%; max-width: 1200px; margin-left: 0; margin-right: auto;" /></p>
-<p>Main process send indexes to workers</p>
-<ul>
-<li class="fragment">index 0 → worker 1<br />
-</li>
-<li class="fragment">index 1 → worker 2<br />
-</li>
-<li class="fragment">index 2 → worker 3<br />
-</li>
-<li class="fragment">index 3 → worker 1</li>
-</ul>
+<h3 id="how-dataloader-workers-work">How DataLoader workers work</h3>
+<iframe src="images/profiling/dataloader_workers_anim.html" title="Animated DataLoader with 2 workers" style="width:100%;max-width:1600px;height:760px;border:0;border-radius:12px;background:#fff;display:block;margin:0 auto;">
+</iframe>
 </section>
 <section class="slide level2">
 
-<h3 id="single-gpu-multiworkers-2">Single GPU Multiworkers</h3>
+<h3 id="enable-workers-in-code">Enable workers in code</h3>
+<div style="font-weight: bold; background-color: #ffcccc;">
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>train_loader <span class="op">=</span> DataLoader(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    train_dataset,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    batch_size<span class="op">=</span>args.batch_size,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    num_workers<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    pin_memory<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+</div>
 <div style="font-weight: bold; background-color: #ffcccc;">
 <div class="sourceCode" id="cb11"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>train_loader <span class="op">=</span> DataLoader(train_dataset, </span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                        batch_size<span class="op">=</span>args.batch_size, </span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                        num_workers<span class="op">=</span><span class="dv">4</span>,</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                        pin_memory<span class="op">=</span><span class="va">False</span>)</span></code></pre></div>
-</div>
-<div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb12"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training_profiling.sbatch <span class="at">--profile</span></span></code></pre></div>
-</div>
-<h3 id="single-gpu-multiworkers-3">Single GPU Multiworkers</h3>
-<div
-style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 1150px;">
-<div class="sourceCode" id="cb13"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> Single_GPU/Single_GPU/Report_01_multi_woker_unpined_non_blocking_False/nsys_logs/647_ATA_566_nsys_logs_rank.nsys-rep</span></code></pre></div>
-</div>
-<p>Go to this link to answer the questions:</p>
-<div
-style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
-<p><a href="https://forms.gle/oxNaBnjP8cA9kPJw5" target="_blank"> Single
-GPU Multiworkers </a></p>
-</div>
-<div
-style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
-<div
-style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">
-📘 Exercise
-</div>
-<ul style="margin: 5px 0 0 20px;">
-<li>
-Find <code>pt_data_worker</code> processes
-</li>
-<li>
-How many pt_data_worker traces are created by Nsys?
-</li>
-<li>
-Which part of training takes the most time: data loading, data movement,
-the forward pass, or the backward pass?
-</li>
-<li>
-How long does it take until one data loading step is finished?
-</li>
-</ul>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training_profiling.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 </section>
 <section class="slide level2">
 
-<h3 id="single-gpu-multiworkers-4">Single GPU Multiworkers</h3>
-<p><img data-src="images/profiling/multiworker_vs_zeroworkers.png"
-style="width: 70%; max-width: 1200px; margin-left: 0; margin-right: auto;" /></p>
+<h3 id="single-gpu-multiworkers-explore-the-trace">Single GPU
+Multiworkers — explore the trace</h3>
+<div
+style="max-width:1100px;margin:0 auto;text-align:left;font-size:0.48em;">
+<div
+style="background:#ffcccc;border-radius:10px;padding:10px 14px;margin-bottom:12px;">
+<div
+style="font-size:0.85em;color:#8a0000;font-weight:700;margin-bottom:4px;">
+Open this trace
+</div>
+<p><code style="font-size:0.92em;">Single_GPU/Report_01_multi_woker_unpined_non_blocking_False/nsys_logs/647_ATA_566_nsys_logs_rank.nsys-rep</code></p>
+</div>
+<div style="display:flex;gap:12px;margin-bottom:12px;">
+<div
+style="flex:1;background:#fff8ea;border:2px solid #f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">
+Zoom
+</div>
+<p>Use <b>+</b> / <b>−</b> and pick a steady middle iteration.</p>
+</div>
+<div
+style="flex:1;background:#f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">
+Answer the form
+</div>
+<p><a href="https://forms.gle/oxNaBnjP8cA9kPJw5" target="_blank" style="color:#023d6b;font-weight:700;">Single
+GPU Multiworkers</a></p>
+</div>
+</div>
+<div
+style="padding:12px 16px;background:#e8f5e9;border-left:5px solid #4caf50;border-radius:0 10px 10px 0;">
+<div style="font-weight:700;color:#1b5e20;margin-bottom:8px;">
+Guided exploration
+</div>
+<ul style="margin:0 0 0 1.1em;padding:0;color:#2e7d32;">
+<li>
+Find <code>pt_data_worker</code> rows — how many are there? Do they have
+CUDA HW?
+</li>
+<li>
+On the <b>main</b> process, measure <code>data_loading</code> and
+compare with Report 00.
+</li>
+<li>
+Which NVTX stage is still longest? Did the full iteration get much
+faster?
+</li>
+<li>
+Under <code>data_movement</code>, is CUDA HW busy with kernels or only a
+short H2D copy?
+</li>
+</ul>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="multiworkers-vs-zero-workers">Multiworkers vs zero workers</h3>
+<p><img src="images/profiling/multiworker_vs_zeroworkers.png" alt="Multiworkers vs zero workers" style="width:70%;max-width:1200px;max-height:860px !important;height:auto;object-fit:contain;margin:0 auto;display:block;"/></p>
 </section>
 <section id="section" class="slide level2">
 <h2><!--
@@ -709,53 +729,8 @@ style="width: 70%; max-width: 1200px; margin-left: 0; margin-right: auto;" /></p
 </section>
 <section id="dma-direct-memory-access" class="slide level2">
 <h2>DMA (Direct Memory Access)</h2>
-<p><img data-src="images/profiling/DMA.png"
-style="width: 45%; max-width: 1200px; margin-left: 0; margin-right: auto;" /></p>
-<div
-style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
-<div style="font-weight: bold; margin-bottom: 8px;">
-
-</div>
-<ul style="margin: 5px 0 0 20px;">
-<li class="fragment">
-DMA allows some hardware to access memory without involving the CPU
-</li>
-<li class="fragment">
-Copying between CPU &amp; GPU uses DMA
-</li>
-<li class="fragment">
-What is the advatage of data transfer by the DMA?
-</li>
-<li class="fragment">
-What is the problem of data transfer by the DMA?
-</li>
-</ul>
-</div>
-</section>
-<section id="dma-direct-memory-access-1" class="slide level2">
-<h2>DMA (Direct Memory Access)</h2>
-<div
-style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.7em;">
-<ul style="margin: 5px 0 0 20px;">
-<li class="fragment">
-DMA accesses memory using physical addresses.
-<ul>
-<li class="fragment">
-Cannot detect if the OS swaps a virtual page with another virtual page
-at the same physical address.
-</li>
-</ul>
-</li>
-<li class="fragment">
-How can we prevent data corruption during DMA transfers?
-<ul>
-<li class="fragment">
-<strong>Pinning Memory!!</strong>
-</li>
-</ul>
-</li>
-</ul>
-</div>
+<iframe src="images/profiling/dma_anim.html" title="CPU transfer vs DMA: stepped comparison" style="width:100%;max-width:1400px;height:620px;border:0;border-radius:12px;background:#fff;display:block;margin:0 auto;">
+</iframe>
 </section>
 <section id="section-1" class="slide level2">
 <h2></h2>
@@ -800,26 +775,28 @@ Every <code>cudaMemcpy</code> actually involves two copies.
 </section>
 <section id="memory-pinning" class="slide level2">
 <h2>Memory pinning</h2>
-<p><img data-src="images/profiling/pageable_pinned.svg"
-style="width: 110%; max-width: 1200px; margin-left: 0; margin-right: auto;" /></p>
+<iframe src="images/profiling/memory_pinning_anim.html" title="Pageable vs pinned host memory" style="width:100%;max-width:1400px;height:620px;border:0;border-radius:12px;background:#fff;display:block;margin:0 auto;">
+</iframe>
 </section>
 <section class="slide level2">
 
 <h3 id="single-gpu-asyn.-transfer">Single GPU (Asyn. Transfer)</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>train_loader <span class="op">=</span> DataLoader(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    train_dataset,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    batch_size<span class="op">=</span>args.batch_size,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    num_workers<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    pin_memory<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div style="font-weight: bold; background-color: #ffcccc;">
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>src, tgt <span class="op">=</span> src.to(device, non_blocking<span class="op">=</span><span class="va">True</span>), tgt.to(device, non_blocking<span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
+</div>
+<div style="font-weight: bold; background-color: #ffcccc;">
 <div class="sourceCode" id="cb14"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>train_loader <span class="op">=</span> DataLoader(train_dataset, </span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                        batch_size<span class="op">=</span>args.batch_size, </span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                        num_workers<span class="op">=</span><span class="dv">4</span>,</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                        pin_memory<span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
-</div>
-<div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb15"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>    src, tgt <span class="op">=</span> src.to(device, non_blocking<span class="op">=</span><span class="va">True</span>), tgt.to(device, non_blocking<span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
-</div>
-<div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb16"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training_profiling.sbatch <span class="at">--profile</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training_profiling.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 </section>
 <section class="slide level2">
@@ -827,34 +804,50 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href=
 <h3 id="single-gpu-multiworkers-asyn.-transfer">Single GPU Multiworkers
 (Asyn. Transfer)</h3>
 <div
-style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 1150px;">
-<div class="sourceCode" id="cb17"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> Single_GPU/Report_02_multiwoker_pined_non_blocking_True/nsys_logs/107_RKN_402_nsys_logs_rank.nsys-rep</span></code></pre></div>
-</div>
-<p>Go to this link to answer the questions:</p>
+style="max-width:1100px;margin:0 auto;text-align:left;font-size:0.48em;">
 <div
-style="font-weight: bold; background-color: #f0d965; font-size: 0.6em; min-width: 800px; padding: 2px;">
-<p><a href="https://forms.gle/Fi1EVARNaVRZcpsR8" target="_blank"> Single
-GPU Multiworkers (Asyn. Transfer) </a></p>
+style="background:#ffcccc;border-radius:10px;padding:10px 14px;margin-bottom:12px;">
+<div
+style="font-size:0.85em;color:#8a0000;font-weight:700;margin-bottom:4px;">
+Open this trace
+</div>
+<p><code style="font-size:0.92em;">Single_GPU/Report_02_multiwoker_pined_non_blocking_True/nsys_logs/107_RKN_402_nsys_logs_rank.nsys-rep</code></p>
+</div>
+<div style="display:flex;gap:12px;margin-bottom:12px;">
+<div
+style="flex:1;background:#fff8ea;border:2px solid #f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">
+Zoom
+</div>
+<p>Use <b>+</b> / <b>−</b> and pick a steady middle iteration.</p>
 </div>
 <div
-style="padding: 15px 15px 15px 25px; background-color: #e8f5e9; border-left: 5px solid #4caf50; margin: 10px 0; font-size: 0.5em;">
-<div
-style="font-weight: bold; margin-bottom: 8px; margin-left: -850px;">
-📘 Exercise
+style="flex:1;background:#f0d965;border-radius:10px;padding:10px 14px;">
+<div style="font-weight:700;color:#6d4c00;margin-bottom:4px;">
+Answer the form
 </div>
-<ul style="margin: 5px 0 0 20px;">
+<p><a href="https://forms.gle/Fi1EVARNaVRZcpsR8" target="_blank" style="color:#023d6b;font-weight:700;">Single
+GPU Multiworkers (Asyn. Transfer)</a></p>
+</div>
+</div>
+<div
+style="padding:12px 16px;background:#e8f5e9;border-left:5px solid #4caf50;border-radius:0 10px 10px 0;">
+<div style="font-weight:700;color:#1b5e20;margin-bottom:8px;">
+Guided exploration
+</div>
+<ul style="margin:0 0 0 1.1em;padding:0;color:#2e7d32;">
 <li>
-Check one iteration of training (PyTorch trace)
+Check one iteration of training (PyTorch / NVTX stages).
 </li>
 <li>
-Which part of training takes the most time: data loading, data movement,
-the forward pass, or the backward pass?
+Which stage is longest: data loading, data movement, forward, or
+backward?
 </li>
 <li>
 Is there any CUDA synchronization in the trace?
 </li>
 </ul>
+</div>
 </div>
 <!--
 
@@ -873,8 +866,8 @@ Is there any CUDA synchronization in the trace?
 
 <h3 id="ddp-1">DDP</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb18"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 1 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 1 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 <div
 style="padding: 15px 15px 15px 25px; background-color: #fff9c4; border-left: 5px solid #fbc02d; margin: 10px 0; font-size: 0.7em;">
@@ -888,8 +881,8 @@ Multi_GPUs/DDP/Single_node/Report_03_DDP_one_node/nsys_logs
 </div>
 <div
 style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 800px;">
-<div class="sourceCode" id="cb19"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
 </div>
 <p>Go to this link to answer the questions:</p>
 <div
@@ -927,8 +920,8 @@ Do the compute kernels overlap with the NCCL all-reduce operation?
 
 <h3 id="ddp-2">DDP</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb20"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 <div
 style="padding: 15px 15px 15px 25px; background-color: #fff9c4; border-left: 5px solid #fbc02d; margin: 10px 0; font-size: 0.7em;">
@@ -942,8 +935,8 @@ Multi_GPUs/DDP/Multi_nodes/Report_03_DDP_multi_nodes/GPU_Direct_RDMA_enable/nsys
 </div>
 <div
 style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 800px;">
-<div class="sourceCode" id="cb21"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
 </div>
 <p>Go to this link to answer the questions:</p>
 <div
@@ -977,8 +970,8 @@ Do you think the training will be scalable?
 
 <h3 id="ddp-3">DDP</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb22"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="va">NCCL_P2P_LEVEL</span><span class="op">=</span>LOC <span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="va">NCCL_P2P_LEVEL</span><span class="op">=</span>LOC <span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 <div
 style="padding: 15px 15px 15px 25px; background-color: #fff9c4; border-left: 5px solid #fbc02d; margin: 10px 0; font-size: 0.7em;">
@@ -992,8 +985,8 @@ Multi_GPUs/DDP/Multi_nodes/Report_03_DDP_multi_nodes/GPU_Direct_RDMA_disable/nsy
 </div>
 <div
 style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 800px;">
-<div class="sourceCode" id="cb23"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
 </div>
 <p>Go to this link to answer the questions:</p>
 <div
@@ -1024,8 +1017,8 @@ Do you think the training will be scalable?
 
 <h3 id="ddp-4">DDP</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb24"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="va">NCCL_IB_DISABLE</span><span class="op">=</span>1 <span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="va">NCCL_IB_DISABLE</span><span class="op">=</span>1 <span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 <div
 style="padding: 15px 15px 15px 25px; background-color: #fff9c4; border-left: 5px solid #fbc02d; margin: 10px 0; font-size: 0.7em;">
@@ -1039,8 +1032,8 @@ Multi_GPUs/DDP/Multi_nodes/Report_03_DDP_multi_nodes/NOT_IB_USAGE
 </div>
 <div
 style="font-weight: bold; background-color: #ffcccc;; font-size: 0.8em; min-width: 800px;">
-<div class="sourceCode" id="cb25"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">File</span> <span class="at">-</span><span class="op">&gt;</span> Open <span class="at">-</span><span class="op">&gt;</span> select all .nsys-rep files <span class="at">--</span><span class="op">&gt;</span> create a multi-view report <span class="at">-</span><span class="op">&gt;</span> select all reports</span></code></pre></div>
 </div>
 <p>Go to this link to answer the questions:</p>
 <div
