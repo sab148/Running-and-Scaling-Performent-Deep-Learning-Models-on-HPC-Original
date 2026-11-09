@@ -147,6 +147,12 @@ https://developer.nvidia.com/tools-downloads
 ```
 </div>
 
+Download a sample **Nsight Systems** trace:
+
+<div style="font-weight: bold; background-color: #ffcccc; padding: 12px 16px; border-radius: 8px;">
+<a href="https://drive.google.com/file/d/1fhYkZ4LkyqbB9-_PKYXcU6dDkpIpwtPB/view" target="_blank" style="color:#8a0000; text-decoration: underline;">Download Nsight Systems trace (Google Drive)</a>
+</div>
+
 ---
 
 
