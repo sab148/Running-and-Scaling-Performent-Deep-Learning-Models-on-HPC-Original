@@ -42,9 +42,9 @@ Links for the complimentary parts of this course:
 
 # SSH: Connecting to JURECA
 
-SSH provides secure remote access to a supercomputer through a login node.
+- SSH provides secure remote access to a supercomputer through a login node.
 
-**To connect, you need:**
+- **To connect, you need:**
 1. An SSH key pair
 2. An SSH configuration
 3. Your public key and permitted IP address registered in JUDOOR
@@ -53,12 +53,12 @@ SSH provides secure remote access to a supercomputer through a login node.
 
 # Generate Your SSH Key
 
-Open the VS Code terminal (**View → Terminal**).
+- Open the VS Code terminal (**View → Terminal**).
 
-```bash
-mkdir -p ~/.ssh
-ssh-keygen -a 100 -t ed25519 -f ~/.ssh/id_ed25519-JSC
-```
+  ```bash
+  mkdir -p ~/.ssh
+  ssh-keygen -a 100 -t ed25519 -f ~/.ssh/id_ed25519-JSC
+  ```
 
 - **Private key:** `id_ed25519-JSC` — keep secret
 - **Public key:** `id_ed25519-JSC.pub` — register in JUDOOR
@@ -67,22 +67,22 @@ ssh-keygen -a 100 -t ed25519 -f ~/.ssh/id_ed25519-JSC
 
 # Configure SSH
 
-Open the configuration file:
+- Open the configuration file:
 
-```bash
-code ~/.ssh/config
-```
+  ```bash
+  code ~/.ssh/config
+  ```
 
-Add:
+- Add:
 
-```sshconfig
-Host jureca
-    HostName jureca.fz-juelich.de
-    User YOUR_USERNAME
-    AddressFamily inet
-    IdentityFile ~/.ssh/id_ed25519-JSC
-    MACs hmac-sha2-512-etm@openssh.com
-```
+  ```sshconfig
+  Host jureca
+      HostName jureca.fz-juelich.de
+      User YOUR_USERNAME
+      AddressFamily inet
+      IdentityFile ~/.ssh/id_ed25519-JSC
+      MACs hmac-sha2-512-etm@openssh.com
+  ```
 
 **Replace `YOUR_USERNAME` with your JSC username.**
 
@@ -109,21 +109,25 @@ JSC restricts SSH access by IP address.
 
 # Register Your SSH Key in JUDOOR
 
-Open your public key:
+- Open your public key:
 
-```bash
-code ~/.ssh/id_ed25519-JSC.pub
-```
+  ```bash
+  code ~/.ssh/id_ed25519-JSC.pub
+  ```
 
-Add your permitted IP range before the public key (keep the **full** public key on one line):
+--- 
 
-```text
-from="93.199.55.163/32,10.0.0.0/8" ssh-ed25519 AAAA... yourname@host
-```
+# Register Your SSH Key in JUDOOR
+
+- Add your permitted IP range before the public key (keep the **full** public key on one line):
+
+  ```text
+  from="93.199.55.163/32,10.0.0.0/8" ssh-ed25519 AAAA... yourname@host
+  ```
 
 1. Open [JUDOOR](https://judoor.fz-juelich.de).
 2. Go to **Manage SSH Keys**.
-3. Add the complete line for **JURECA and JUDAC**.
+3. Add the complete line for **JURECA**.
 4. Allow a few minutes for activation.
 
 > Replace the example IP and placeholder key with your own. Include `10.0.0.0/8` or FZJ's `134.94.0.0/16` only where appropriate for your access setup.
@@ -132,13 +136,13 @@ from="93.199.55.163/32,10.0.0.0/8" ssh-ed25519 AAAA... yourname@host
 
 # Test Your Connection
 
-In the VS Code terminal, run:
+- In the VS Code terminal, run:
 
 ```bash
 ssh jureca
 ```
 
-On your first connection, verify the host fingerprint against an official JSC source before accepting it.
+- On your first connection, verify the host fingerprint against an official JSC source before accepting it.
 
 **Expected result:**
 
@@ -154,7 +158,7 @@ YOUR_USERNAME@jrlogin03 ~ $
 
 # Set Up Your Working Directory
 
-After connecting to JURECA:
+- After connecting to JURECA:
 
 **1. Create your workspace**
 
@@ -165,11 +169,19 @@ cd ~/course
 pwd
 ```
 
+---
+
+# Set Up Your Working Directory
+
 **2. Create application directories**
 
 ```bash
 mkdir -p ~/course/{.cache,.config,.fastai}
 ```
+
+---
+
+# Set Up Your Working Directory
 
 **3. Link application directories**
 
@@ -192,11 +204,6 @@ ln -s ~/course/.fastai ~/.fastai
 - [Detailed documentation](https://apps.fz-juelich.de/jsc/hps/jureca/software-modules.html)
 
 ---
----
-marp: true
-theme: default
-paginate: true
----
 
 # Python Software, Modules & Kernels
 
@@ -214,7 +221,7 @@ If unavailable, install it in your user environment:
 python -m pip install --user uv
 ```
 
-Then check `uv --version` again. If the command is not found, add your user-level Python scripts directory to `PATH` or use the JSC-provided `uv` module, if available.
+Then check ``uv --version`` again. If the command is not found, add your user-level Python scripts directory to `PATH` or use the JSC-provided `uv` module, if available.
 
 ---
 
@@ -239,7 +246,6 @@ Create `~/course/requirements.txt` with:
 
 ```text
 ipykernel
-fastai
 numba==0.60.0
 numpy==1.26.4
 scipy==1.13.1

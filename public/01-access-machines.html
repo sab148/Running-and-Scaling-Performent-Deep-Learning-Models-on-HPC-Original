@@ -286,37 +286,46 @@ DC: 8 * 64 * 128 = 65536 core-h!</li>
 </section>
 <section id="ssh-connecting-to-jureca" class="slide level1">
 <h1>SSH: Connecting to JURECA</h1>
-<p>SSH provides secure remote access to a supercomputer through a login
-node.</p>
-<p><strong>To connect, you need:</strong> 1. An SSH key pair 2. An SSH
-configuration 3. Your public key and permitted IP address registered in
-JUDOOR</p>
+<ul>
+<li class="fragment"><p>SSH provides secure remote access to a
+supercomputer through a login node.</p></li>
+<li class="fragment"><p><strong>To connect, you need:</strong></p></li>
+</ul>
+<ol type="1">
+<li class="fragment">An SSH key pair</li>
+<li class="fragment">An SSH configuration</li>
+<li class="fragment">Your public key and permitted IP address registered
+in JUDOOR</li>
+</ol>
 </section>
 <section id="generate-your-ssh-key" class="slide level1">
 <h1>Generate Your SSH Key</h1>
-<p>Open the VS Code terminal (<strong>View → Terminal</strong>).</p>
+<ul>
+<li class="fragment"><p>Open the VS Code terminal (<strong>View →
+Terminal</strong>).</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/.ssh</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh-keygen</span> <span class="at">-a</span> 100 <span class="at">-t</span> ed25519 <span class="at">-f</span> ~/.ssh/id_ed25519-JSC</span></code></pre></div>
-<ul>
-<li class="fragment"><strong>Private key:</strong>
-<code>id_ed25519-JSC</code> — keep secret</li>
-<li class="fragment"><strong>Public key:</strong>
-<code>id_ed25519-JSC.pub</code> — register in JUDOOR</li>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh-keygen</span> <span class="at">-a</span> 100 <span class="at">-t</span> ed25519 <span class="at">-f</span> ~/.ssh/id_ed25519-JSC</span></code></pre></div></li>
+<li class="fragment"><p><strong>Private key:</strong>
+<code>id_ed25519-JSC</code> — keep secret</p></li>
+<li class="fragment"><p><strong>Public key:</strong>
+<code>id_ed25519-JSC.pub</code> — register in JUDOOR</p></li>
 </ul>
 </section>
 <section id="configure-ssh" class="slide level1">
 <h1>Configure SSH</h1>
-<p>Open the configuration file:</p>
+<ul>
+<li class="fragment"><p>Open the configuration file:</p>
 <div class="sourceCode" id="cb2"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">code</span> ~/.ssh/config</span></code></pre></div>
-<p>Add:</p>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">code</span> ~/.ssh/config</span></code></pre></div></li>
+<li class="fragment"><p>Add:</p>
 <pre class="sshconfig"><code>Host jureca
     HostName jureca.fz-juelich.de
     User YOUR_USERNAME
     AddressFamily inet
     IdentityFile ~/.ssh/id_ed25519-JSC
-    MACs hmac-sha2-512-etm@openssh.com</code></pre>
+    MACs hmac-sha2-512-etm@openssh.com</code></pre></li>
+</ul>
 <p><strong>Replace <code>YOUR_USERNAME</code> with your JSC
 username.</strong></p>
 <blockquote>
@@ -347,18 +356,25 @@ approved for your network.</p>
 </section>
 <section id="register-your-ssh-key-in-judoor" class="slide level1">
 <h1>Register Your SSH Key in JUDOOR</h1>
-<p>Open your public key:</p>
+<ul>
+<li class="fragment"><p>Open your public key:</p>
 <div class="sourceCode" id="cb4"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">code</span> ~/.ssh/id_ed25519-JSC.pub</span></code></pre></div>
-<p>Add your permitted IP range before the public key (keep the
-<strong>full</strong> public key on one line):</p>
-<pre class="text"><code>from=&quot;93.199.55.163/32,10.0.0.0/8&quot; ssh-ed25519 AAAA... yourname@host</code></pre>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">code</span> ~/.ssh/id_ed25519-JSC.pub</span></code></pre></div></li>
+</ul>
+</section>
+<section id="register-your-ssh-key-in-judoor-1" class="slide level1">
+<h1>Register Your SSH Key in JUDOOR</h1>
+<ul>
+<li class="fragment"><p>Add your permitted IP range before the public
+key (keep the <strong>full</strong> public key on one line):</p>
+<pre class="text"><code>from=&quot;93.199.55.163/32,10.0.0.0/8&quot; ssh-ed25519 AAAA... yourname@host</code></pre></li>
+</ul>
 <ol type="1">
 <li class="fragment">Open <a
 href="https://judoor.fz-juelich.de">JUDOOR</a>.</li>
 <li class="fragment">Go to <strong>Manage SSH Keys</strong>.</li>
-<li class="fragment">Add the complete line for <strong>JURECA and
-JUDAC</strong>.</li>
+<li class="fragment">Add the complete line for
+<strong>JURECA</strong>.</li>
 <li class="fragment">Allow a few minutes for activation.</li>
 </ol>
 <blockquote>
@@ -369,11 +385,15 @@ appropriate for your access setup.</p>
 </section>
 <section id="test-your-connection" class="slide level1">
 <h1>Test Your Connection</h1>
-<p>In the VS Code terminal, run:</p>
+<ul>
+<li class="fragment">In the VS Code terminal, run:</li>
+</ul>
 <div class="sourceCode" id="cb6"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> jureca</span></code></pre></div>
-<p>On your first connection, verify the host fingerprint against an
-official JSC source before accepting it.</p>
+<ul>
+<li class="fragment">On your first connection, verify the host
+fingerprint against an official JSC source before accepting it.</li>
+</ul>
 <p><strong>Expected result:</strong></p>
 <pre class="text"><code>Welcome to JURECA DC
 ...
@@ -383,16 +403,24 @@ node.</p>
 </section>
 <section id="set-up-your-working-directory" class="slide level1">
 <h1>Set Up Your Working Directory</h1>
-<p>After connecting to JURECA:</p>
+<ul>
+<li class="fragment">After connecting to JURECA:</li>
+</ul>
 <p><strong>1. Create your workspace</strong></p>
 <div class="sourceCode" id="cb8"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> <span class="st">&quot;</span><span class="va">$PROJECT_training2658</span><span class="st">/</span><span class="va">$USER</span><span class="st">&quot;</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-s</span> <span class="st">&quot;</span><span class="va">$PROJECT_training2658</span><span class="st">/</span><span class="va">$USER</span><span class="st">&quot;</span> ~/course</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/course</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span></span></code></pre></div>
+</section>
+<section id="set-up-your-working-directory-1" class="slide level1">
+<h1>Set Up Your Working Directory</h1>
 <p><strong>2. Create application directories</strong></p>
 <div class="sourceCode" id="cb9"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/course/<span class="dt">{.cache</span><span class="op">,</span><span class="dt">.config</span><span class="op">,</span><span class="dt">.fastai}</span></span></code></pre></div>
+</section>
+<section id="set-up-your-working-directory-2" class="slide level1">
+<h1>Set Up Your Working Directory</h1>
 <p><strong>3. Link application directories</strong></p>
 <div class="sourceCode" id="cb10"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-s</span> ~/course/.cache ~/.cache</span>
@@ -420,7 +448,6 @@ list</a></li>
 href="https://apps.fz-juelich.de/jsc/hps/jureca/software-modules.html">Detailed
 documentation</a></li>
 </ul>
-<p>marp: true theme: default paginate: true —</p>
 </section>
 <section id="python-software-modules-kernels" class="slide level1">
 <h1>Python Software, Modules &amp; Kernels</h1>
@@ -453,7 +480,6 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href=
 <h1>3. Define Python Dependencies</h1>
 <p>Create <code>~/course/requirements.txt</code> with:</p>
 <pre class="text"><code>ipykernel
-fastai
 numba==0.60.0
 numpy==1.26.4
 scipy==1.13.1
