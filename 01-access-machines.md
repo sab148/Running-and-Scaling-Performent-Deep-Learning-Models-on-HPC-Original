@@ -176,10 +176,6 @@ ln -s ~/course/.cache ~/.cache
 ln -s ~/course/.config ~/.config
 ```
 
-> Create links only if the corresponding home-directory paths do not already exist. Back up or migrate existing data rather than deleting it.
-
-**Goal:** A working SSH connection and a prepared course directory.
-
 ---
 
 ## Working with the supercomputer's software
@@ -197,6 +193,7 @@ ln -s ~/course/.config ~/.config
 In the terminal:
 
 ```bash
+module load uv
 uv --version
 ```
 
@@ -205,8 +202,6 @@ If unavailable, install it in your user environment:
 ```bash
 python -m pip install --user uv
 ```
-
-Then check ``uv --version`` again. If the command is not found, add your user-level Python scripts directory to `PATH` or use the JSC-provided `uv` module, if available.
 
 ---
 
