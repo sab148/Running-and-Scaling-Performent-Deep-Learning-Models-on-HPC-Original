@@ -45,13 +45,13 @@ date: June 02, 2026
 - Always store your code in the project1 folder (**`$PROJECT_projectname`** ). In our case 
 
     ```bash
-    /p/project1/training2643/$USER
+    /p/project1/training2658/$USER
     ```
 
 - Store data in the scratch directory for faster I/O access (**`$SCRATCH_projectname`**). ⚠️**Files in scratch are deleted after 90 days of inactivity.**
     
     ```bash
-    /p/scratch/training2643/$USER
+    /p/scratch/training2658/$USER
     ```
 
 - Store the data in [`$DATA_dataset`](https://judoor.fz-juelich.de/projects/datasets/) for a more permanent location. 
@@ -157,7 +157,7 @@ Let's have a look at the files **```train/to_distributed_training.py```** and **
     - Activate your environment:
 
         ```bash
-        source $HOME/course/sc_venv_template/activate.sh
+        source $HOME/course/.venv/bin/activate
         ```
 
     - Run:
@@ -191,7 +191,7 @@ Let's have a look at the files **```train/to_distributed_training.py```** and **
     If you haven’t already, activate your environment: 
 
     ```bash
-    source $HOME/course/sc_venv_template/activate.sh
+    source $HOME/course/.venv/bin/activate
     ````
 
 --- 
