@@ -172,6 +172,9 @@ pwd
 **2. Link application directories**
 
 ```bash
+mkdir ~/course/.cache
+mkdir ~/course/.config
+
 ln -s ~/course/.cache ~/.cache
 ln -s ~/course/.config ~/.config
 ```
