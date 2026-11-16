@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CPU transfer vs DMA</title>
+<style>
+  :root {
+    --ink: #023d6b;
+    --muted: #546e7a;
+    --cpu: #1565c0;
+    --dma: #6a1b9a;
+    --mem: #ef6c00;
+    --gpu: #2e7d32;
+    --bad: #c62828;
+    --good: #2e7d32;
+    --warn: #e65100;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, Helvetica, sans-serif;
+    color: var(--ink);
+    background: #f4f7fb;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    padding: 4px 8px 4px;
+    gap: 4px;
+  }
+  .topbar {
+    flex: 0 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px;
+  }
+  .topbar h1 {
+    margin: 0; font-size: 15px; font-weight: 800; letter-spacing: -0.01em;
+  }
+  .topbar h1 span {
+    font-size: 11px; font-weight: 700; color: var(--muted); margin-left: 6px;
+  }
+  .steps { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
+  .step-dot {
+    font-size: 10px; font-weight: 800;
+    padding: 3px 8px; border-radius: 999px;
+    background: #eceff1; color: #90a4ae;
+    border: 1.5px solid #cfd8dc;
+  }
+  .step-dot.on { background: #e3f2fd; color: #0d47a1; border-color: #90caf9; }
+  .step-dot.done { background: #e8f5e9; color: #2e7d32; border-color: #aed581; }
+
+  .cols {
+    flex: 1; min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .panel {
+    position: relative;
+    display: flex; flex-direction: column;
+    border-radius: 14px;
+    border: 2px solid #d7dee8;
+    background: #fff;
+    overflow: hidden;
+    min-height: 0;
+    opacity: .42;
+    filter: grayscale(.25);
+    transition: opacity .35s ease, filter .35s ease, border-color .35s ease, box-shadow .35s ease;
+  }
+  .panel.focus {
+    opacity: 1; filter: none;
+    box-shadow: 0 10px 28px rgba(2,61,107,.12);
+  }
+  .panel.cpu.focus { border-color: #64b5f6; }
+  .panel.dma.focus { border-color: #ce93d8; }
+  .panel.done-look { opacity: .72; filter: none; }
+
+  .panel-head {
+    flex: 0 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px;
+    padding: 5px 10px;
+    border-bottom: 1px solid #e8eef4;
+  }
+  .panel.cpu .panel-head { background: linear-gradient(180deg, #e3f2fd, #fff); }
+  .panel.dma .panel-head { background: linear-gradient(180deg, #f3e5f5, #fff); }
+  .panel-head h2 {
+    margin: 0; font-size: 14px; font-weight: 800;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .chip {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 7px;
+    color: #fff; font-size: 10px; font-weight: 800;
+  }
+  .panel.cpu .chip { background: var(--cpu); }
+  .panel.dma .chip { background: var(--dma); }
+  .addr-tag {
+    font-size: 10px; font-weight: 800;
+    padding: 3px 8px; border-radius: 999px;
+    white-space: nowrap;
+  }
+  .panel.cpu .addr-tag {
+    background: #e3f2fd; color: #0d47a1; border: 1.5px solid #90caf9;
+  }
+  .panel.dma .addr-tag {
+    background: #f3e5f5; color: #4a148c; border: 1.5px solid #ce93d8;
+  }
+
+  .stage {
+    position: relative;
+    flex: 1; min-height: 0;
+    margin: 4px 6px 6px;
+    border-radius: 12px;
+    background: #fafcfe;
+    border: 1px solid #e6edf4;
+    overflow: hidden;
+  }
+
+  .node {
+    position: absolute;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    background: #fff;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 6px 8px;
+    z-index: 3;
+    transition: box-shadow .2s ease, outline .2s ease, opacity .2s ease;
+  }
+  .node .badge {
+    width: 26px; height: 26px; border-radius: 8px;
+    color: #fff; font-size: 10px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 2px;
+  }
+  .node .label { font-size: 11px; font-weight: 800; line-height: 1.15; }
+  .node .hint {
+    margin-top: 2px; font-size: 10px; font-weight: 700; color: var(--muted);
+    min-height: 12px;
+  }
+  .node.active {
+    outline: 2px solid rgba(2,61,107,.2);
+    outline-offset: 1px;
+    box-shadow: 0 6px 16px rgba(2,61,107,.1);
+  }
+  .node.busy .hint { color: var(--bad); }
+  .node.busy {
+    outline-color: rgba(198,40,40,.35);
+    box-shadow: 0 0 0 2px rgba(198,40,40,.12), 0 6px 14px rgba(198,40,40,.1);
+  }
+  .node.danger .hint { color: var(--warn); }
+  .node.danger {
+    outline-color: rgba(230,81,0,.45);
+    box-shadow: 0 0 0 2px rgba(230,81,0,.15);
+  }
+
+  .n-cpu .badge { background: var(--cpu); }
+  .n-cpu { border-color: #64b5f6; background: #e3f2fd; color: #0d47a1; }
+  .n-mem .badge { background: var(--mem); }
+  .n-mem { border-color: #ffb74d; background: #fff3e0; color: #e65100; }
+  .n-gpu .badge { background: var(--gpu); }
+  .n-gpu { border-color: #81c784; background: #e8f5e9; color: #1b5e20; }
+  .n-dma .badge { background: var(--dma); }
+  .n-dma { border-color: #ce93d8; background: #f3e5f5; color: #4a148c; }
+  .n-mmu .badge { background: #00838f; }
+  .n-mmu { border-color: #4dd0e1; background: #e0f7fa; color: #006064; }
+
+  /* Both columns: Main Memory | GPU Memory on top */
+  .cpu #c-host, .dma #d-host { left: 5%; top: 6%; width: 36%; height: 28%; }
+  .cpu #c-gpu,  .dma #d-gpu  { right: 5%; top: 6%; width: 36%; height: 28%; }
+
+  /* CPU: MMU is the center of the story; CPU issues VA */
+  .cpu #c-mmu { left: 22%; top: 42%; width: 56%; height: 26%; }
+  .cpu #c-cpu { left: 32%; top: 74%; width: 36%; height: 20%; }
+
+  /* DMA extras: DMA engine + physical addr (no CPU) */
+  .dma #d-dma  { left: 5%; top: 48%; width: 38%; height: 38%; }
+  .dma #d-phys { right: 5%; top: 48%; width: 38%; height: 38%; }
+
+  .cpu-caption {
+    position: absolute; top: 36%; left: 50%; transform: translateX(-50%);
+    z-index: 5;
+    font-size: 11px; font-weight: 800;
+    padding: 3px 10px; border-radius: 999px;
+    background: #fff; border: 1.5px solid #90caf9; color: #0d47a1;
+    white-space: nowrap;
+    opacity: 0; transition: opacity .2s ease;
+    pointer-events: none;
+  }
+  .cpu-caption.show { opacity: 1; }
+
+  .mmu-xform {
+    position: absolute; inset: 0; z-index: 4; pointer-events: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: #006064;
+    background: rgba(0,131,143,.12);
+    border-radius: 10px;
+    opacity: 0;
+    transition: opacity .15s ease;
+  }
+  .mmu-xform.on { opacity: 1; }
+
+  .wire {
+    position: absolute; z-index: 1; pointer-events: none;
+    background: #cfd8dc; border-radius: 3px; opacity: .4;
+    transition: opacity .2s ease, background .2s ease, box-shadow .2s ease;
+  }
+  .wire.on {
+    opacity: 1;
+    background: #90caf9;
+    box-shadow: 0 0 8px rgba(21,101,192,.25);
+  }
+  .wire.dma-on {
+    background: #ce93d8;
+    box-shadow: 0 0 8px rgba(106,27,154,.25);
+  }
+
+  /* CPU wires: VA up to MMU, PA up to memory, data host→cpu→gpu */
+  .cpu #cw-va   { left: 50%; top: 68%; width: 4px; height: 6%; transform: translateX(-50%); } /* CPU → MMU */
+  .cpu #cw-pa   { left: 22%; top: 34%; width: 4px; height: 8%; }  /* MMU → Main Memory */
+  .cpu #cw-ld   { left: 22%; top: 34%; width: 28%; height: 4px; } /* after translate: path used for load */
+  .cpu #cw-st   { left: 50%; top: 18%; width: 14%; height: 4px; } /* store toward GPU */
+
+  /* DMA wires */
+  .dma #dw-bus  { left: 43%; top: 21%; width: 14%; height: 4px; }
+  .dma #dw-up   { left: 23%; top: 39%; width: 4px; height: 11%; }
+  .dma #dw-pa   { left: 43%; top: 66%; width: 14%; height: 4px; }
+
+  .packet {
+    position: absolute; z-index: 20;
+    min-width: 40px; height: 22px; padding: 0 7px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; color: #fff;
+    background: var(--mem);
+    pointer-events: none;
+    opacity: 0;
+    box-shadow: 0 3px 10px rgba(239,108,0,.3);
+  }
+  .packet.show { opacity: 1; }
+  .packet.va { background: #0277bd; }        /* virtual address */
+  .packet.pa { background: #00838f; }        /* physical address after MMU */
+  .packet.reg { background: var(--cpu); }    /* word briefly in a CPU register */
+  .packet.phys { background: var(--dma); }
+  .packet.bad { background: var(--bad); }
+
+  .overlay {
+    position: absolute; inset: 0; z-index: 40;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 16px;
+    background: rgba(255,255,255,.84);
+    backdrop-filter: blur(2px);
+  }
+  .overlay.show { display: flex; }
+  .qbox {
+    width: min(94%, 460px);
+    background: #fff;
+    border: 2.5px solid #023d6b;
+    border-radius: 14px;
+    padding: 18px 18px 16px;
+    box-shadow: 0 12px 32px rgba(2,61,107,.18);
+    text-align: center;
+  }
+  .qbox .q {
+    font-size: 18px; font-weight: 800; line-height: 1.3; color: var(--ink);
+    margin: 0;
+  }
+  .qbox .ans {
+    display: none;
+    margin-top: 14px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px; font-weight: 700; line-height: 1.35;
+    text-align: left;
+  }
+  .qbox .ans.show { display: block; }
+  .qbox .ans.con {
+    background: #ffebee; border: 1.5px solid #ef9a9a; color: #b71c1c;
+  }
+  .qbox .ans.pro {
+    background: #e8f5e9; border: 1.5px solid #aed581; color: #1b5e20;
+  }
+  .qbox .ans.warn {
+    background: #fff8e1; border: 1.5px solid #ffe082; color: #e65100;
+  }
+  .qbox .ans.sol {
+    background: #e3f2fd; border: 1.5px solid #64b5f6; color: #0d47a1;
+  }
+
+  .bottom {
+    flex: 0 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px;
+    padding: 0 2px;
+  }
+  .status {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    min-height: 16px; flex: 1;
+  }
+  .next-btn {
+    appearance: none; border: 0; cursor: pointer;
+    background: #023d6b; color: #fff;
+    font-size: 12px; font-weight: 800;
+    padding: 6px 12px; border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(2,61,107,.2);
+    opacity: .35; pointer-events: none;
+    transition: opacity .2s ease, transform .15s ease;
+  }
+  .next-btn.ready { opacity: 1; pointer-events: auto; }
+  .next-btn.ready:hover { transform: translateY(-1px); }
+  .next-btn.pulse { animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 4px 12px rgba(2,61,107,.2); }
+    50% { box-shadow: 0 4px 18px rgba(2,61,107,.45); }
+  }
+
+  .swap-flash {
+    position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    background: rgba(230,81,0,.1);
+    opacity: 0; transition: opacity .2s ease;
+  }
+  .swap-flash.on { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <h1>Host → GPU: two transfer modes <span>programmed I/O vs DMA</span></h1>
+    <div class="steps" id="stepDots"></div>
+  </div>
+
+  <div class="cols">
+    <section class="panel cpu" id="panelCpu">
+      <div class="panel-head">
+        <h2><span class="chip">CPU</span> CPU transfer</h2>
+        <span class="addr-tag">each load &amp; store: VA → MMU → PA</span>
+      </div>
+      <div class="stage" id="stageCpu">
+        <div class="wire" id="cw-va"></div>
+        <div class="wire" id="cw-pa"></div>
+        <div class="wire" id="cw-ld"></div>
+        <div class="wire" id="cw-st"></div>
+        <div class="cpu-caption" id="cCaption">1 · CPU issues virtual address</div>
+
+        <div class="node n-mem" id="c-host">
+          <div class="badge">RAM</div>
+          <div class="label">Main Memory</div>
+          <div class="hint" id="cHostHint">source (physical)</div>
+        </div>
+        <div class="node n-gpu" id="c-gpu">
+          <div class="badge">GPU</div>
+          <div class="label">GPU Memory</div>
+          <div class="hint" id="cGpuHint">destination</div>
+        </div>
+        <div class="node n-mmu" id="c-mmu">
+          <div class="badge">MMU</div>
+          <div class="label">Address translation</div>
+          <div class="hint" id="cMmuHint">page table: VA → PA</div>
+          <div class="mmu-xform" id="cXform">VA → PA</div>
+        </div>
+        <div class="node n-cpu" id="c-cpu">
+          <div class="badge">CPU</div>
+          <div class="label">CPU</div>
+          <div class="hint" id="cCpuHint">idle</div>
+        </div>
+
+        <div class="overlay" id="cOverlay">
+          <div class="qbox">
+            <p class="q" id="cQuestion"></p>
+            <div class="ans" id="cAns"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel dma" id="panelDma">
+      <div class="panel-head">
+        <h2><span class="chip">DMA</span> DMA transfer</h2>
+        <span class="addr-tag">physical address only</span>
+      </div>
+      <div class="stage" id="stageDma">
+        <div class="swap-flash" id="dFlash"></div>
+        <div class="wire" id="dw-bus"></div>
+        <div class="wire" id="dw-up"></div>
+        <div class="wire" id="dw-pa"></div>
+
+        <div class="node n-mem" id="d-host">
+          <div class="badge">RAM</div>
+          <div class="label">Main Memory</div>
+          <div class="hint" id="dHostHint">source</div>
+        </div>
+        <div class="node n-gpu" id="d-gpu">
+          <div class="badge">VRAM</div>
+          <div class="label">GPU Memory</div>
+          <div class="hint" id="dGpuHint">destination</div>
+        </div>
+        <div class="node n-dma" id="d-dma">
+          <div class="badge">DMA</div>
+          <div class="label">DMA engine</div>
+          <div class="hint" id="dDmaHint">idle</div>
+        </div>
+        <div class="node n-mmu" id="d-phys">
+          <div class="badge">PA</div>
+          <div class="label">Physical address</div>
+          <div class="hint" id="dPhysHint">fixed at setup</div>
+        </div>
+
+        <div class="overlay" id="dOverlay">
+          <div class="qbox">
+            <p class="q" id="dQuestion"></p>
+            <div class="ans" id="dAns"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="bottom">
+    <div class="status" id="status">Starting…</div>
+    <button class="next-btn" id="nextBtn" type="button">Next →</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Global slowdown for classroom pacing (~1.75×)
+  const SPEED = 1.75;
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms * SPEED));
+
+  const statusEl = document.getElementById('status');
+  const nextBtn = document.getElementById('nextBtn');
+  const stepDots = document.getElementById('stepDots');
+  const panelCpu = document.getElementById('panelCpu');
+  const panelDma = document.getElementById('panelDma');
+
+  const stageCpu = document.getElementById('stageCpu');
+  const stageDma = document.getElementById('stageDma');
+  const cOverlay = document.getElementById('cOverlay');
+  const dOverlay = document.getElementById('dOverlay');
+  const cQuestion = document.getElementById('cQuestion');
+  const dQuestion = document.getElementById('dQuestion');
+  const cAns = document.getElementById('cAns');
+  const dAns = document.getElementById('dAns');
+
+  const cHost = document.getElementById('c-host');
+  const cGpu = document.getElementById('c-gpu');
+  const cMmu = document.getElementById('c-mmu');
+  const cCpu = document.getElementById('c-cpu');
+  const cHostHint = document.getElementById('cHostHint');
+  const cGpuHint = document.getElementById('cGpuHint');
+  const cMmuHint = document.getElementById('cMmuHint');
+  const cCpuHint = document.getElementById('cCpuHint');
+  const cCaption = document.getElementById('cCaption');
+  const cXform = document.getElementById('cXform');
+  const cwVa = document.getElementById('cw-va');
+  const cwPa = document.getElementById('cw-pa');
+  const cwLd = document.getElementById('cw-ld');
+  const cwSt = document.getElementById('cw-st');
+
+  const dHost = document.getElementById('d-host');
+  const dGpu = document.getElementById('d-gpu');
+  const dDma = document.getElementById('d-dma');
+  const dPhys = document.getElementById('d-phys');
+  const dHostHint = document.getElementById('dHostHint');
+  const dGpuHint = document.getElementById('dGpuHint');
+  const dDmaHint = document.getElementById('dDmaHint');
+  const dPhysHint = document.getElementById('dPhysHint');
+  const dFlash = document.getElementById('dFlash');
+  const dwBus = document.getElementById('dw-bus');
+  const dwUp = document.getElementById('dw-up');
+  const dwPa = document.getElementById('dw-pa');
+
+  const STEPS = [
+    { label: '1 CPU' },
+    { label: '2 Q' },
+    { label: '3 DMA' },
+    { label: '4 Q' },
+    { label: '5 Q' },
+    { label: '6 Pin' },
+  ];
+
+  let stepIndex = -1;
+  let waiting = false;
+  let playing = false;
+  let looping = false;
+  let stopLoop = false;
+  let demoComplete = false;
+  let advanceResolver = null;
+
+  STEPS.forEach((s, i) => {
+    const el = document.createElement('div');
+    el.className = 'step-dot';
+    el.id = 'dot-' + i;
+    el.textContent = s.label;
+    stepDots.appendChild(el);
+  });
+
+  function setStatus(t) { statusEl.textContent = t; }
+  function paintDots() {
+    STEPS.forEach((_, i) => {
+      const el = document.getElementById('dot-' + i);
+      el.classList.toggle('on', i === stepIndex);
+      el.classList.toggle('done', i < stepIndex);
+    });
+  }
+  function setNextReady(on) {
+    waiting = on;
+    nextBtn.classList.toggle('ready', on);
+    nextBtn.classList.toggle('pulse', on);
+    nextBtn.disabled = !on;
+  }
+  function waitForAdvance() {
+    setNextReady(true);
+    return new Promise(resolve => { advanceResolver = resolve; });
+  }
+  function requestAdvance() {
+    if (!waiting) return;
+    if (playing && !looping) return;
+    setNextReady(false);
+    if (looping) stopLoop = true;
+    const r = advanceResolver;
+    advanceResolver = null;
+    if (r) r();
+  }
+
+  nextBtn.addEventListener('click', (e) => { e.stopPropagation(); requestAdvance(); });
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
+      if (waiting && !demoComplete) {
+        e.preventDefault();
+        e.stopPropagation();
+        requestAdvance();
+      }
+    }
+  }, true);
+  document.body.addEventListener('click', (e) => {
+    if (!waiting) return;
+    if (demoComplete && e.target !== nextBtn) return;
+    requestAdvance();
+  });
+
+  (function hookParentReveal() {
+    try {
+      const p = window.parent;
+      if (!p || p === window || !p.Reveal) return;
+      const Reveal = p.Reveal;
+      const onDmaSlide = () => {
+        const slide = Reveal.getCurrentSlide();
+        return !!(slide && slide.id === 'dma-direct-memory-access');
+      };
+      const focusIframe = () => {
+        if (!onDmaSlide()) return;
+        const slide = Reveal.getCurrentSlide();
+        const iframe = slide.querySelector('iframe[src*="dma_anim"]');
+        if (iframe) iframe.focus();
+        window.focus();
+      };
+      Reveal.on('ready', focusIframe);
+      Reveal.on('slidechanged', focusIframe);
+      p.addEventListener('keydown', (e) => {
+        if (!onDmaSlide()) return;
+        if (!waiting || demoComplete || (playing && !looping)) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          e.stopPropagation();
+          if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+          requestAdvance();
+        }
+      }, true);
+    } catch (_) {}
+  })();
+
+  function centerOf(stage, el) {
+    const sr = stage.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    return {
+      x: r.left - sr.left + r.width / 2,
+      y: r.top - sr.top + r.height / 2,
+    };
+  }
+  function makePacket(stage, cls) {
+    const el = document.createElement('div');
+    el.className = 'packet' + (cls ? ' ' + cls : '');
+    stage.appendChild(el);
+    return el;
+  }
+  function movePacket(stage, el, from, to, ms, label) {
+    const dur = ms * SPEED;
+    return new Promise(resolve => {
+      el.textContent = label || 'data';
+      el.classList.add('show');
+      el.style.left = (from.x - 20) + 'px';
+      el.style.top = (from.y - 11) + 'px';
+      const start = performance.now();
+      function frame(t) {
+        const p = Math.min(1, (t - start) / dur);
+        const e = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+        const x = from.x + (to.x - from.x) * e;
+        const y = from.y + (to.y - from.y) * e;
+        el.style.left = (x - el.offsetWidth / 2) + 'px';
+        el.style.top = (y - el.offsetHeight / 2) + 'px';
+        if (p < 1) requestAnimationFrame(frame);
+        else { el.classList.remove('show'); resolve(); }
+      }
+      requestAnimationFrame(frame);
+    });
+  }
+  function clearPackets(stage) {
+    stage.querySelectorAll('.packet').forEach(p => p.remove());
+  }
+
+  function resetCpuVisual() {
+    clearPackets(stageCpu);
+    [cHost, cGpu, cMmu, cCpu].forEach(n => n.classList.remove('active', 'busy', 'danger'));
+    [cwVa, cwPa, cwLd, cwSt].forEach(w => w.classList.remove('on'));
+    cOverlay.classList.remove('show');
+    cAns.className = 'ans'; cAns.innerHTML = '';
+    cCaption.classList.remove('show');
+    cXform.classList.remove('on');
+    cHostHint.textContent = 'source (physical)';
+    cGpuHint.textContent = 'destination';
+    cMmuHint.textContent = 'page table: VA → PA';
+    cCpuHint.textContent = 'idle';
+  }
+
+  function setCpuCaption(text) {
+    cCaption.textContent = text;
+    cCaption.classList.add('show');
+  }
+  function resetDmaVisual() {
+    clearPackets(stageDma);
+    [dHost, dGpu, dDma, dPhys].forEach(n => n.classList.remove('active', 'busy', 'danger'));
+    [dwBus, dwUp, dwPa].forEach(w => w.classList.remove('on', 'dma-on'));
+    dFlash.classList.remove('on');
+    dOverlay.classList.remove('show');
+    dAns.className = 'ans'; dAns.innerHTML = '';
+    dHostHint.textContent = 'source';
+    dGpuHint.textContent = 'destination';
+    dDmaHint.textContent = 'idle';
+    dPhysHint.textContent = 'fixed at setup';
+  }
+  function focusCpu() {
+    panelCpu.classList.add('focus');
+    panelCpu.classList.remove('done-look');
+    panelDma.classList.remove('focus');
+  }
+  function focusDma() {
+    panelDma.classList.add('focus');
+    panelCpu.classList.remove('focus');
+    panelCpu.classList.add('done-look');
+  }
+
+  async function askAndReveal(opts) {
+    const { overlay, qEl, aEl, question, answerHtml, answerClass, onReveal } = opts;
+    qEl.textContent = question;
+    aEl.className = 'ans';
+    aEl.innerHTML = '';
+    overlay.classList.add('show');
+    setStatus('Question');
+    await waitForAdvance();
+    aEl.className = 'ans show ' + answerClass;
+    aEl.innerHTML = answerHtml;
+    if (onReveal) onReveal();
+    setStatus('Answer');
+    await waitForAdvance();
+    overlay.classList.remove('show');
+    aEl.className = 'ans';
+    aEl.innerHTML = '';
+  }
+
+  /**
+   * Real CPU memory access (CMU / architecture textbooks):
+   *   LOAD:  CPU sends VA → MMU → PA → memory returns data to register
+   *   STORE: CPU sends VA → MMU → PA → data goes from register to memory
+   * A CPU-driven copy does LOAD then STORE for every word; the CPU stays busy.
+   * (How DMA needs pinned pages = later slide.)
+   */
+  async function translateVaToPa(destNode, labelHint) {
+    // CPU → MMU with VA
+    cCpu.classList.add('active', 'busy');
+    cMmu.classList.add('active');
+    cMmuHint.textContent = 'receive VA';
+    cwVa.classList.add('on');
+
+    const va = makePacket(stageCpu, 'va');
+    await movePacket(stageCpu, va, centerOf(stageCpu, cCpu), centerOf(stageCpu, cMmu), 420, 'VA');
+    if (stopLoop) { va.remove(); return false; }
+
+    // MMU page-table / TLB lookup
+    cMmuHint.textContent = 'page table / TLB…';
+    cXform.classList.add('on');
+    await sleep(400);
+    cXform.classList.remove('on');
+    va.remove();
+    if (stopLoop) return false;
+
+    // PA delivered toward the target memory
+    cMmuHint.textContent = 'VA → PA';
+    const pa = makePacket(stageCpu, 'pa');
+    destNode.classList.add('active');
+    cwPa.classList.add('on');
+    await movePacket(stageCpu, pa, centerOf(stageCpu, cMmu), centerOf(stageCpu, destNode), 400, 'PA');
+    pa.remove();
+    if (labelHint) destNode.querySelector('.hint').textContent = labelHint;
+    cwVa.classList.remove('on');
+    return !stopLoop;
+  }
+
+  async function playCpuTransferLoop() {
+    playing = true;
+    looping = true;
+    stopLoop = false;
+    stepIndex = 0; paintDots();
+    focusCpu();
+    resetCpuVisual();
+    resetDmaVisual();
+    setStatus('CPU path: each load and store does VA → MMU → PA');
+    setNextReady(true);
+
+    const stopPromise = waitForAdvance();
+    let batch = 1;
+
+    while (!stopLoop) {
+      for (let i = 1; i <= 3 && !stopLoop; i++) {
+        [cwPa, cwLd, cwSt].forEach(w => w.classList.remove('on'));
+
+        // ===== LOAD from Main Memory =====
+        setCpuCaption('LOAD · 1) CPU sends source VA to MMU');
+        cCpuHint.textContent = 'BUSY — load';
+        cHostHint.textContent = 'source';
+        if (!(await translateVaToPa(cHost, 'selected by PA'))) break;
+
+        setCpuCaption('LOAD · 2) Data returns to a CPU register');
+        cwLd.classList.add('on');
+        cHostHint.textContent = 'return data';
+        cCpuHint.textContent = 'BUSY — waiting data';
+        const word = makePacket(stageCpu, 'reg');
+        await movePacket(stageCpu, word, centerOf(stageCpu, cHost), centerOf(stageCpu, cCpu), 420, 'data');
+        if (stopLoop) { word.remove(); break; }
+        cCpuHint.textContent = 'in register';
+        cHostHint.textContent = 'source';
+        cwPa.classList.remove('on');
+        cwLd.classList.remove('on');
+        await sleep(120);
+
+        // ===== STORE to GPU Memory (also needs translation!) =====
+        setCpuCaption('STORE · 3) CPU sends dest VA to MMU');
+        cCpuHint.textContent = 'BUSY — store';
+        cGpuHint.textContent = 'destination';
+        if (!(await translateVaToPa(cGpu, 'selected by PA'))) { word.remove(); break; }
+
+        setCpuCaption('STORE · 4) Data leaves register → GPU Memory');
+        cwSt.classList.add('on');
+        cGpuHint.textContent = 'write data';
+        await movePacket(stageCpu, word, centerOf(stageCpu, cCpu), centerOf(stageCpu, cGpu), 420, 'data');
+        word.remove();
+        cGpuHint.textContent = 'got data ' + i;
+        cCpuHint.textContent = 'BUSY — next load/store';
+        cwPa.classList.remove('on');
+        cwSt.classList.remove('on');
+        await sleep(100);
+      }
+      if (stopLoop) break;
+      setCpuCaption('Each piece of data = load + store · CPU busy the whole time');
+      cGpuHint.textContent = 'batch ' + (batch++) + ' done';
+      await sleep(280);
+    }
+
+    await stopPromise;
+    clearPackets(stageCpu);
+    cCaption.classList.remove('show');
+    cXform.classList.remove('on');
+    cCpuHint.textContent = 'was BUSY for the whole copy';
+    cMmuHint.textContent = 'translated every load & store';
+    looping = false;
+    playing = false;
+  }
+
+  /**
+   * Actual DMA:
+   * Engine is programmed with physical addresses, then moves
+   * Main Memory ↔ GPU Memory without the CPU in the data path.
+   */
+  async function playDmaTransferLoop() {
+    playing = true;
+    looping = true;
+    stopLoop = false;
+    stepIndex = 2; paintDots();
+    focusDma();
+    resetDmaVisual();
+    setStatus('DMA path: engine moves Host → GPU by physical address');
+    setNextReady(true);
+
+    const stopPromise = waitForAdvance();
+
+    dDma.classList.add('active');
+    dPhys.classList.add('active');
+    dPhysHint.textContent = 'PA for block';
+    dDmaHint.textContent = 'armed with PA';
+    dwPa.classList.add('on', 'dma-on');
+    dwUp.classList.add('on', 'dma-on');
+
+    const pa = makePacket(stageDma, 'phys');
+    await movePacket(stageDma, pa, centerOf(stageDma, dPhys), centerOf(stageDma, dDma), 520, 'PA');
+    pa.remove();
+    if (stopLoop) {
+      await stopPromise;
+      looping = false; playing = false;
+      return;
+    }
+
+    dHost.classList.add('active');
+    dGpu.classList.add('active');
+    dwBus.classList.add('on', 'dma-on');
+    dDmaHint.textContent = 'moving bytes';
+
+    let batch = 1;
+    while (!stopLoop) {
+      for (let i = 1; i <= 3 && !stopLoop; i++) {
+        const pkt = makePacket(stageDma);
+        await movePacket(stageDma, pkt, centerOf(stageDma, dHost), centerOf(stageDma, dGpu), 560, 'B' + i);
+        pkt.remove();
+        dGpuHint.textContent = 'got B' + i;
+        await sleep(70);
+      }
+      if (stopLoop) break;
+      dDmaHint.textContent = 'DMA keeps transferring';
+      dGpuHint.textContent = 'batch ' + (batch++) + ' done';
+      dPhysHint.textContent = 'same PA';
+      await sleep(220);
+    }
+
+    await stopPromise;
+    clearPackets(stageDma);
+    dDmaHint.textContent = 'transfer paused';
+    looping = false;
+    playing = false;
+  }
+
+  async function showDmaRiskAnim() {
+    playing = true;
+    dFlash.classList.add('on');
+    dHost.classList.add('danger', 'active');
+    dPhys.classList.add('danger', 'active');
+    dDma.classList.add('active');
+    dHostHint.textContent = 'page remapped!';
+    dPhysHint.textContent = 'stale PA';
+    dDmaHint.textContent = 'still uses old PA';
+    dwBus.classList.add('on', 'dma-on');
+    dwUp.classList.add('on', 'dma-on');
+
+    const bad = makePacket(stageDma, 'bad');
+    await movePacket(stageDma, bad, centerOf(stageDma, dHost), centerOf(stageDma, dGpu), 900, 'WRONG');
+    bad.remove();
+    dGpuHint.textContent = 'corrupted data';
+    playing = false;
+  }
+
+  async function run() {
+    while (true) {
+      demoComplete = false;
+      stepIndex = -1; paintDots();
+      panelCpu.classList.remove('focus', 'done-look');
+      panelDma.classList.remove('focus', 'done-look');
+      resetCpuVisual();
+      resetDmaVisual();
+      setStatus('Starting with CPU / programmed I/O transfer…');
+      await sleep(400);
+
+      await playCpuTransferLoop();
+
+      stepIndex = 1; paintDots();
+      focusCpu();
+      cCpu.classList.add('busy', 'active');
+      await askAndReveal({
+        overlay: cOverlay,
+        qEl: cQuestion,
+        aEl: cAns,
+        question: 'What is the disadvantage of this CPU transfer?',
+        answerClass: 'con',
+        answerHtml: '<b>✗ Disadvantage:</b> The CPU must <b>load</b> then <b>store</b> each piece of data itself. Every access needs <b>VA→PA translation</b>, and data passes through a CPU register — so the CPU stays <b>busy</b> and cannot compute meanwhile.',
+      });
+
+      await playDmaTransferLoop();
+
+      stepIndex = 3; paintDots();
+      focusDma();
+      await askAndReveal({
+        overlay: dOverlay,
+        qEl: dQuestion,
+        aEl: dAns,
+        question: 'What is the advantage of DMA?',
+        answerClass: 'pro',
+        answerHtml: '<b>✓ Advantage:</b> After setup, the <b>DMA engine</b> moves Main Memory ↔ GPU Memory by itself. The <b>CPU is free</b> to compute while bytes move.',
+      });
+
+      stepIndex = 4; paintDots();
+      focusDma();
+      await askAndReveal({
+        overlay: dOverlay,
+        qEl: dQuestion,
+        aEl: dAns,
+        question: 'What is the disadvantage / risk of DMA?',
+        answerClass: 'warn',
+        answerHtml: '<b>✗ Disadvantage:</b> DMA uses <b>physical addresses</b> and does not see OS remapping. If a page moves → wrong data.',
+        onReveal: () => { showDmaRiskAnim(); },
+      });
+
+      while (playing) await sleep(50);
+
+      // → after disadvantage → show solution: memory pinning
+      stepIndex = 5; paintDots();
+      focusDma();
+      dFlash.classList.remove('on');
+      [dHost, dPhys].forEach(n => n.classList.remove('danger'));
+      dHost.classList.add('active');
+      dPhys.classList.add('active');
+      dDma.classList.add('active');
+      dHostHint.textContent = 'pinned';
+      dPhysHint.textContent = 'PA stays valid';
+      dDmaHint.textContent = 'safe DMA';
+      dGpuHint.textContent = 'correct data';
+
+      dQuestion.textContent = 'Solution';
+      dAns.className = 'ans show sol';
+      dAns.innerHTML = '<b>✓ Memory pinning:</b> Lock the host pages so the OS <b>cannot move or swap</b> them. Physical addresses stay valid for the whole DMA transfer.';
+      dOverlay.classList.add('show');
+      setStatus('Memory pinning');
+      await waitForAdvance();
+
+      dOverlay.classList.remove('show');
+      dAns.className = 'ans';
+      dAns.innerHTML = '';
+
+      setStatus('Done');
+      demoComplete = true;
+      nextBtn.textContent = 'Replay ↻';
+      setNextReady(true);
+      await waitForAdvance();
+      demoComplete = false;
+      nextBtn.textContent = 'Next →';
+    }
+  }
+
+  window.focus();
+  document.body.tabIndex = 0;
+  document.body.focus();
+  run();
+})();
+</script>
+</body>
+</html>

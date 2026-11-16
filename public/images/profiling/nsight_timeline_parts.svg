@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 900" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f7fbff"/>
+      <stop offset="100%" stop-color="#eef3f9"/>
+    </linearGradient>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#17324d"/>
+      <stop offset="100%" stop-color="#2a5280"/>
+    </linearGradient>
+    <filter id="soft" x="-2%" y="-2%" width="104%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.14"/>
+    </filter>
+  </defs>
+
+  <!-- phase anchors:
+       load 170-280 | xfer 290-470 | fwd 480-640 | bwd 650-800
+       allreduce examples: 810-860, 880-930, 950-1000, 1020-1070
+       optim 1100-1200
+  -->
+
+  <rect width="1280" height="900" fill="url(#page)"/>
+
+  <rect x="24" y="14" width="1232" height="48" rx="10" fill="url(#titleGrad)" filter="url(#soft)"/>
+  <text x="44" y="44" fill="#ffffff" font-size="22" font-weight="700">Timeline</text>
+  <!-- solid black time axis -->
+  <line x1="160" y1="38" x2="1185" y2="38" stroke="#000000" stroke-width="3"/>
+  <polygon points="1185,30 1212,38 1185,46" fill="#000000"/>
+  <text x="1218" y="44" fill="#ffffff" font-size="14" font-weight="700">time</text>
+
+  <g stroke="#c5d3e0" stroke-width="1" stroke-dasharray="3 4" opacity="0.55">
+    <line x1="170" y1="78" x2="170" y2="860"/>
+    <line x1="290" y1="78" x2="290" y2="860"/>
+    <line x1="480" y1="78" x2="480" y2="860"/>
+    <line x1="650" y1="78" x2="650" y2="860"/>
+    <line x1="810" y1="78" x2="810" y2="860"/>
+    <line x1="1100" y1="78" x2="1100" y2="860"/>
+  </g>
+
+  <!-- GPU metrics top -->
+  <rect x="24" y="74" width="1232" height="84" rx="10" fill="#ffffff" stroke="#5fa879" stroke-width="2" filter="url(#soft)"/>
+  <text x="36" y="98" fill="#1b5e20" font-size="14" font-weight="700">GPU metrics</text>
+  <text x="36" y="122" fill="#33691e" font-size="12" font-weight="700">SMs Active</text>
+  <path d="M170 118 C 250 105, 350 130, 480 110 S 600 125, 720 112 S 900 122, 1050 115 S 1120 120, 1200 116" fill="none" stroke="#43a047" stroke-width="2.8"/>
+  <text x="36" y="146" fill="#6a1b9a" font-size="12" font-weight="700">DRAM BW</text>
+  <path d="M170 142 C 260 132, 360 152, 480 138 S 650 150, 800 140 S 950 148, 1080 142 S 1140 146, 1200 144" fill="none" stroke="#8e24aa" stroke-width="2.8"/>
+
+  <!-- NVLink / PCIe middle -->
+  <rect x="24" y="170" width="1232" height="96" rx="10" fill="#ffffff" stroke="#ef6c00" stroke-width="2" filter="url(#soft)"/>
+  <text x="36" y="194" fill="#e65100" font-size="14" font-weight="700">NVLink / PCIe</text>
+
+  <text x="36" y="224" fill="#ef6c00" font-size="12" font-weight="700">NVLink</text>
+  <!-- baseline at y=230; spikes only go UP (smaller y), never below baseline -->
+  <path d="M170 230 L810 230" fill="none" stroke="#ffcc80" stroke-width="2.5"/>
+  <!-- allreduce spikes: 810-860, 880-930, 950-1000, 1020-1070 -->
+  <path d="M810 230 L825 200 L835 212 L845 192 L860 230" fill="none" stroke="#ef6c00" stroke-width="3"/>
+  <path d="M860 230 L880 230" fill="none" stroke="#ffcc80" stroke-width="2.5"/>
+  <path d="M880 230 L895 198 L905 214 L915 190 L930 230" fill="none" stroke="#ef6c00" stroke-width="3"/>
+  <path d="M930 230 L950 230" fill="none" stroke="#ffcc80" stroke-width="2.5"/>
+  <path d="M950 230 L965 202 L975 216 L985 188 L1000 230" fill="none" stroke="#ef6c00" stroke-width="3"/>
+  <path d="M1000 230 L1020 230" fill="none" stroke="#ffcc80" stroke-width="2.5"/>
+  <path d="M1020 230 L1035 200 L1045 214 L1055 192 L1070 230" fill="none" stroke="#ef6c00" stroke-width="3"/>
+  <path d="M1070 230 L1200 230" fill="none" stroke="#ffcc80" stroke-width="2.5"/>
+
+  <text x="36" y="252" fill="#1565c0" font-size="12" font-weight="700">PCIe</text>
+  <!-- straight flat line -->
+  <line x1="170" y1="248" x2="1200" y2="248" stroke="#1565c0" stroke-width="3"/>
+
+  <!-- Python process -->
+  <rect x="24" y="280" width="1232" height="260" rx="12" fill="#ffffff" stroke="#b7c7d8" stroke-width="2" filter="url(#soft)"/>
+  <rect x="24" y="280" width="1232" height="34" rx="12" fill="#dceaf8"/>
+  <rect x="24" y="300" width="1232" height="14" fill="#dceaf8"/>
+  <text x="36" y="304" fill="#17324d" font-size="15" font-weight="700">Python process</text>
+
+  <text x="36" y="340" fill="#8a5a00" font-size="12" font-weight="700">NVTX</text>
+  <rect x="170" y="322" width="110" height="26" rx="5" fill="#7cb342"/>
+  <text x="225" y="340" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">load data</text>
+  <rect x="290" y="322" width="180" height="26" rx="5" fill="#ef6c00"/>
+  <text x="380" y="340" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">transfer to device</text>
+  <rect x="480" y="322" width="160" height="26" rx="5" fill="#1e88e5"/>
+  <text x="560" y="340" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">forward step</text>
+  <rect x="650" y="322" width="150" height="26" rx="5" fill="#8e24aa"/>
+  <text x="725" y="340" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">backward step</text>
+  <rect x="1100" y="322" width="100" height="26" rx="5" fill="#00897b"/>
+  <text x="1150" y="340" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">optimizer</text>
+
+  <text x="36" y="378" fill="#8a5a00" font-size="12" font-weight="700">PyTorch</text>
+  <rect x="170" y="360" width="110" height="26" rx="5" fill="#a5d6a7" stroke="#558b2f"/>
+  <text x="225" y="378" text-anchor="middle" fill="#1b5e20" font-size="10" font-weight="700">DataLoader</text>
+  <rect x="290" y="360" width="180" height="26" rx="5" fill="#ffcc80" stroke="#ef6c00"/>
+  <text x="380" y="378" text-anchor="middle" fill="#e65100" font-size="11" font-weight="700">Tensor.to</text>
+  <rect x="480" y="360" width="160" height="26" rx="5" fill="#90caf9" stroke="#1e88e5"/>
+  <text x="560" y="378" text-anchor="middle" fill="#0d47a1" font-size="10" font-weight="700">Module/forward</text>
+  <rect x="650" y="360" width="150" height="26" rx="5" fill="#ce93d8" stroke="#8e24aa"/>
+  <text x="725" y="378" text-anchor="middle" fill="#4a148c" font-size="10" font-weight="700">autograd.backward</text>
+  <rect x="1100" y="360" width="100" height="26" rx="5" fill="#80cbc4" stroke="#00897b"/>
+  <text x="1150" y="378" text-anchor="middle" fill="#004d40" font-size="10" font-weight="700">AdamW</text>
+
+  <text x="36" y="420" fill="#1b5e20" font-size="12" font-weight="700">CUDA HW</text>
+  <rect x="170" y="400" width="110" height="36" rx="5" fill="#f4f7f5" stroke="#a5b8aa" stroke-dasharray="4 3"/>
+  <text x="225" y="416" text-anchor="middle" fill="#60756a" font-size="10" font-weight="700">no GPU</text>
+  <text x="225" y="430" text-anchor="middle" fill="#60756a" font-size="9">annotation</text>
+
+  <text x="36" y="456" fill="#1b5e20" font-size="11">NVTX</text>
+  <rect x="480" y="440" width="160" height="22" rx="4" fill="#bbdefb" stroke="#1e88e5" stroke-dasharray="4 3"/>
+  <text x="560" y="455" text-anchor="middle" fill="#0d47a1" font-size="10" font-weight="700">forward step</text>
+  <rect x="650" y="440" width="150" height="22" rx="4" fill="#e1bee7" stroke="#8e24aa" stroke-dasharray="4 3"/>
+  <text x="725" y="455" text-anchor="middle" fill="#4a148c" font-size="10" font-weight="700">backward step</text>
+
+  <text x="36" y="488" fill="#1b5e20" font-size="11">PyTorch</text>
+  <rect x="480" y="472" width="160" height="22" rx="4" fill="#e3f2fd" stroke="#42a5f5" stroke-dasharray="4 3"/>
+  <text x="560" y="487" text-anchor="middle" fill="#1565c0" font-size="10" font-weight="700">forward ops</text>
+  <rect x="650" y="472" width="150" height="22" rx="4" fill="#f3e5f5" stroke="#ab47bc" stroke-dasharray="4 3"/>
+  <text x="725" y="487" text-anchor="middle" fill="#6a1b9a" font-size="10" font-weight="700">backward ops</text>
+
+  <text x="36" y="520" fill="#1b5e20" font-size="11">Kernels</text>
+  <rect x="480" y="506" width="160" height="18" rx="3" fill="#43a047"/>
+  <rect x="650" y="506" width="150" height="18" rx="3" fill="#2e7d32"/>
+  <rect x="810" y="506" width="50" height="18" rx="3" fill="#8d6e63"/>
+  <rect x="880" y="506" width="50" height="18" rx="3" fill="#8d6e63"/>
+  <rect x="950" y="506" width="50" height="18" rx="3" fill="#8d6e63"/>
+  <rect x="1020" y="506" width="50" height="18" rx="3" fill="#8d6e63"/>
+
+  <!-- NCCL row: multiple allreduces -->
+  <rect x="24" y="556" width="1232" height="88" rx="10" fill="#ffffff" stroke="#6d4c41" stroke-width="2.5" filter="url(#soft)"/>
+  <text x="36" y="582" fill="#4e342e" font-size="14" font-weight="700">NCCL</text>
+  <text x="100" y="582" fill="#6d4c41" font-size="12">multiple ncclAllReduce calls</text>
+
+  <text x="36" y="622" fill="#4e342e" font-size="12" font-weight="700">ncclAllReduce</text>
+  <rect x="810" y="602" width="50" height="30" rx="4" fill="#5d4037"/>
+  <rect x="880" y="602" width="50" height="30" rx="4" fill="#5d4037"/>
+  <rect x="950" y="602" width="50" height="30" rx="4" fill="#5d4037"/>
+  <rect x="1020" y="602" width="50" height="30" rx="4" fill="#5d4037"/>
+  <text x="835" y="622" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">AR</text>
+  <text x="905" y="622" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">AR</text>
+  <text x="975" y="622" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">AR</text>
+  <text x="1045" y="622" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">AR</text>
+
+  <!-- NIC full width -->
+  <rect x="24" y="658" width="1232" height="140" rx="10" fill="#ffffff" stroke="#1565c0" stroke-width="2.5" filter="url(#soft)"/>
+  <text x="36" y="684" fill="#0d47a1" font-size="14" font-weight="700">NIC (mlx5)</text>
+
+  <text x="36" y="720" fill="#0d47a1" font-size="12" font-weight="700">IB RX</text>
+  <rect x="810" y="704" width="50" height="22" rx="3" fill="#0d47a1"/>
+  <rect x="880" y="704" width="50" height="22" rx="3" fill="#0d47a1"/>
+  <rect x="950" y="704" width="50" height="22" rx="3" fill="#0d47a1"/>
+  <rect x="1020" y="704" width="50" height="22" rx="3" fill="#0d47a1"/>
+
+  <text x="36" y="756" fill="#0d47a1" font-size="12" font-weight="700">IB TX</text>
+  <rect x="810" y="740" width="50" height="22" rx="3" fill="#1565c0"/>
+  <rect x="880" y="740" width="50" height="22" rx="3" fill="#1565c0"/>
+  <rect x="950" y="740" width="50" height="22" rx="3" fill="#1565c0"/>
+  <rect x="1020" y="740" width="50" height="22" rx="3" fill="#1565c0"/>
+
+  <text x="36" y="786" fill="#607d8b" font-size="12" font-weight="700">Eth</text>
+  <rect x="300" y="774" width="8" height="14" rx="2" fill="#90a4ae"/>
+  <rect x="700" y="774" width="7" height="14" rx="2" fill="#90a4ae"/>
+
+  <text x="225" y="840" text-anchor="middle" fill="#555" font-size="11">load</text>
+  <text x="380" y="840" text-anchor="middle" fill="#555" font-size="11">transfer</text>
+  <text x="560" y="840" text-anchor="middle" fill="#555" font-size="11">forward</text>
+  <text x="725" y="840" text-anchor="middle" fill="#555" font-size="11">backward</text>
+  <text x="940" y="840" text-anchor="middle" fill="#555" font-size="11" font-weight="700">allreduces</text>
+  <text x="1150" y="840" text-anchor="middle" fill="#555" font-size="11">optim</text>
+</svg>
