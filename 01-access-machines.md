@@ -169,26 +169,11 @@ cd ~/course
 pwd
 ```
 
----
-
-# Set Up Your Working Directory
-
-**2. Create application directories**
-
-```bash
-mkdir -p ~/course/{.cache,.config,.fastai}
-```
-
----
-
-# Set Up Your Working Directory
-
-**3. Link application directories**
+**2. Link application directories**
 
 ```bash
 ln -s ~/course/.cache ~/.cache
 ln -s ~/course/.config ~/.config
-ln -s ~/course/.fastai ~/.fastai
 ```
 
 > Create links only if the corresponding home-directory paths do not already exist. Back up or migrate existing data rather than deleting it.
@@ -289,7 +274,6 @@ cd ~/course
 source .venv/bin/activate
 which python
 python -c "import torch; print(torch.__version__)"
-python -c "import fastai; print(fastai.__version__)"
 python -c "import wandb; print(wandb.__version__)"
 ```
 
