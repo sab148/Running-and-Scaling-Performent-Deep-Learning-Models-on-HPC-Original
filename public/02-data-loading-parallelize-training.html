@@ -316,13 +316,13 @@ alt="JSC Supercomputer Stragegy" /></li>
 <li class="fragment"><p>Always store your code in the project1 folder
 (<strong><code>$PROJECT_projectname</code></strong> ). In our case</p>
 <div class="sourceCode" id="cb1"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/p/project1/training2643/</span><span class="va">$USER</span></span></code></pre></div></li>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/p/project1/training2658/</span><span class="va">$USER</span></span></code></pre></div></li>
 <li class="fragment"><p>Store data in the scratch directory for faster
 I/O access (<strong><code>$SCRATCH_projectname</code></strong>).
 ⚠️<strong>Files in scratch are deleted after 90 days of
 inactivity.</strong></p>
 <div class="sourceCode" id="cb2"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/p/scratch/training2643/</span><span class="va">$USER</span></span></code></pre></div></li>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/p/scratch/training2658/</span><span class="va">$USER</span></span></code></pre></div></li>
 <li class="fragment"><p>Store the data in <a
 href="https://judoor.fz-juelich.de/projects/datasets/"><code>$DATA_dataset</code></a>
 for a more permanent location.</p>
@@ -462,7 +462,7 @@ node.</li>
 <strong>to</strong> 153.</p></li>
 <li class="fragment"><p>Activate your environment:</p>
 <div class="sourceCode" id="cb6"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> <span class="va">$HOME</span>/course/sc_venv_template/activate.sh</span></code></pre></div></li>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> <span class="va">$HOME</span>/course/.venv/bin/activate</span></code></pre></div></li>
 <li class="fragment"><p>Run:</p>
 <div class="sourceCode" id="cb7"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">PYTHONPATH</span><span class="op">=</span><span class="st">&quot;</span><span class="va">${PYTHONPATH}</span><span class="st">:</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">&quot;</span></span>
@@ -492,7 +492,7 @@ training</li>
 <li class="fragment"><p>Activate the Environment</p>
 <p>If you haven’t already, activate your environment:</p>
 <div class="sourceCode" id="cb9"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> <span class="va">$HOME</span>/course/sc_venv_template/activate.sh</span></code></pre></div></li>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> <span class="va">$HOME</span>/course/.venv/bin/activate</span></code></pre></div></li>
 </ol>
 </section>
 <section id="tensorboard-and-wandb" class="slide level2">
