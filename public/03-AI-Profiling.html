@@ -20,8 +20,11 @@
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    ul.task-list{list-style: none;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
     ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
       width: 0.8em;
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
@@ -29,7 +32,7 @@
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
     pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span { line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
     .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -399,8 +402,8 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="
 <p>Download a sample <strong>Nsight Systems</strong> trace:</p>
 <div
 style="font-weight: bold; background-color: #ffcccc; padding: 12px 16px; border-radius: 8px;">
-<a href="https://drive.google.com/file/d/1fhYkZ4LkyqbB9-_PKYXcU6dDkpIpwtPB/view" target="_blank" style="color:#8a0000; text-decoration: underline;">Download
-Nsight Systems trace (Google Drive)</a>
+<p><a href="https://drive.google.com/file/d/1fhYkZ4LkyqbB9-_PKYXcU6dDkpIpwtPB/view" target="_blank" style="color:#8a0000; text-decoration: underline;">Download
+Nsight Systems trace (Google Drive)</a></p>
 </div>
 </section>
 <section class="slide level2">
@@ -485,57 +488,8 @@ style="width: 200%; max-width: 1200px; margin-left: -100px; margin-right: auto;"
 allreduce) · <b>PCIe</b> (flat) · <b>NCCL</b> · <b>NIC</b> row</p>
 </div>
 </section>
-<section class="slide level2">
-
-<h3 id="what-information-each-training-label-gives-you">What information
-each training label gives you</h3>
-<div
-style="font-size: 0.45em; text-align: left; max-width: 1150px; margin: 0 auto;">
-<table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>NVTX label (CPU)</th>
-<th>Information on the CPU row</th>
-<th>Information to read on CUDA HW</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>:data_loading</code></td>
-<td>Time to load the batch into system memory</td>
-<td>Usually little/no GPU activity</td>
-</tr>
-<tr class="even">
-<td><code>:data_movement</code></td>
-<td>Time the host spends in <code>tensor.to(device)</code> (can include
-waiting)</td>
-<td>Length of H2D <strong>memcpy</strong> (often much shorter than the
-CPU bar)</td>
-</tr>
-<tr class="odd">
-<td><code>:forward_step</code></td>
-<td>Time Python stays in the forward phase</td>
-<td>Forward <strong>kernels</strong> (GPU compute; may be longer than
-the CPU bar)</td>
-</tr>
-<tr class="even">
-<td><code>:backward_step</code></td>
-<td>Autograd on the host (graph walk + launches)</td>
-<td>Gradient <strong>kernels</strong> on the GPU</td>
-</tr>
-<tr class="odd">
-<td><code>:optimizer_step</code></td>
-<td>Time in the optimizer step on the host</td>
-<td>Optimizer <strong>kernels</strong> on the GPU</td>
-</tr>
-</tbody>
-</table>
-</div>
+<section id="how-to-read-nsight-systems-profiles" class="slide level2">
+<h2>How to read Nsight Systems profiles</h2>
 </section>
 <section class="slide level2">
 
@@ -557,6 +511,13 @@ Single_GPU laboratory</h3>
 <h3 id="how-dataloader-works-with-0-workers">How DataLoader works with 0
 workers</h3>
 <iframe src="images/profiling/dataloader_zero_workers_anim.html" title="Animated DataLoader with 0 workers" style="width:100%;max-width:1600px;height:760px;border:0;border-radius:12px;background:#fff;display:block;margin:0 auto;">
+</iframe>
+</section>
+<section class="slide level2">
+
+<h3 id="processes-and-threads-on-the-timeline">Processes and threads on
+the Timeline</h3>
+<iframe src="images/profiling/nsys_process_thread_anim.html" title="How to read nsys process and thread tree" style="width:100%;max-width:1600px;height:720px;border:0;border-radius:12px;background:#fff;display:block;margin:0 auto;">
 </iframe>
 </section>
 <section class="slide level2">
@@ -626,19 +587,26 @@ Then answer the form from what you observe.
 </section>
 <section class="slide level2">
 
+<h3 id="processes-and-threads-multi-worker-timeline">Processes and
+threads — multi-worker Timeline</h3>
+<iframe src="images/profiling/nsys_process_thread_multiworker_anim.html" title="How to read nsys multi-worker process tree" style="width:100%;max-width:1600px;height:900px;border:0;border-radius:12px;background:#fff;display:block;margin:0 auto;">
+</iframe>
+</section>
+<section class="slide level2">
+
 <h3 id="enable-workers-in-code">Enable workers in code</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>train_loader <span class="op">=</span> DataLoader(</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    train_dataset,</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    batch_size<span class="op">=</span>args.batch_size,</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    num_workers<span class="op">=</span><span class="dv">4</span>,</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    pin_memory<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>train_loader <span class="op">=</span> DataLoader(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    train_dataset,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    batch_size<span class="op">=</span>args.batch_size,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    num_workers<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    pin_memory<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb11"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training_profiling.sbatch <span class="at">--profile</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training_profiling.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 </section>
 <section class="slide level2">
@@ -768,21 +736,21 @@ Every <code>cudaMemcpy</code> actually involves two copies.
 
 <h3 id="single-gpu-asyn.-transfer">Single GPU (Asyn. Transfer)</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>train_loader <span class="op">=</span> DataLoader(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    train_dataset,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    batch_size<span class="op">=</span>args.batch_size,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    num_workers<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    pin_memory<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div style="font-weight: bold; background-color: #ffcccc;">
 <div class="sourceCode" id="cb12"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>train_loader <span class="op">=</span> DataLoader(</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    train_dataset,</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    batch_size<span class="op">=</span>args.batch_size,</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    num_workers<span class="op">=</span><span class="dv">4</span>,</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    pin_memory<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>src, tgt <span class="op">=</span> src.to(device, non_blocking<span class="op">=</span><span class="va">True</span>), tgt.to(device, non_blocking<span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
 </div>
 <div style="font-weight: bold; background-color: #ffcccc;">
 <div class="sourceCode" id="cb13"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>src, tgt <span class="op">=</span> src.to(device, non_blocking<span class="op">=</span><span class="va">True</span>), tgt.to(device, non_blocking<span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
-</div>
-<div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb14"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training_profiling.sbatch <span class="at">--profile</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> single_gpu_training_profiling.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 </section>
 <section class="slide level2">
@@ -852,8 +820,8 @@ Is there any CUDA synchronization in the trace?
 
 <h3 id="ddp-single-node-4-gpus">DDP — single node (4 GPUs)</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb15"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 1 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 1 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 <div
 style="max-width:1100px;margin:0 auto;text-align:left;font-size:0.48em;">
@@ -894,8 +862,8 @@ On <b>GPU metrics</b>, compare <b>NVLink</b> vs <b>PCIe</b> during
 training — which spikes with collectives?
 </li>
 <li>
-On <b>CUDA HW</b>, find NCCL kernels (e.g.
-<code>ncclDevKernel_AllReduce_...</code>) / the NCCL row.
+On <b>CUDA HW</b>, find NCCL kernels
+(e.g. <code>ncclDevKernel_AllReduce_…</code>) / the NCCL row.
 </li>
 <li>
 Count how many times <b>AllReduce</b> runs in this report (NCCL / CUDA
@@ -914,8 +882,8 @@ time as AllReduce, or only before/after?
 <h3 id="ddp-multi-node-with-gpudirect-rdma-8-gpus">DDP — multi-node with
 GPUDirect RDMA (8 GPUs)</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb17"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 <div
 style="max-width:1100px;margin:0 auto;text-align:left;font-size:0.48em;">
@@ -960,8 +928,8 @@ Also glance at <b>NIC / InfiniBand</b> metrics — multi-node traffic
 should appear here (GPUDirect RDMA).
 </li>
 <li>
-On <b>CUDA HW</b>, find <code>ncclDevKernel_AllReduce_...</code>; note
-how long AllReduce bars are vs the single-node case.
+On <b>CUDA HW</b>, find <code>ncclDevKernel_AllReduce_…</code>; note how
+long AllReduce bars are vs the single-node case.
 </li>
 <li>
 In a steady window: do non-NCCL <b>compute kernels</b> overlap
@@ -974,12 +942,11 @@ before.
 </section>
 <section class="slide level2">
 
-<h3
-id="ddp-multi-node-without-gpudirect-rdma-ncclp2plevelloc">DDP —
+<h3 id="ddp-multi-node-without-gpudirect-rdma-nccl_p2p_levelloc">DDP —
 multi-node without GPUDirect RDMA (<code>NCCL_P2P_LEVEL=LOC</code>)</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb19"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="va">NCCL_P2P_LEVEL</span><span class="op">=</span>LOC <span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="va">NCCL_P2P_LEVEL</span><span class="op">=</span>LOC <span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 <div
 style="max-width:1100px;margin:0 auto;text-align:left;font-size:0.48em;">
@@ -1021,7 +988,7 @@ compare <b>NVLink</b> vs <b>PCIe</b> on GPU metrics vs the previous
 RDMA-enable slide.
 </li>
 <li>
-On <b>CUDA HW</b>, find <code>ncclDevKernel_AllReduce_...</code>; are
+On <b>CUDA HW</b>, find <code>ncclDevKernel_AllReduce_…</code>; are
 AllReduce bars longer than with GPUDirect RDMA?
 </li>
 <li>
@@ -1034,12 +1001,11 @@ AllReduce? Use the same overlap options as before.
 </section>
 <section class="slide level2">
 
-<h3
-id="ddp-multi-node-without-infiniband-ncclibdisable1">DDP — multi-node
-without InfiniBand (<code>NCCL_IB_DISABLE=1</code>)</h3>
+<h3 id="ddp-multi-node-without-infiniband-nccl_ib_disable1">DDP —
+multi-node without InfiniBand (<code>NCCL_IB_DISABLE=1</code>)</h3>
 <div style="font-weight: bold; background-color: #ffcccc;">
-<div class="sourceCode" id="cb21"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="va">NCCL_IB_DISABLE</span><span class="op">=</span>1 <span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="va">NCCL_IB_DISABLE</span><span class="op">=</span>1 <span class="ex">sbatch</span> <span class="at">--disable-dcgm</span> <span class="at">--nodes</span> 2 ddp_training.sbatch <span class="at">--profile</span></span></code></pre></div>
 </div>
 <div
 style="max-width:1100px;margin:0 auto;text-align:left;font-size:0.48em;">
@@ -1080,8 +1046,8 @@ Guided exploration
 <b>NIC</b> metrics (Ethernet / sockets vs IB) vs the RDMA-enable slide.
 </li>
 <li>
-On <b>CUDA HW</b>, find <code>ncclDevKernel_AllReduce_...</code>; how
-long are the bars vs previous multi-node runs?
+On <b>CUDA HW</b>, find <code>ncclDevKernel_AllReduce_…</code>; how long
+are the bars vs previous multi-node runs?
 </li>
 <li>
 Look at <b>SMs Active</b> / compute during AllReduce — is the GPU busy

@@ -250,19 +250,7 @@ Shared time axis: <b>GPU metrics</b> · <b>NVLink</b> (spikes at each allreduce)
 
 ---
 
-### What information each training label gives you
-
-<div style="font-size: 0.45em; text-align: left; max-width: 1150px; margin: 0 auto;">
-
-| NVTX label (CPU) | Information on the CPU row | Information to read on CUDA HW |
-|---|---|---|
-| `:data_loading` | Time to load the batch into system memory | Usually little/no GPU activity |
-| `:data_movement` | Time the host spends in `tensor.to(device)` (can include waiting) | Length of H2D **memcpy** (often much shorter than the CPU bar) |
-| `:forward_step` | Time Python stays in the forward phase | Forward **kernels** (GPU compute; may be longer than the CPU bar) |
-| `:backward_step` | Autograd on the host (graph walk + launches) | Gradient **kernels** on the GPU |
-| `:optimizer_step` | Time in the optimizer step on the host | Optimizer **kernels** on the GPU |
-
-</div>
+## How to read Nsight Systems profiles
 
 ---
 
@@ -285,6 +273,12 @@ Shared time axis: <b>GPU metrics</b> · <b>NVLink</b> (spikes at each allreduce)
 ### How DataLoader works with 0 workers
 
 <iframe src="images/profiling/dataloader_zero_workers_anim.html" title="Animated DataLoader with 0 workers" style="width:100%;max-width:1600px;height:760px;border:0;border-radius:12px;background:#fff;display:block;margin:0 auto;"></iframe>
+
+---
+
+### Processes and threads on the Timeline
+
+<iframe src="images/profiling/nsys_process_thread_anim.html" title="How to read nsys process and thread tree" style="width:100%;max-width:1600px;height:720px;border:0;border-radius:12px;background:#fff;display:block;margin:0 auto;"></iframe>
 
 ---
 
@@ -325,6 +319,12 @@ Use <b>+</b> / <b>&minus;</b> and pick a steady middle iteration (skip startup).
 ### How DataLoader workers work
 
 <iframe src="images/profiling/dataloader_workers_anim.html" title="Animated DataLoader with 2 workers" style="width:100%;max-width:1600px;height:760px;border:0;border-radius:12px;background:#fff;display:block;margin:0 auto;"></iframe>
+
+---
+
+### Processes and threads — multi-worker Timeline
+
+<iframe src="images/profiling/nsys_process_thread_multiworker_anim.html" title="How to read nsys multi-worker process tree" style="width:100%;max-width:1600px;height:900px;border:0;border-radius:12px;background:#fff;display:block;margin:0 auto;"></iframe>
 
 ---
 

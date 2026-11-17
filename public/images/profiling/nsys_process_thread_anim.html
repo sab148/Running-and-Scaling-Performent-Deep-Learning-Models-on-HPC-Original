@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Nsight Systems: processes and threads</title>
+<style>
+  :root {
+    --ink: #023d6b;
+    --muted: #607d8b;
+    --blue: #1565c0;
+    --green: #2e7d32;
+    --orange: #ef6c00;
+    --red: #c62828;
+    --yellow: #f0d965;
+    --profiler: #6a1b9a;
+    --helper: #78909c;
+    --cpu: #1b5e20;
+    --gpu: #e65100;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, Helvetica, sans-serif;
+    color: var(--ink);
+    background: #f4f7fb;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    padding: 10px 14px 8px;
+  }
+  .header { text-align: center; margin-bottom: 6px; flex: 0 0 auto; }
+  .header h1 {
+    margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.01em;
+  }
+  .header p {
+    margin: 4px 0 0; font-size: 12px; color: var(--muted); font-weight: 600;
+  }
+  .stage {
+    position: relative; flex: 1; min-height: 0;
+    border-radius: 14px;
+    background: #fff;
+    border: 1.5px solid #d7dee8;
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 0;
+    overflow: hidden;
+  }
+  .tree {
+    padding: 14px 16px 12px 18px;
+    border-right: 1px solid #e3e8ef;
+    overflow: auto;
+  }
+  .legend {
+    padding: 14px 16px;
+    background: linear-gradient(180deg, #f8fbff 0%, #fff 40%);
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .node {
+    border-radius: 10px;
+    padding: 8px 10px;
+    margin: 4px 0;
+    border: 1.5px solid #cfd8dc;
+    background: #fff;
+    transition: transform .25s ease, box-shadow .25s ease, opacity .35s ease, border-color .25s, filter .25s;
+    opacity: 0.35;
+    transform: translateX(-6px);
+  }
+  .node.show {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .node.active {
+    box-shadow: 0 0 0 3px rgba(21,101,192,.18);
+    border-color: var(--blue);
+  }
+  .node.main { border-left: 5px solid var(--blue); background: #e3f2fd; }
+  .node.helper { border-left: 5px solid var(--helper); background: #eceff1; }
+  .node.profiler { border-left: 5px solid var(--profiler); background: #f3e5f5; }
+  .node.app { border-left: 5px solid var(--green); background: #e8f5e9; }
+  .node.gpu { border-left: 5px solid var(--orange); background: #fff3e0; }
+  .node.ignore { border-left: 5px solid #bdbdbd; background: #fafafa; color: #78909c; }
+
+  /* Key rows: python (main thread) + CUDA HW */
+  .node.key {
+    position: relative;
+    padding: 10px 12px 10px 14px;
+    margin: 8px 0;
+    border-width: 2px;
+    opacity: 0.42;
+  }
+  .node.key.show { opacity: 1; }
+  .node.key .name { font-size: 14px; letter-spacing: -0.01em; }
+  .node.key .desc { font-size: 11.5px; }
+  .node.key .key-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 9px; font-weight: 800; letter-spacing: 0.04em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 999px;
+    white-space: nowrap;
+  }
+  .node.key-cpu {
+    border-color: #66bb6a;
+    border-left: 6px solid var(--cpu);
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 55%, #e8f5e9 100%);
+    box-shadow: 0 2px 0 rgba(46,125,50,.12), 0 6px 16px rgba(46,125,50,.10);
+  }
+  .node.key-cpu .name { color: var(--cpu); }
+  .node.key-cpu .key-badge {
+    background: #1b5e20; color: #fff;
+  }
+  .node.key-gpu {
+    border-color: #ffb74d;
+    border-left: 6px solid var(--gpu);
+    background: linear-gradient(135deg, #fff8e1 0%, #ffe0b2 55%, #fff3e0 100%);
+    box-shadow: 0 2px 0 rgba(239,108,0,.12), 0 6px 16px rgba(239,108,0,.12);
+  }
+  .node.key-gpu .name { color: var(--gpu); }
+  .node.key-gpu .key-badge {
+    background: #e65100; color: #fff;
+  }
+  .node.key.active {
+    transform: translateX(0) scale(1.02);
+    z-index: 2;
+  }
+  .node.key-cpu.active {
+    border-color: var(--cpu);
+    box-shadow:
+      0 0 0 3px rgba(46,125,50,.28),
+      0 8px 22px rgba(46,125,50,.22);
+    animation: pulse-cpu 1.6s ease-in-out infinite;
+  }
+  .node.key-gpu.active {
+    border-color: var(--gpu);
+    box-shadow:
+      0 0 0 3px rgba(239,108,0,.28),
+      0 8px 22px rgba(239,108,0,.22);
+    animation: pulse-gpu 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse-cpu {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(46,125,50,.28), 0 8px 22px rgba(46,125,50,.22); }
+    50% { box-shadow: 0 0 0 6px rgba(46,125,50,.12), 0 10px 26px rgba(46,125,50,.28); }
+  }
+  @keyframes pulse-gpu {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(239,108,0,.28), 0 8px 22px rgba(239,108,0,.22); }
+    50% { box-shadow: 0 0 0 6px rgba(239,108,0,.12), 0 10px 26px rgba(239,108,0,.28); }
+  }
+  /* When a key row is active, soft-dim nearby non-key siblings */
+  .tree.key-focus .node.show:not(.key):not(.active) {
+    opacity: 0.55;
+    filter: saturate(0.75);
+  }
+  .tree.key-focus .node.key.show:not(.active) {
+    opacity: 0.88;
+  }
+
+  .indent { margin-left: 22px; position: relative; }
+  .indent::before {
+    content: "";
+    position: absolute; left: -12px; top: -2px; bottom: 8px;
+    width: 2px; background: #d0d7de;
+  }
+  .row {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .name { font-size: 13px; font-weight: 800; }
+  .tag {
+    font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px;
+    background: #eef2f6; color: var(--muted); white-space: nowrap;
+  }
+  .tag.focus { background: #c8e6c9; color: #1b5e20; }
+  .tag.skip { background: #eeeeee; color: #757575; }
+  .tag.gpu { background: #ffe0b2; color: #e65100; }
+  .desc { font-size: 11px; color: var(--muted); margin-top: 2px; font-weight: 600; }
+  .card {
+    border-radius: 12px; padding: 10px 12px;
+    border: 1.5px solid #d7dee8; background: #fff;
+  }
+  .card h3 { margin: 0 0 6px; font-size: 13px; font-weight: 800; }
+  .card ul { margin: 0; padding-left: 16px; font-size: 12px; font-weight: 600; color: #37474f; }
+  .card li { margin: 3px 0; }
+  .focus-box { border-color: #81c784; background: #e8f5e9; }
+  .skip-box { border-color: #e0e0e0; background: #fafafa; }
+  .note {
+    margin-top: auto;
+    font-size: 11px; font-weight: 700; color: var(--ink);
+    background: #fff8e1; border: 1.5px solid var(--yellow);
+    border-radius: 10px; padding: 8px 10px;
+  }
+  .pair-hint {
+    display: none;
+    margin-top: 4px;
+    font-size: 11px; font-weight: 700;
+    border-radius: 10px; padding: 8px 10px;
+    border: 1.5px dashed transparent;
+  }
+  .pair-hint.show { display: block; }
+  .pair-hint.cpu {
+    background: #e8f5e9; border-color: #81c784; color: #1b5e20;
+  }
+  .pair-hint.gpu {
+    background: #fff3e0; border-color: #ffb74d; color: #e65100;
+  }
+  .controls {
+    flex: 0 0 auto; display: flex; gap: 8px; justify-content: center;
+    align-items: center; padding-top: 8px;
+  }
+  button {
+    border: 0; border-radius: 999px; padding: 7px 14px;
+    font-weight: 800; font-size: 12px; cursor: pointer;
+    background: var(--blue); color: #fff;
+  }
+  button.secondary { background: #eceff1; color: var(--ink); }
+  .step-label {
+    font-size: 12px; font-weight: 700; color: var(--muted); min-width: 180px; text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stage">
+    <div class="tree" id="tree">
+      <div class="node helper" data-step="0" id="n-nsys">
+        <div class="row"><span class="name">nsys / nsys-launcher</span><span class="tag skip">profiler host</span></div>
+        <div class="desc">Starts the app and injects collectors</div>
+      </div>
+      <div class="indent">
+        <div class="node main" data-step="1" id="n-main">
+          <div class="row"><span class="name">python · main training PID</span><span class="tag focus">FOCUS</span></div>
+          <div class="desc">Owns CUDA context · NVTX labels · training loop</div>
+        </div>
+        <div class="indent">
+          <div class="node key key-cpu" data-step="2" id="n-main-thread">
+            <div class="row">
+              <span class="name">python (main thread)</span>
+              <span class="key-badge">★ CPU + NVTX</span>
+            </div>
+            <div class="desc">data_loading → movement → forward → backward → optimizer</div>
+          </div>
+          <div class="node app" data-step="2" id="n-autograd">
+            <div class="row"><span class="name">pt_autograd_0</span><span class="tag focus">app thread</span></div>
+            <div class="desc">PyTorch backward engine</div>
+          </div>
+          <div class="node app" data-step="2" id="n-cuda-evt">
+            <div class="row"><span class="name">cuda-EvtHandlr</span><span class="tag focus">CUDA driver</span></div>
+            <div class="desc">Driver event / completion handler</div>
+          </div>
+          <div class="node key key-gpu" data-step="3" id="n-cuda-hw">
+            <div class="row">
+              <span class="name">CUDA HW</span>
+              <span class="key-badge">★ GPU row</span>
+            </div>
+            <div class="desc">Kernels · Memcpy H2D · memory usage</div>
+          </div>
+          <div class="node profiler" data-step="4" id="n-profiler">
+            <div class="row"><span class="name">[NSys]* · CUPTI · PySampling</span></div>
+            <div class="desc">Profiler infrastructure injected into the process</div>
+          </div>
+        </div>
+        <div class="node ignore" data-step="5" id="n-child">
+          <div class="row"><span class="name">python · child (resource_tracker)</span></div>
+          <div class="desc">Almost idle · no CUDA · not a DataLoader worker</div>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="card focus-box" id="card-focus">
+        <h3>Look here for performance</h3>
+        <ul>
+          <li>Main <b>python</b> process with <b>CUDA HW</b></li>
+          <li><b>python (main thread)</b> — NVTX ranges</li>
+          <li><code>pt_autograd_0</code> — backward</li>
+          <li><b>CUDA HW</b> — kernels / memcpy</li>
+        </ul>
+      </div>
+      <div class="note" id="note">
+        Tip: expand the Python process that has a <b>CUDA HW</b> row. That is your training process.
+      </div>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="secondary" id="prev">Prev</button>
+    <div class="step-label" id="stepLabel">Step 1 / 6</div>
+    <button id="next">Next</button>
+    <button class="secondary" id="replay">Replay</button>
+  </div>
+</div>
+<script>
+  const notes = [
+    "nsys launches your app and follows the process tree — it does not invent processes.",
+    "Find the main python process: this is where training and CUDA live.",
+    "★ <b>python (main thread)</b> — NVTX stage bars live here. Measure wall time on this row.",
+    "★ <b>CUDA HW</b> — kernels, memcpy, memory. Compare the same window as the CPU row.",
+    "Profiler threads ([NSys], CUPTI, …) are measurement overhead — not useful for model conclusions.",
+    "With num_workers=0 there are no DataLoader workers — the child is usually resource_tracker."
+  ];
+  let step = 0;
+  const nodes = [...document.querySelectorAll('.node')];
+  const tree = document.getElementById('tree');
+
+  function render() {
+    nodes.forEach(n => {
+      const s = Number(n.dataset.step);
+      n.classList.toggle('show', s <= step);
+      n.classList.toggle('active', s === step);
+    });
+    const keyFocus = step === 2 || step === 3;
+    tree.classList.toggle('key-focus', keyFocus);
+    document.getElementById('stepLabel').textContent = `Step ${step + 1} / ${notes.length}`;
+    document.getElementById('note').innerHTML = notes[step];
+  }
+  document.getElementById('next').onclick = () => { step = Math.min(notes.length - 1, step + 1); render(); };
+  document.getElementById('prev').onclick = () => { step = Math.max(0, step - 1); render(); };
+  document.getElementById('replay').onclick = () => { step = 0; render(); };
+  render();
+  // gentle auto-advance once for presenters who leave it running
+  let auto = setInterval(() => {
+    if (step < notes.length - 1) { step += 1; render(); }
+    else clearInterval(auto);
+  }, 2800);
+  document.querySelector('.controls').addEventListener('click', () => clearInterval(auto));
+</script>
+</body>
+</html>
